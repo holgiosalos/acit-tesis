@@ -1,38 +1,11 @@
 #include "especialista.h"
 
-Especialista::Especialista(int i, int c, int iE)
+Especialista::Especialista(int i, int nE, vector<int> iE, vector<vector<int> > d)
 {
 	_id = i;
-	_capacidad = c;
-	_idEspecialidad = iE;
-}
-
-Especialista::Especialista(int i, int c, int iE, vector<int> d)
-{
-	_id = i;
-	_capacidad = c;
-	_idEspecialidad = iE;
-	_disponibilidad = d;
-}
-
-void Especialista::idCitas(vector<int> citas)
-{
-	_idCitas = citas;
-}
-
-vector<int> Especialista::idCitas()
-{
-	return _idCitas;
-}
-
-void Especialista::idEspecialidad(int idE)
-{
-	_idEspecialidad = idE;
-}
-
-int Especialista::idEspecialidad()
-{
-	return _idEspecialidad;
+	_nEspecialidades = nE;
+	_idEspecialidades = iE;
+	_disponibilidades = d;
 }
 
 void Especialista::id(int i)
@@ -40,30 +13,59 @@ void Especialista::id(int i)
 	_id = i;
 }
 
-int Especialista::id()
+int Especialista::id(void)
 {
 	return _id;
 }
 
-void Especialista::capacidad(int c)
+void Especialista::idCitas(vector<int> citas)
 {
-	_capacidad = c;
+	_idCitas = citas;
 }
 
-int Especialista::capacidad()
+vector<int> Especialista::idCitas(void)
 {
-	return _capacidad;
+	return _idCitas;
 }
 
-void Especialista::disponibilidad(int d[], int size)
+void Especialista::idEspecialidades(vector<int> idE)
 {
-	_disponibilidad.resize(size);
-	copy(d, d+size, _disponibilidad.begin());
+	_idEspecialidades = idE;
 }
 
-vector<int> Especialista::disponibilidad()
+vector<int> Especialista::idEspecialidades(void)
 {
-	return _disponibilidad;
+	return _idEspecialidad;
 }
 
+void Especialista::nEspecialidades(int nE)
+{
+	_nEspecialidades = c;
+}
+
+int Especialista::nEspecialidades(void)
+{
+	return _nEspecialidades;
+}
+
+void Especialista::disponibilidades(vector<vector<int> > d)
+{
+	_disponibilidades = d;
+}
+
+vector<vector<int> > Especialista::disponibilidades(void)
+{
+	return _disponibilidades;
+}
+
+bool Especialista::buscaEspecialidadProf(int id)
+{
+	vector<int>::iterator it;
+	it = find(_idEspecialidades.begin(), _idEspecialidades.end(), id);
+	if(it==id){
+		return true;
+	}else{
+		return false;
+	}
+}
 

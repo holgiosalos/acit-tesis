@@ -52,35 +52,35 @@ class Archivo
 		
 		string infoEspecialista(int j);
             int idEspecialista(int j);
-            int numEspProfesional(int j); //Versión 2.1
+            int numEspProfesional(int j); //Obtner el numero de especialidades del profesional numero j
             string datosDispProfEspecialidad(int j, int e); //Versión 2.1
             vector <string> datosDispProfesional(int j); //Versión 2.1
-			int obtenerEspecialidadProf(int j, int e);
-			vector <int> profEspecialista(int j);
-			vector<int> listaIdEspecialistas();
-			vector <vector<int> > listaProfEspecialistas();
-			int obtenerCapacidad(int j, int e);
-			vector <int> capEspecialista(int j);
-			string nombreEspecialidadID(int id);
-			vector <vector<int> >listaCapEspecialistas();
+			int obtenerEspecialidadProf(int j, int e); //Obtener la especialidad numero e del profesional j
+			vector <int> especialidadesProf(int j); //Obtener el total de especialidades del profesional j
+			vector<int> listaIdEspecialistas(); //Obtener el id de todos los profesionales
+			vector <vector<int> > listaEspecialidadesProfs(); //Obtener el id de todas las especialidades de todos los profesionales
+			int obtenerCapacidad(int j, int e); //Obtener la capacidad del profesional j en la especialidad e
+			vector <int> capEspecialista(int j); //Lista con las capacidades de todas las especialidades del profesional j
+			string nombreEspecialidadID(int id); //Retorna el nombre de la especialidad con el identificador proporcionado
+			vector <vector<int> >listaCapEspecialistas(); //Obtener las capacidades de todos los profesionales
 			vector <string> strDispEspecialista(int j);
-			vector <int> dispProfesionalEsp(int j, int e);
-			vector <vector<int> > dispEspecialista(int j);
-			vector <vector<int> > listaDispEspecialistas(); //Delete en Versión2.1
+			vector <int> dispProfesionalEsp(int j, int e); //Horarios de atencion del profesional j en la especialidad e
+			vector <vector<int> > dispEspecialista(int j); //Lista de todos los horarios de atencion en todas las especialidades del profesional j
+			vector <vector<int> > listaDispEspecialistas(); //Lista de los horarios de atencion de todos los profesionales.
 					
 		string infoPaciente(int i);
-            int idPaciente(int i);
-            int obtenerEspecialidadPac(int i, int e);
-			vector <int> espPaciente(int i);
-			vector<int>listaIdPacientes();
-			vector <string> datosTratamientosPaciente(int i);
-			int numTratamientosPac(int i); //Versión 2.1
-			vector <vector<int> > listaEspPacientes();
-			int numCitas(int i, int e); //Modificación Versión 2.1
-			vector <int> numeroCitasPac(int i); //Versión 2.1
-			vector <vector<int> > listaNumCitas(); //Modificación Versión 2.1
+            int idPaciente(int i); //Obtener el ID del paciente numero i
+            int obtenerEspecialidadPac(int i, int e); //Obtener el ID de la especialidad numero e del paciente numero i
+			vector <int> espPaciente(int i);  //Obtener el conjunto de especialidades que requiere el paciente i
+			vector<int>listaIdPacientes(); //Obtener el conjunto de IDs de los pacientes.
+			vector <string> datosTratamientosPaciente(int i); //Obtiene id y numero de citas de todos los tratamientos
+			int numTratamientosPac(int i); //Obtener el total de tratamientos del paciente numero i
+			vector <vector<int> > listaEspPacientes(); //Matriz que retorna todas las especialidades por todos los pacientes
+			int numCitas(int i, int e); //Numero de citas del paciente numero i en la especialidad numero e
+			vector <int> numeroCitasPac(int i); //Obtener el numero de citas del paciente numero i en todas sus especialidades
+			vector <vector<int> > listaNumCitas(); //Obtener todas las citas de todos los pacientes
 			string strDispPaciente(int i); 
-			vector <int> dispPaciente(int i); 
+			vector <int> dispPaciente(int i); //Obtener la disponibilidad del paciente numero i
 			vector <vector<int> > listaDispPacientes();
 		
 		string itostr(int num);

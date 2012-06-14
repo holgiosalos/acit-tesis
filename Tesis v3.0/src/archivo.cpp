@@ -83,7 +83,7 @@ void Archivo::saveLines(){ // O.K
     
     if (archivo == NULL){
         printf("Error al abrir el archivo \n");
-        system("PAUSE");        
+        exit(1);
     }
 
     do
@@ -176,8 +176,8 @@ string Archivo::infoEspecialidad(int x){ // O.K
 	string _infoEspecialidad = "";
 	
 	if(x>=numEspecialidades() || x<0){
-		cout<<"Identificador de Especialidad Incorrecto"<<endl;
-		system("PAUSE");
+		cout<<"Número de Especialidad Incorrecto"<<endl;
+		exit(1);
 	}
 	else{
          _infoEspecialidad = lines[4+x].c_str();
@@ -350,8 +350,8 @@ string Archivo::infoEspecialista(int j){ // O.K
 	string _infoEspecialista = "";
 	
 	if(j>=numEspecialistas() || j<0){
-		cout<<"No Existe el Especialista con Id ["<<j<<"]"<<endl;
-		system("PAUSE");
+		cout<<"No Existe el Especialista Número ["<<j<<"]"<<endl;
+		exit(1);
 	}
 	else{
          _infoEspecialista = lines[4 + j + numEspecialidades()].c_str();
@@ -419,7 +419,7 @@ int Archivo::obtenerEspecialidadProf(int j, int e){ //Versión 2.1
 }
 
 //Profesiones Especialista j
-vector <int> Archivo::profEspecialista(int j){ //Modificación Versión 2.1
+vector <int> Archivo::especialidadesProf(int j){ //Modificación Versión 2.1
 
 	vector <int> intProf;
 	int numEP = numEspProfesional(j);
@@ -431,10 +431,10 @@ vector <int> Archivo::profEspecialista(int j){ //Modificación Versión 2.1
 	return intProf;
 }
 
-vector <vector<int> > Archivo::listaProfEspecialistas(){ //Modificación Versión2.1
+vector <vector<int> > Archivo::listaEspecialidadesProfs(){ //Modificación Versión2.1
 	vector <vector<int> > lista;
 	for(int i=0; i<numEspecialistas(); i++){
-		lista.push_back(profEspecialista(i));
+		lista.push_back(especialidadesProf(i));
 	}
 	return lista;
 }
@@ -513,8 +513,8 @@ string Archivo::infoPaciente(int i){ //OK
 	string _infoPaciente = "";
 
 	if(i>=numPacientes() || i<0){
-		cout<<"No Existe el Paciente con Id ["<<i<<"]"<<endl;
-		system("PAUSE");
+		cout<<"No Existe el Paciente Número ["<<i<<"]"<<endl;
+		exit(1);
 	}
 	else{
 		 _infoPaciente = lines[4 + i + numEspecialidades() + numEspecialistas()].c_str();

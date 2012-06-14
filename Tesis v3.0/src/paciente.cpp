@@ -1,23 +1,12 @@
 #include "paciente.h"
 
-Paciente::Paciente(int i, int nC)
-{
-	_id = i;
-	_nCitas = nC;
-}
 
-Paciente::Paciente(int i, int nC, int iE)
+Paciente::Paciente(int i, int nT, vector<int> nC, vector<int> iE, vector<int> d)
 {
 	_id = i;
+	_nTratamientos = nT;
 	_nCitas = nC;
-	_idEspecialidad = iE;
-}
-
-Paciente::Paciente(int i, int nC, int iE, vector<int> d)
-{
-	_id = i;
-	_nCitas = nC;
-	_idEspecialidad = iE;
+	_idEspecialidades = iE;
 	_disponibilidad = d;
 }
 
@@ -26,7 +15,7 @@ void Paciente::idCitas(vector<int> citas)
 	_idCitas = citas;
 }
 
-vector<int> Paciente::idCitas()
+vector<int> Paciente::idCitas(void)
 {
 	return _idCitas;
 }
@@ -36,19 +25,29 @@ void Paciente::idEspecialista(vector<int> idEsp)
 	_idEspecialista = idEsp;
 }
 
-vector<int> Paciente::idEspecialista()
+vector<int> Paciente::idEspecialista(void)
 {
 	return _idEspecialista;
 }
 
-void Paciente::nCitas(int c)
+void Paciente::nCitas(vector<int> c)
 {
 	_nCitas = c;
 }
 
-int Paciente::nCitas(void) const
+vector<int> Paciente::nCitas(void) const
 {
 	return _nCitas;
+}
+
+void Paciente::nTratamientos(int nT)
+{
+	_nTratamientos = c;
+}
+
+int Paciente::nTratamientos(void) const
+{
+	return _nTratamientos;
 }
 
 void Paciente::id(int i)
@@ -56,28 +55,38 @@ void Paciente::id(int i)
 	_id = i;
 }
 
-int Paciente::id()
+int Paciente::id(void)
 {
 	return _id;
 }
 
-void Paciente::idEspecialidad(int idE)
+void Paciente::idEspecialidades(vector<int> idE)
 {
-	_idEspecialidad = idE;
+	_idEspecialidades = idE;
 }
 
-int Paciente::idEspecialidad(void) const
+vector<int> Paciente::idEspecialidad(void) const
 {
-	return _idEspecialidad;
+	return _idEspecialidades;
 }
 
-void Paciente::disponibilidad(int d[], int size)
+void Paciente::disponibilidad(vector<int> d)
 {
-	_disponibilidad.resize(size);
-	copy(d, d+size, _disponibilidad.begin());
+	_disponibilidad = d;
 }
 
-vector<int> Paciente::disponibilidad()
+vector<int> Paciente::disponibilidad(void)
 {
 	return _disponibilidad;
+}
+
+bool Paciente::buscaEspecialidadPac(int id)
+{
+	vector<int>::iterator it;
+	it = find(_idEspecialidades.begin(), _idEspecialidades.end(), id);
+	if(it==id){
+		return true;
+	}else{
+		return false;
+	}
 }

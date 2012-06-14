@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -11,29 +12,30 @@ class Especialista
 {
 	private:
 		int _id;
-		int _capacidad;
-		int _idEspecialidad;
+		int _nEspecialidades;
+		vector<int> _idEspecialidades;
 		vector<int> _idCitas;
-		vector<int> _disponibilidad;
+		vector<vector<int> > _disponibilidades;
 		
 	public:
-		Especialista(int i, int c, int iE);
-		Especialista(int i, int c, int iE, vector<int> d);
-
-		void idCitas(vector<int> citas);
-		vector<int> idCitas();
-
-		int idEspecialidad();
-		void idEspecialidad(int idE);
+		Especialista(int i, int nE, vector<int> iE, vector<vector<int> > d);
 
 		void id(int i);
-		int id();
+		int id(void);
 
-		int capacidad();
-		void capacidad(int c);
+		void idCitas(vector<int> citas);
+		vector<int> idCitas(void);
 
-		void disponibilidad(int d[], int size);
-		vector<int> disponibilidad();
+		void idEspecialidades(vector<int> idE);
+		vector<int> idEspecialidades(void);
+
+		void nEspecialidades(int nE);
+		int nEspecialidades(void);
+
+		void disponibilidades(vector<vector<int> > d);
+		vector<vector<int> > disponibilidades(void);
+
+		bool buscaEspecialidadProf(int id);
 };
 
 #endif /* ESPECIALISTA_H */ 

@@ -12,34 +12,38 @@ class Paciente
 {
 	private:
 		int _id;
-		int _idEspecialidad;
-		int _nCitas;
+		int _nTratamientos;
+		vector<int> _idEspecialidades;
+		vector<int> _nCitas;
 		vector<int> _disponibilidad;
 		vector<int> _idCitas; 
 		vector<int> _idEspecialista; //Id del especialista asignado a la cita
 
 	public:
-		Paciente(int i, int nC);
-		Paciente(int i, int nC, int iE);
-		Paciente(int i, int nC, int iE, vector<int> d);
+		Paciente(int i, int nT, vector<int> nC, vector<int> iE, vector<int> d);
 		
 		void idCitas(vector<int> citas);
-		vector<int> idCitas();
+		vector<int> idCitas(void);
 		
 		void idEspecialista(vector<int> idEsp);
-		vector<int> idEspecialista();
+		vector<int> idEspecialista(void);
 		
-		void idEspecialidad(int idE);
-		int idEspecialidad(void) const;
+		void idEspecialidades(vector<int> idE);
+		vector<int> idEspecialidades(void) const;
 		
-		void nCitas(int c);
-		int nCitas(void) const;
+		void nTratamientos(int nT);
+		int nTratamientos(void);
+
+		void nCitas(vector<int> c);
+		vector<int> nCitas(void) const;
 		
 		void id(int i);
-		int id();
+		int id(void);
 		
-		void disponibilidad(int d[], int size);
-		vector<int> disponibilidad();
+		void disponibilidad(vector<int> d);
+		vector<int> disponibilidad(void);
+
+		bool buscaEspecialidadPac(int id);
 
 };
 
