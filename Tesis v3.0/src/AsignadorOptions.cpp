@@ -19,6 +19,15 @@ Archivo AsignadorOptions::getReader(void) const {
 	return static_cast<Archivo> (_reader);
 }
 
+void AsignadorOptions::slotsIntervalo(int sI) {
+	_slotsIntervalo = sI;
+}
+
+int AsignadorOptions::slotsIntervalo(void) const{
+	return static_cast<int> (_slotsIntervalo);
+}
+
+
 void AsignadorOptions::totalCitas(int tC) {
 	_totalCitas = tC;
 }
@@ -27,16 +36,18 @@ int AsignadorOptions::totalCitas(void) const {
 	return static_cast<int> (_totalCitas);
 }
 
-void AsignadorOptions::totalSlots(int tS) {
-	_totalSlots = tS;
+void AsignadorOptions::calcularTotalSlots(int intervalos) {
+	//nSlotsHora es el valor en el que se divide cada intervalo (hora).
+	_totalSlots = intervalos * _slotsIntervalo;
 }
 
 int AsignadorOptions::totalSlots(void) const {
 	return static_cast<int> (_totalSlots);
 }
 
-void AsignadorOptions::slotsDia(int sD) {
-	_slotsDia = sD;
+void AsignadorOptions::calcularSlotsDia(int intervalosD) {
+	//nSlotsHora es el valor en el que se divide cada intervaloD (hora).
+	_slotsDia = intervalosD * _slotsIntervalo;
 }
 
 int AsignadorOptions::slotsDia(void) const {
@@ -73,11 +84,24 @@ IntSet AsignadorOptions::listaCodEspecialistas(void) const {
 
 void AsignadorOptions::iniciar(void) {
 	//Agregamos los pacientes del archivo al vector listaPacientes
+	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
+	vector<int> aux(2); //guarda el id y el numero de citas de cada especialidad asociada al paciente i
+
 	for (int i = 0; i < _reader.numPacientes(); i++) {
+		for(int e=0; e<_reader.numTratamientosPac(i); e++){
+			aux[0] = _reader.obtenerEspecialidadPac(i, e);
+			aux[1] = _reader.numCitas(i, e);
+			infoEs.push_back(aux);
+			aux.clear();
+		}
+
 		_listaPacientes.push_back(Paciente(_reader.idPaciente(i),
-				_reader.numTratamientosPac(i), _reader.numeroCitasPac(i),
-				_reader.espPaciente(i), _reader.dispPaciente(i)));
+				_reader.numTratamientosPac(i), infoEs,
+				_reader.dispPaciente(i)));
+
+		infoEs.clear();
 	}
+
 	//Agregamos los especialistas del archivo al vector listaEspecialistas
 	for (int j = 0; j < _reader.numEspecialistas(); j++) {
 		_listaEspecialistas.push_back(Especialista(_reader.idEspecialista(j),
@@ -107,7 +131,7 @@ void AsignadorOptions::iniciar(void) {
 		if (_reader.numPacEsp(x) == (int) auxP.size()) {
 			_listaEspecialidades.push_back(Especialidad(
 						_reader.idEspecialidad(x), _reader.nomEspecialidad(_reader.idEspecialidad(x)),
-						_reader.numCitasEsp(x), auxE.size(), _reader.numPacEsp(x),
+						_reader.numCitasEsp(x), _reader.duracionCita(x), auxE.size(), _reader.numPacEsp(x),
 						auxE, auxP, auxIdsE, auxIdsP));
 			auxE.clear();
 			auxP.clear();

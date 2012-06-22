@@ -14,28 +14,16 @@ class Paciente
 		int _id;
 		int _nTratamientos;
 		vector<int> _idEspecialidades;
-		vector<int> _nCitas;
+		vector<vector<int> > _infoTratamientos;
 		vector<int> _disponibilidad;
-		vector<int> _idCitas; 
-		vector<int> _idEspecialista; //Id del especialista asignado a la cita
 
 	public:
-		Paciente(int i, int nT, vector<int> nC, vector<int> iE, vector<int> d);
+		Paciente(int i, int nT, vector<vector<int> > iT, vector<int> d);
 		
-		void idCitas(vector<int> citas);
-		vector<int> idCitas(void);
-		
-		void idEspecialista(vector<int> idEsp);
-		vector<int> idEspecialista(void);
-		
-		void idEspecialidades(vector<int> idE);
-		vector<int> idEspecialidades(void) const;
-		
+		int nCitas(int idE);
+
 		void nTratamientos(int nT);
 		int nTratamientos(void);
-
-		void nCitas(vector<int> c);
-		vector<int> nCitas(void) const;
 		
 		void id(int i);
 		int id(void);

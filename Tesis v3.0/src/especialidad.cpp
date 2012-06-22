@@ -1,12 +1,13 @@
 #include "especialidad.h"
 
-Especialidad::Especialidad(int i, string n, int nC, int nE, int nP,
+Especialidad::Especialidad(int i, string n, int nC, int dC, int nE, int nP,
 		vector<Especialista> esp, vector<Paciente> pac,
 		vector<int> idsE, vector<int> idsP)
 {
 	_id = i;
 	_nombre = n;
 	_totalCitas = nC;
+	_duracionCitas = dC;
 	_nEspecialistas = nE;
 	_nPacientes = nP;
 	_especialistas = esp;
@@ -28,6 +29,17 @@ void Especialidad::totalCitas(int nC)
 int Especialidad::totalCitas(void)
 {
 	return _totalCitas;
+}
+
+int Especialidad::duracionCitasMinutos(void)
+{
+	return _duracionCitas;
+}
+
+int Especialidad::duracionCitasSlots(void)
+{
+	//El numero 5 se refiere a la cantidad de minutos que posee cada slot
+	return int(duracionCitasMinutos() / 5);
 }
 
 void Especialidad::nEspecialistas(int nE)

@@ -15,10 +15,10 @@ class Especialista
 		int _nEspecialidades;
 		vector<int> _idEspecialidades;
 		vector<int> _idCitas;
-		vector<vector<int> > _disponibilidades;
+		vector<vector<int> > _horariosAtencion;
 		
 	public:
-		Especialista(int i, int nE, vector<int> iE, vector<vector<int> > d);
+		Especialista(int i, int nE, vector<int> iE, vector<vector<int> > hsA);
 
 		void id(int i);
 		int id(void);
@@ -32,8 +32,9 @@ class Especialista
 		void nEspecialidades(int nE);
 		int nEspecialidades(void);
 
-		void disponibilidades(vector<vector<int> > d);
-		vector<vector<int> > disponibilidades(void);
+		void horariosAtencion(vector<vector<int> > hsA);
+		vector<vector<int> > horariosAtencion(void);
+		vector<int> horariosAtencionEsp(int idE);
 
 		bool buscaEspecialidadProf(int id);
 };

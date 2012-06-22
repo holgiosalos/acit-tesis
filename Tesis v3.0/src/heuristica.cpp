@@ -67,7 +67,7 @@ public:
 			if (!x[i].assigned()){
 				esp = determinarEspecialidad(i);
 				//cout << "esp[" << i << "]: " << esp << endl;
-				int* codigos = lstEspecialidades[esp].idEspecialistas();
+				int* codigos = lstEspecialidades[esp].idEspecialistasArray();
 				pr = determinarEspecialista(prioridades[esp]);
 				//cout << pr << endl;
 				prioridades[esp][pr] +=1;

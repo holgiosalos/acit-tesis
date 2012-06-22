@@ -1,51 +1,36 @@
 #include "paciente.h"
 
 
-Paciente::Paciente(int i, int nT, vector<int> nC, vector<int> iE, vector<int> d)
+Paciente::Paciente(int i, int nT, vector<vector<int> > iT, vector<int> d)
 {
 	_id = i;
 	_nTratamientos = nT;
-	_nCitas = nC;
-	_idEspecialidades = iE;
+	_infoTratamientos = iT;
 	_disponibilidad = d;
+
+	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+		_idEspecialidades.push_back(_infoTratamientos[i][0]);
+	}
 }
 
-void Paciente::idCitas(vector<int> citas)
+int Paciente::nCitas(int idE)
 {
-	_idCitas = citas;
-}
-
-vector<int> Paciente::idCitas(void)
-{
-	return _idCitas;
-}
-
-void Paciente::idEspecialista(vector<int> idEsp)
-{
-	_idEspecialista = idEsp;
-}
-
-vector<int> Paciente::idEspecialista(void)
-{
-	return _idEspecialista;
-}
-
-void Paciente::nCitas(vector<int> c)
-{
-	_nCitas = c;
-}
-
-vector<int> Paciente::nCitas(void) const
-{
-	return _nCitas;
+	int citas;
+	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+		if(_infoTratamientos[i][0]==idE){
+			citas = _infoTratamientos[i][1];
+			break;
+		}
+	}
+	return citas;
 }
 
 void Paciente::nTratamientos(int nT)
 {
-	_nTratamientos = c;
+	_nTratamientos = nT;
 }
 
-int Paciente::nTratamientos(void) const
+int Paciente::nTratamientos(void)
 {
 	return _nTratamientos;
 }
@@ -60,16 +45,6 @@ int Paciente::id(void)
 	return _id;
 }
 
-void Paciente::idEspecialidades(vector<int> idE)
-{
-	_idEspecialidades = idE;
-}
-
-vector<int> Paciente::idEspecialidad(void) const
-{
-	return _idEspecialidades;
-}
-
 void Paciente::disponibilidad(vector<int> d)
 {
 	_disponibilidad = d;
@@ -82,11 +57,12 @@ vector<int> Paciente::disponibilidad(void)
 
 bool Paciente::buscaEspecialidadPac(int id)
 {
-	vector<int>::iterator it;
-	it = find(_idEspecialidades.begin(), _idEspecialidades.end(), id);
-	if(it==id){
-		return true;
-	}else{
-		return false;
+	bool aux=false;
+	for(int i=0; i<(int)_idEspecialidades.size(); i++){
+		if(_idEspecialidades[i]==id){
+			aux=true;
+			break;
+		}
 	}
+	return aux;
 }

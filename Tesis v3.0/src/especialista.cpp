@@ -1,11 +1,11 @@
 #include "especialista.h"
 
-Especialista::Especialista(int i, int nE, vector<int> iE, vector<vector<int> > d)
+Especialista::Especialista(int i, int nE, vector<int> iE, vector<vector<int> > hsA)
 {
 	_id = i;
 	_nEspecialidades = nE;
 	_idEspecialidades = iE;
-	_disponibilidades = d;
+	_horariosAtencion = hsA;
 }
 
 void Especialista::id(int i)
@@ -35,12 +35,12 @@ void Especialista::idEspecialidades(vector<int> idE)
 
 vector<int> Especialista::idEspecialidades(void)
 {
-	return _idEspecialidad;
+	return _idEspecialidades;
 }
 
 void Especialista::nEspecialidades(int nE)
 {
-	_nEspecialidades = c;
+	_nEspecialidades = nE;
 }
 
 int Especialista::nEspecialidades(void)
@@ -48,24 +48,37 @@ int Especialista::nEspecialidades(void)
 	return _nEspecialidades;
 }
 
-void Especialista::disponibilidades(vector<vector<int> > d)
+void Especialista::horariosAtencion(vector<vector<int> > hsA)
 {
-	_disponibilidades = d;
+	_horariosAtencion = hsA;
 }
 
-vector<vector<int> > Especialista::disponibilidades(void)
+vector<vector<int> > Especialista::horariosAtencion(void)
 {
-	return _disponibilidades;
+	return _horariosAtencion;
+}
+
+vector<int> Especialista::horariosAtencionEsp(int idE)
+{
+	vector<int> hrsAtencion;
+	for(int i=0; i< (int) _idEspecialidades.size(); i++){
+		if(_idEspecialidades[i] == idE){
+			hrsAtencion = _horariosAtencion[i];
+			break;
+		}
+	}
+	return hrsAtencion;
 }
 
 bool Especialista::buscaEspecialidadProf(int id)
 {
-	vector<int>::iterator it;
-	it = find(_idEspecialidades.begin(), _idEspecialidades.end(), id);
-	if(it==id){
-		return true;
-	}else{
-		return false;
+	bool aux=false;
+	for(int i=0; i<(int)_idEspecialidades.size(); i++){
+		if(_idEspecialidades[i]==id){
+			aux=true;
+			break;
+		}
 	}
+	return aux;
 }
 

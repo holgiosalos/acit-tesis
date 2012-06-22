@@ -46,26 +46,26 @@ class Asignador : public Script {
 
 				//IntArgs auxiliares para las capacidades
 				int arrAuxCap[listaEspecialidades[i].nEspecialistas()];
-				vector<Especialista> lstEsp = listaEspecialidades[i].especialistas();
 				for(int j=0; j<listaEspecialidades[i].nEspecialistas(); j++){
-					arrAuxCap[j] = lstEsp[j].capacidad();
+					arrAuxCap[j] = listaEspecialidades[i].nPacientes();
 				}
 				listaCapacidad.push_back(IntArgs(listaEspecialidades[i].nEspecialistas(), arrAuxCap));
 
-				//IntArgs auxiliares para los recursos y las duraciones
+				//IntArgs auxiliar para los recursos
 				int arrAux[listaEspecialidades[i].totalCitas()];
 				for(int j=0; j<listaEspecialidades[i].totalCitas(); j++){
 					arrAux[j] = 1;
 				}
 				listaRecursos.push_back(IntArgs(listaEspecialidades[i].totalCitas(), arrAux));
 
+				//IntArgs auxiliar para las duraciones
 				int arrAuxD[listaEspecialidades[i].totalCitas()];
 				for(int j=0; j<listaEspecialidades[i].totalCitas(); j++){
-					arrAuxD[j] = 1;
+					arrAuxD[j] = listaEspecialidades[i].duracionCitasSlots();
 				}
 				listaDuracion.push_back(IntArgs(listaEspecialidades[i].totalCitas(), arrAuxD));
 
-				listaCodigos.push_back(IntSet(listaEspecialidades[i].idEspecialistas(),listaEspecialidades[i].nEspecialistas()));
+				listaCodigos.push_back(IntSet(listaEspecialidades[i].idEspecialistasArray(),listaEspecialidades[i].nEspecialistas()));
 			}
 
 			for(int i=0; i<(int)listaEspecialidades.size(); i++){
@@ -93,15 +93,15 @@ class Asignador : public Script {
 
 			//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
 			vector<Paciente> pacEsp_i; //Vector auxiliar que contendra los pacientes pertenecientes a la especialidad i
-			vector<int> dispPi; //Vector auxiliar que guarda las disponibilidades de los pacientes
+			vector<int> dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
 			int citEsp_i=0; //Contador que me servira para recorrer las variables de tiempos de inicio de la especialidad i
 			int esp_i=0;
 
 			while(esp_i < (int) listaEspecialidades.size()){
 				pacEsp_i = listaEspecialidades[esp_i].pacientes();
 				for(int i = 0; i < listaEspecialidades[esp_i].nPacientes(); i++){
-					dispPi = pacEsp_i[i].disponibilidad();
-					for(int j = 0; j < pacEsp_i[i].nCitas(); j++){
+					dispPi = transformarDisponibilidad(pacEsp_i[i], listaEspecialidades[esp_i].duracionCitasSlots(), opt.slotsIntervalo());
+					for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id()); j++){
 						//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
 						for (int k = 0; k < (int) dispPi.size(); k++) {
 							if (dispPi[k] == 0) {
@@ -109,7 +109,7 @@ class Asignador : public Script {
 							}
 						}
 
-						if(j<pacEsp_i[i].nCitas()-1){
+						if(j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id())-1){
 							//Restricción 2: Mismo especialista para todas las citas de un paciente
 							rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());
 
@@ -173,7 +173,7 @@ class Asignador : public Script {
 				os << "\nEspecialidad: " << aux.id() << "-> ";
 				for(int j=0; j<aux.nEspecialistas(); j++){
 					vector<Especialista> aux2 = aux.especialistas();
-					if(aux2[j].idEspecialidad() == (i+1)){
+					if(aux2[j].buscaEspecialidadProf(aux.id())){
 						os << "Especialista " << aux2[j].id() << " ";
 					}
 				}
@@ -187,8 +187,8 @@ class Asignador : public Script {
 				os << "\nEspecialidad " << listaEspecialidades[esp_i].id() << endl;
 				pacientes = listaEspecialidades[esp_i].pacientes();
 				for(int i = 0; i < (int) pacientes.size(); i++){
-					os << "\nPaciente: " << pacientes[i].id() << "\tCitas: " << pacientes[i].nCitas() << "\tEspecialidad: " << pacientes[i].idEspecialidad() << endl;
-					for(int j = 0; j < pacientes[i].nCitas(); j++) {
+					os << "\nPaciente: " << pacientes[i].id() << "\tCitas: " << pacientes[i].nCitas(listaEspecialidades[esp_i].id()) << endl;
+					for(int j = 0; j < pacientes[i].nCitas(listaEspecialidades[esp_i].id()); j++) {
 						os << "Cita " << j+1 << endl;
 						os << "\tInicio: " << listaVarTInicio[esp_i][citEsp_i].val()
 						   << " Fin: " << listaVarTFin[esp_i][citEsp_i].val()
@@ -214,6 +214,45 @@ class Asignador : public Script {
 			Distribuidor::post(home, y, lstEsp, p);
 		}
 
+		vector<int> transformarDisponibilidad(Paciente p, int durCitEspSlot, int slotsIntervalo){
+			vector<int> dispP = p.disponibilidad();
+			vector<int> aux(dispP.size() * slotsIntervalo);
+
+			/*
+			 * Primero se duplica cada valor en el vector de disponibilidades, tantas veces como
+			 * numero de slots hayan por cada intervalo, debido a que el vector de disponibilidades
+			 * esta dado por intervalos que representan 60 minutos cada uno, pero no todas las citas
+			 * consumen ese intervalo, por ende se debe hacer esta conversion
+			 */
+			for(int i=0; i< (int) dispP.size(); i++){
+				for(int j = (i * slotsIntervalo); j< (i+1) * slotsIntervalo; j++){
+					aux[j] = dispP[i];
+				}
+			}
+
+			dispP.clear(); dispP.resize(aux.size());
+
+			/*
+			 * Luego vamos a calcular que slots de tiempo son los candidatos como tiempos de inicio
+			 * para las citas, si un numero de slot es candidato, el valor que toma es 1, de lo
+			 * contrario el valor es 0. Se determina que un slot es candidato cuando el numero de
+			 * slots siguientes en 1 es igual a durCitEspSlot
+			 */
+			int suma=0;
+			for(int i=0; i< ((int)aux.size()) - durCitEspSlot; i++){
+				for(int j=i; j<i+durCitEspSlot; j++){
+					suma += aux[j];
+				}
+				if(suma==durCitEspSlot){
+					dispP[i] = 1;
+				}else{
+					dispP[i] = 0;
+				}
+				suma = 0;
+			}
+			return dispP;
+		}
+
 		static void recDispEsp(Space& _home){
 			Asignador& home = static_cast<Asignador&>(_home);
 			vector<Especialista> profEsp_i; //Vector auxiliar que contendra los profesionales pertenecientes a la especialidad i
@@ -223,7 +262,7 @@ class Asignador : public Script {
 			while (esp_i < (int)home.listaEspecialidades.size()) {
 				profEsp_i = home.listaEspecialidades[esp_i].especialistas();
 				for(int i=0; i<(int)profEsp_i.size();i++){
-					dispEi = profEsp_i[i].disponibilidad();
+					dispEi = profEsp_i[i].horariosAtencionEsp(home.listaEspecialidades[esp_i].id());
 					for(int j=0; j<home.especialistas.size(); j++){
 						if(home.especialistas[j].val() == profEsp_i[i].id()){
 							for (int k = 0; k < (int) dispEi.size(); k++) {
@@ -260,17 +299,21 @@ int main(int argc, char* argv[]) {
 
 
     AsignadorOptions opt("Asignador");
+    opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.reader(lector);
     opt.iniciar();
     opt.totalCitas(lector.totCitas());
     opt.totalEspecialistas(lector.numEspecialistas());
-    opt.totalSlots(lector.numIntervalos());
-    opt.slotsDia(lector.numIntervalosDia());
-    Gecode::IntSet codigos(opt.settingCodigos(), lector.numEspecialistas());
+    opt.calcularTotalSlots(lector.numIntervalos());
+    cout << "ts: " << opt.totalSlots() << endl;
+    opt.calcularSlotsDia(lector.numIntervalosDia());
+    cout << "sd: " << opt.slotsDia() << endl;
+    Gecode::IntSet codigos(opt.settingCodigos(),
+						   lector.numEspecialistas());
     opt.listaCodEspecialistas(codigos);
     opt.icl(ICL_DOM);	// Dominio consistencia
 
-    Script::run<Asignador,DFS,AsignadorOptions>(opt);
+    //Script::run<Asignador,DFS,AsignadorOptions>(opt);
     
     return 0;
 }

@@ -15,6 +15,7 @@ class Especialidad {
 private:
 	int _id;
 	int _totalCitas; // Numero de citas de la especialidad
+	int _duracionCitas; //duracion de las citas de la especialidad
 	int _nEspecialistas; // Numero de especialistas en la especialidad
 	int _nPacientes; // Numero de pacientes en la especialidad
 	string _nombre;
@@ -24,7 +25,7 @@ private:
 	vector<Paciente> _pacientes; //Lista de pacientes que necesitan ser atendidos en dicha especialidad
 
 public:
-	Especialidad(int i, string n, int nC, int nE, int nP,
+	Especialidad(int i, string n, int nC, int dC, int nE, int nP,
 			vector<Especialista> esp, vector<Paciente> pac,
 			vector<int> idsE, vector<int> idsP);
 
@@ -32,6 +33,9 @@ public:
 
 	void totalCitas(int nC);
 	int totalCitas(void);
+
+	int duracionCitasMinutos(void);
+	int duracionCitasSlots(void);
 
 	void nEspecialistas(int nE);
 	int nEspecialistas(void);

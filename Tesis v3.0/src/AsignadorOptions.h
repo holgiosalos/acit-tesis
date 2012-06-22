@@ -29,6 +29,7 @@ private:
 	int _totalCitas;
 	int _totalSlots;
 	int _slotsDia;
+	int _slotsIntervalo;
 	int _totalEspecialistas;
 	vector<Especialidad> _listaEspecialidades;
 	vector<Paciente> _listaPacientes;
@@ -44,10 +45,13 @@ public:
 	void totalCitas(int tC);
 	int totalCitas(void) const;
 
-	void totalSlots(int tS);
+	void slotsIntervalo(int sI);
+	int slotsIntervalo(void) const;
+
+	void calcularTotalSlots(int intervalos);
 	int totalSlots(void) const;
 
-	void slotsDia(int sD);
+	void calcularSlotsDia(int intervalosD);
 	int slotsDia(void) const;
 
 	void totalEspecialistas(int tE);
