@@ -44,7 +44,8 @@ public:
 	int nPacientes(void);
 
 	void especialistas(vector<Especialista> esp);
-	vector<Especialista> especialistas();
+	vector<Especialista> especialistas(void);
+	string especialistasString(void);
 
 	void idEspecialistas(vector<int> ids);
 	int* idEspecialistasArray(void);
@@ -56,6 +57,7 @@ public:
 
 	void pacientes(vector<Paciente> esp);
 	vector<Paciente> pacientes(void) const;
+	string pacientesString(void);
 };
 
 #endif /* ESPECIALIDAD_H */ 

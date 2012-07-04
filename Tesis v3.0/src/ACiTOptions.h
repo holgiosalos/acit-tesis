@@ -5,15 +5,16 @@
  *      Author: Giovanny
  */
 
-#ifndef ASIGNADOROPTIONS_H
-#define ASIGNADOROPTIONS_H
+#ifndef ACITOPTIONS_H
+#define ACITOPTIONS_H
 
 #include <gecode/driver.hh>
 #include <gecode/int.hh>
 
 #include <iostream>
+#include <string>
 
-#include "archivo.h"
+#include "lectura.h"
 #include "paciente.h"
 #include "especialista.h"
 #include "especialidad.h"
@@ -22,13 +23,17 @@ using namespace Gecode;
 using namespace std;
 
 
-class AsignadorOptions : public Options {
+class ACiTOptions : public Options {
 
 private:
-	Archivo _reader;
+	Lectura _reader;
+	string _file;
+	int _semanas;
 	int _totalCitas;
-	int _totalSlots;
+	int _intervalosSemana;
+	int _makespan;
 	int _slotsDia;
+	int _intervalosDia;
 	int _slotsIntervalo;
 	int _totalEspecialistas;
 	vector<Especialidad> _listaEspecialidades;
@@ -37,22 +42,32 @@ private:
 	IntSet _listaCodEspecialistas;
 
 public:
-	AsignadorOptions(const char* s);
+	ACiTOptions(const char* s);
 
-	void reader(Archivo lector);
-	Archivo getReader(void) const;
+	void reader(Lectura lector);
+	Lectura reader(void) const;
 
-	void totalCitas(int tC);
-	int totalCitas(void) const;
+	void file(string dirfile);
+	string file(void) const;
 
 	void slotsIntervalo(int sI);
 	int slotsIntervalo(void) const;
 
-	void calcularTotalSlots(int intervalos);
-	int totalSlots(void) const;
-
-	void calcularSlotsDia(int intervalosD);
+	void intervalosDia(int intervalosD);
+	int intervalosDia() const;
+	void calcularSlotsDia();
 	int slotsDia(void) const;
+
+	void semanas(int opcion); //Semanas disponibles para asignar el total de las citas
+	int semanas(void) const;
+
+	void intervalosSemana(int intervalos);
+	int intervalosSemana(void) const;
+	void calcularMakespan();
+	int makespan() const;
+
+	void totalCitas(int tC);
+	int totalCitas(void) const;
 
 	void totalEspecialistas(int tE);
 	int totalEspecialistas(void) const;
@@ -67,13 +82,8 @@ public:
 	void listaCodEspecialistas(IntSet ids);
 	IntSet listaCodEspecialistas(void) const;
 
-	virtual void help(void){
-		Options::help();
-		cerr <<"\t-file (string) : " << endl <<"\t\tArchivo de entrada" << endl;
-	}
+	virtual void help(void);
+	void parse(int & argc, char* argv[]);
 };
-
-
-
 
 #endif /* ASIGNADOROPTIONS_H */

@@ -114,6 +114,20 @@ vector<Especialista> Especialidad::especialistas(void)
 	return _especialistas;
 }
 
+string Especialidad::especialistasString(void)
+{
+	string resultado="[";
+	for(int i=0; i<(int)_especialistas.size(); i++){
+		resultado += _especialistas[i].id();
+		if(i != (int)_especialistas.size()){
+			resultado += ", ";
+		}else{
+			resultado +="]";
+		}
+	}
+	return resultado;
+}
+
 void Especialidad::pacientes(vector<Paciente> esp)
 {
 	_pacientes = esp;
@@ -122,4 +136,18 @@ void Especialidad::pacientes(vector<Paciente> esp)
 vector<Paciente> Especialidad::pacientes(void) const
 {
 	return _pacientes;
+}
+
+string Especialidad::pacientesString(void)
+{
+	string resultado="[";
+	for(int i=0; i<(int)_pacientes.size(); i++){
+		resultado += _pacientes[i].id();
+		if(i != (int)_pacientes.size()){
+			resultado += ", ";
+		}else{
+			resultado +="]";
+		}
+	}
+	return resultado;
 }
