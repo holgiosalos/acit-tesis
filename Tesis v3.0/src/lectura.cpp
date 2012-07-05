@@ -158,7 +158,6 @@ int Lectura::totCitasPaciente(int i){ //Versión 2.1
 string Lectura::infoEspecialidad(int x){ // O.K
 	
 	string _infoEspecialidad = "";
-	cout << "l.x: " << x << " l.numEspdes: " << numEspecialidades() << endl;
 	if(x>=numEspecialidades() || x<0){
 		cout<<"Número de Especialidad Incorrecto"<<endl;
 		exit(1);

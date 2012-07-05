@@ -120,13 +120,10 @@ IntSet ACiTOptions::listaCodEspecialistas(void) const {
 }
 
 void ACiTOptions::iniciar(void) {
-	cout << "guenas" << endl;
 
 	//Agregamos los pacientes del archivo al vector listaPacientes
 	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
 	vector<int> aux(2); //guarda el id y el numero de citas de cada especialidad asociada al paciente i
-
-	cout << "nP: " << _reader.numPacientes() << endl;
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
 		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
@@ -145,9 +142,6 @@ void ACiTOptions::iniciar(void) {
 
 		infoEs.clear();
 	}
-
-	cout << "pacientes OK" << endl;
-
 	//Agregamos los especialistas del archivo al vector listaEspecialistas
 	for (int j = 0; j < _reader.numEspecialistas(); j++) {
 		_listaEspecialistas.push_back(Especialista(_reader.idEspecialista(j),
@@ -180,16 +174,11 @@ void ACiTOptions::iniciar(void) {
 			}
 		}
 
-		cout << "x: " <<  x << endl;
-
-		_reader.duracionCita(x);
-/*
 		if (_reader.numPacEsp(_reader.idEspecialidad(x)) == (int) auxP.size()) {
 			_listaEspecialidades.push_back(Especialidad(
-						_reader.idEspecialidad(x), _reader.nomEspecialidad(_reader.idEspecialidad(x)),
-						_reader.capEspecialidad(x),	_reader.numCitasEsp(_reader.idEspecialidad(x)),
-						_reader.duracionCita(x), auxE.size(), _reader.numPacEsp(_reader.idEspecialidad(x)),
-						auxE, auxP, auxIdsE, auxIdsP));
+						_reader.idEspecialidad(x), _reader.nomEspecialidad(x), _reader.capEspecialidad(x),
+						_reader.numCitasEsp(_reader.idEspecialidad(x)),	_reader.duracionCita(x), auxE.size(),
+						_reader.numPacEsp(_reader.idEspecialidad(x)), auxE, auxP, auxIdsE, auxIdsP));
 			auxE.clear();
 			auxP.clear();
 			auxIdsE.clear();
@@ -200,11 +189,7 @@ void ACiTOptions::iniciar(void) {
 					<< endl;
 			exit(1);
 		}
-*/
-		cout << "fin esp " << x << endl;
-
 	}
-	cout << "chau" << endl;
 }
 
 int* ACiTOptions::settingCodigos(void) {

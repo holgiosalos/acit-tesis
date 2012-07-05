@@ -36,7 +36,8 @@ class Lectura
 		string infoEspecialidad(int x); 
             string strIdEspecialidad(int x);
             int idEspecialidad(int x);
-            string nomEspecialidad(int id);
+            string nombreEspecialidadID(int id); //Retorna el nombre de la especialidad con el identificador proporcionado
+            string nomEspecialidad(int j);
 			vector<string> listaNomEspecialidades();
 		    vector<int> listaIdEspecialidades();
 		    string subcadenaEspecialidad(int j); //Versión 2.1
@@ -61,7 +62,6 @@ class Lectura
 			vector <vector<int> > listaEspecialidadesProfs(); //Obtener el id de todas las especialidades de todos los profesionales
 			int obtenerCapacidad(int j, int e); //Obtener la capacidad del profesional j en la especialidad e
 			vector <int> capEspecialista(int j); //Lista con las capacidades de todas las especialidades del profesional j
-			string nombreEspecialidadID(int id); //Retorna el nombre de la especialidad con el identificador proporcionado
 			vector <vector<int> >listaCapEspecialistas(); //Obtener las capacidades de todos los profesionales
 			vector <string> strDispEspecialista(int j);
 			vector <int> dispProfesionalEsp(int j, int e); //Horarios de atencion del profesional j en la especialidad e

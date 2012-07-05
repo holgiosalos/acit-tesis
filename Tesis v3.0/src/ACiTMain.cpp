@@ -26,11 +26,11 @@ int main(int argc, char* argv[]) {
     cout << "nE: " << opt.totalEspecialistas() << endl;
 
     opt.iniciar();
-/*
+
     Gecode::IntSet codigos(opt.settingCodigos(), lector.numEspecialistas());
     opt.listaCodEspecialistas(codigos);
-    cout << "cod: " << codigos << endl;
-
+    cout << "numEsp: " << lector.numEspecialistas() << " tamcod: " << codigos.size() << " - cod: " << codigos << endl;
+/*
     //Comprobar que all ha quedado OK:
     vector<Especialidad> _listaEspecialidades = opt.listaEspecialidades();
     for(int i=0; i<(int)_listaEspecialidades.size(); i++){
