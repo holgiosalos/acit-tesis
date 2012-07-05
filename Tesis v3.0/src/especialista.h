@@ -13,15 +13,18 @@ class Especialista
 	private:
 		int _id;
 		int _nEspecialidades;
+		string _nombre;
 		vector<int> _idEspecialidades;
 		vector<int> _idCitas;
 		vector<vector<int> > _horariosAtencion;
 		
 	public:
-		Especialista(int i, int nE, vector<int> iE, vector<vector<int> > hsA);
+		Especialista(int i, string n, int nE, vector<int> iE, vector<vector<int> > hsA);
 
 		void id(int i);
 		int id(void);
+
+		string nombre(void);
 
 		void idCitas(vector<int> citas);
 		vector<int> idCitas(void);

@@ -151,17 +151,6 @@ int Lectura::totCitasPaciente(int i){ //Versión 2.1
 
 	return nCitasP;
 }
-/*
-int Lectura::numIntervalos(){ //OK
-	vector<int> auxDisp = dispPaciente(0);
-	return (int)auxDisp.size();
-}
-
-int Lectura::numIntervalosDia(void){ //OK
-	int nInt = numIntervalos();
-	return (int)nInt/5;
-}
-*/
 
 //-------------- METODOS RELACIONADOS CON LAS ESPECIALIDADES -----------------//
 
@@ -169,7 +158,7 @@ int Lectura::numIntervalosDia(void){ //OK
 string Lectura::infoEspecialidad(int x){ // O.K
 	
 	string _infoEspecialidad = "";
-	
+	cout << "l.x: " << x << " l.numEspdes: " << numEspecialidades() << endl;
 	if(x>=numEspecialidades() || x<0){
 		cout<<"Número de Especialidad Incorrecto"<<endl;
 		exit(1);

@@ -32,8 +32,6 @@ class Lectura
 		int numPacientes();
 		int totCitas();
 		int totCitasPaciente(int i);
-		//int numIntervalos(); No se incluye, se recibira por consola y pasara a la clase ACiTOptions
-		//int numIntervalosDia(void); No se incluye, se calcula en la clase ACiTOptions
 		
 		string infoEspecialidad(int x); 
             string strIdEspecialidad(int x);

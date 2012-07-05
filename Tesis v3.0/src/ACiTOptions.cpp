@@ -21,11 +21,9 @@ Lectura ACiTOptions::reader(void) const {
 
 void ACiTOptions::file(string dirfile) {
 	_file = dirfile;
-	_reader.nombreArchivo(_file);
-	_reader.saveLines();
 }
 
-string ACiTOptions::file(void) const {
+string ACiTOptions::file(void) const{
 	return static_cast<string> (_file);
 }
 
@@ -122,36 +120,51 @@ IntSet ACiTOptions::listaCodEspecialistas(void) const {
 }
 
 void ACiTOptions::iniciar(void) {
+	cout << "guenas" << endl;
+
 	//Agregamos los pacientes del archivo al vector listaPacientes
 	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
 	vector<int> aux(2); //guarda el id y el numero de citas de cada especialidad asociada al paciente i
 
+	cout << "nP: " << _reader.numPacientes() << endl;
+
 	for (int i = 0; i < _reader.numPacientes(); i++) {
+		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
 		for(int e=0; e<_reader.numTratamientosPac(i); e++){
 			aux[0] = _reader.obtenerEspecialidadPac(i, e);
 			aux[1] = _reader.numCitas(i, e);
+			cout << aux[0] << "," << aux[1] << " | ";
 			infoEs.push_back(aux);
-			aux.clear();
+			//aux.clear();
 		}
+		cout << endl;
 
 		_listaPacientes.push_back(Paciente(_reader.idPaciente(i),
-				_reader.numTratamientosPac(i), infoEs,
-				_reader.dispPaciente(i)));
+				_reader.nomPaciente(i), _reader.numTratamientosPac(i),
+				infoEs,	_reader.dispPaciente(i)));
 
 		infoEs.clear();
 	}
 
+	cout << "pacientes OK" << endl;
+
 	//Agregamos los especialistas del archivo al vector listaEspecialistas
 	for (int j = 0; j < _reader.numEspecialistas(); j++) {
 		_listaEspecialistas.push_back(Especialista(_reader.idEspecialista(j),
-				_reader.numEspProfesional(j), _reader.especialidadesProf(j),
-				_reader.dispEspecialista(j)));
+				_reader.nomEspecialista(j), _reader.numEspProfesional(j),
+				_reader.especialidadesProf(j), _reader.dispEspecialista(j)));
 	}
+
+	cout << "especialistas OK" << endl;
+
 	//Agregamos los datos de las especialidades al vector listaEspecialidades
 	vector<Especialista> auxE;
 	vector<int> auxIdsE;
 	vector<Paciente> auxP;
 	vector<int> auxIdsP;
+
+	cout << "numEspdes: " << _reader.numEspecialidades() << endl;
+
 	for (int x = 0; x < _reader.numEspecialidades(); x++) {
 		for (int j = 0; j < (int) _listaEspecialistas.size(); j++) {
 			if (_listaEspecialistas[j].buscaEspecialidadProf(_reader.idEspecialidad(x))) {
@@ -167,10 +180,15 @@ void ACiTOptions::iniciar(void) {
 			}
 		}
 
-		if (_reader.numPacEsp(x) == (int) auxP.size()) {
+		cout << "x: " <<  x << endl;
+
+		_reader.duracionCita(x);
+/*
+		if (_reader.numPacEsp(_reader.idEspecialidad(x)) == (int) auxP.size()) {
 			_listaEspecialidades.push_back(Especialidad(
 						_reader.idEspecialidad(x), _reader.nomEspecialidad(_reader.idEspecialidad(x)),
-						_reader.numCitasEsp(x), _reader.duracionCita(x), auxE.size(), _reader.numPacEsp(x),
+						_reader.capEspecialidad(x),	_reader.numCitasEsp(_reader.idEspecialidad(x)),
+						_reader.duracionCita(x), auxE.size(), _reader.numPacEsp(_reader.idEspecialidad(x)),
 						auxE, auxP, auxIdsE, auxIdsP));
 			auxE.clear();
 			auxP.clear();
@@ -182,7 +200,11 @@ void ACiTOptions::iniciar(void) {
 					<< endl;
 			exit(1);
 		}
+*/
+		cout << "fin esp " << x << endl;
+
 	}
+	cout << "chau" << endl;
 }
 
 int* ACiTOptions::settingCodigos(void) {

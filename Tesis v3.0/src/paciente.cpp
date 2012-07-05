@@ -1,9 +1,10 @@
 #include "paciente.h"
 
 
-Paciente::Paciente(int i, int nT, vector<vector<int> > iT, vector<int> d)
+Paciente::Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int> d)
 {
 	_id = i;
+	_nombre = n;
 	_nTratamientos = nT;
 	_infoTratamientos = iT;
 	_disponibilidad = d;
@@ -25,16 +26,6 @@ int Paciente::nCitas(int idE)
 	return citas;
 }
 
-void Paciente::nTratamientos(int nT)
-{
-	_nTratamientos = nT;
-}
-
-int Paciente::nTratamientos(void)
-{
-	return _nTratamientos;
-}
-
 void Paciente::id(int i)
 {
 	_id = i;
@@ -43,6 +34,20 @@ void Paciente::id(int i)
 int Paciente::id(void)
 {
 	return _id;
+}
+
+string Paciente::nombre(void) {
+	return _nombre;
+}
+
+void Paciente::nTratamientos(int nT)
+{
+	_nTratamientos = nT;
+}
+
+int Paciente::nTratamientos(void)
+{
+	return _nTratamientos;
 }
 
 void Paciente::disponibilidad(vector<int> d)

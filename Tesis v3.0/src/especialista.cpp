@@ -1,8 +1,9 @@
 #include "especialista.h"
 
-Especialista::Especialista(int i, int nE, vector<int> iE, vector<vector<int> > hsA)
+Especialista::Especialista(int i, string n, int nE, vector<int> iE, vector<vector<int> > hsA)
 {
 	_id = i;
+	_nombre = n;
 	_nEspecialidades = nE;
 	_idEspecialidades = iE;
 	_horariosAtencion = hsA;
@@ -16,6 +17,10 @@ void Especialista::id(int i)
 int Especialista::id(void)
 {
 	return _id;
+}
+
+string Especialista::nombre(void) {
+	return _nombre;
 }
 
 void Especialista::idCitas(vector<int> citas)

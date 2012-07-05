@@ -13,15 +13,25 @@ int main(int argc, char* argv[]) {
     cout << "sd: " << opt.slotsDia() << endl;
     opt.semanas(1); //1 semana para lograr todas las asignaciones de citas
     opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
-    cout << "ts: " << opt.makespan() << endl; //El makespan se calcula semanas*intervalosSemana*slotsIntervalo
+    cout << "ms: " << opt.makespan() << endl; //El makespan se calcula semanas*intervalosSemana*slotsIntervalo
 
-    opt.totalCitas(opt.reader().totCitas());
-    opt.totalEspecialistas(opt.reader().numEspecialistas());
+    opt.icl(ICL_DOM);	// Dominio consistencia
+    opt.parse(argc,argv);
+
+    Lectura lector(opt.file());
+    opt.reader(lector);
+    opt.totalCitas(lector.totCitas());
+    cout << "totCit: " << opt.totalCitas() << endl;
+    opt.totalEspecialistas(lector.numEspecialistas());
+    cout << "nE: " << opt.totalEspecialistas() << endl;
+
     opt.iniciar();
-    Gecode::IntSet codigos(opt.settingCodigos(), opt.reader().numEspecialistas());
+/*
+    Gecode::IntSet codigos(opt.settingCodigos(), lector.numEspecialistas());
     opt.listaCodEspecialistas(codigos);
+    cout << "cod: " << codigos << endl;
 
-    //Comprobar que todo ha quedado OK:
+    //Comprobar que all ha quedado OK:
     vector<Especialidad> _listaEspecialidades = opt.listaEspecialidades();
     for(int i=0; i<(int)_listaEspecialidades.size(); i++){
     		cout << "Nombre: " << _listaEspecialidades[i].id() << " - ID:" <<_listaEspecialidades[i].id() << endl;
@@ -32,10 +42,10 @@ int main(int argc, char* argv[]) {
     		cout << "	-NEsp:		" << _listaEspecialidades[i].nEspecialistas() << " - " << _listaEspecialidades[i].especialistasString() << endl;
     		cout << endl;
     }
+*/
 
 
-    opt.icl(ICL_DOM);	// Dominio consistencia
-    opt.parse(argc,argv);
+
     //Script::run<ACiTConstraints,DFS,ACiTOptions>(opt);
     return 0;
 }

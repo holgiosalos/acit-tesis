@@ -1,11 +1,12 @@
 #include "especialidad.h"
 
-Especialidad::Especialidad(int i, string n, int nC, int dC, int nE, int nP,
+Especialidad::Especialidad(int i, string n, int c, int nC, int dC, int nE, int nP,
 		vector<Especialista> esp, vector<Paciente> pac,
 		vector<int> idsE, vector<int> idsP)
 {
 	_id = i;
 	_nombre = n;
+	_capacidad = c;
 	_totalCitas = nC;
 	_duracionCitas = dC;
 	_nEspecialistas = nE;
@@ -18,7 +19,17 @@ Especialidad::Especialidad(int i, string n, int nC, int dC, int nE, int nP,
 
 int Especialidad::id(void) const
 {
-	return _id;
+	return static_cast<int>(_id);
+}
+
+string Especialidad::nombre(void)
+{
+	return _nombre;
+}
+
+int Especialidad::capacidad(void)
+{
+	return _capacidad;
 }
 
 void Especialidad::totalCitas(int nC)
