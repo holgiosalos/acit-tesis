@@ -34,8 +34,6 @@ public:
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
 	  t_fin(*this, opt.totalCitas(), 1, opt.makespan()) {
-
-
 		/************** Asignaciones Previas **************/
 
 		listaPacientes = opt.listaPacientes();
@@ -46,8 +44,10 @@ public:
 
 			//IntArgs auxiliares para las capacidades
 			int arrAuxCap[listaEspecialidades[i].nEspecialistas()];
+			cout << "Especialidad: " << listaEspecialidades[i].nombre() << endl;
 			for(int j=0; j<listaEspecialidades[i].nEspecialistas(); j++){
-				arrAuxCap[j] = listaEspecialidades[i].nPacientes();
+				arrAuxCap[j] = listaEspecialidades[i].capacidad();
+//				cout << "arrAuxCap[" << j <<"]: " << arrAuxCap[j] << endl;
 			}
 			listaCapacidad.push_back(IntArgs(listaEspecialidades[i].nEspecialistas(), arrAuxCap));
 
@@ -138,13 +138,11 @@ public:
 			}
 		}
 
-		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
+		//Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
 		for(int i=0; i<(int)listaEspecialidades.size(); i++){
 			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, opt.icl());
 		}
-
-
 
 		/************ Estrategias de Busqueda ************/
 		//branch(*this, especialistas, INT_VAR_NONE, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
@@ -224,7 +222,7 @@ public:
 		 * esta dado por intervalos que representan 60 minutos cada uno, pero no todas las citas
 		 * consumen ese intervalo, por ende se debe hacer esta conversion
 		 */
-		for(int i=0; i< (int) dispP.size(); i++){
+		for(int i=0; i < (int) dispP.size(); i++){
 			for(int j = (i * slotsIntervalo); j< (i+1) * slotsIntervalo; j++){
 				aux[j] = dispP[i];
 			}

@@ -126,15 +126,15 @@ void ACiTOptions::iniciar(void) {
 	vector<int> aux(2); //guarda el id y el numero de citas de cada especialidad asociada al paciente i
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
-		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
+//		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
 		for(int e=0; e<_reader.numTratamientosPac(i); e++){
 			aux[0] = _reader.obtenerEspecialidadPac(i, e);
 			aux[1] = _reader.numCitas(i, e);
-			cout << aux[0] << "," << aux[1] << " | ";
+//			cout << aux[0] << "," << aux[1] << " | ";
 			infoEs.push_back(aux);
 			//aux.clear();
 		}
-		cout << endl;
+//		cout << endl;
 
 		_listaPacientes.push_back(Paciente(_reader.idPaciente(i),
 				_reader.nomPaciente(i), _reader.numTratamientosPac(i),
@@ -149,7 +149,7 @@ void ACiTOptions::iniciar(void) {
 				_reader.especialidadesProf(j), _reader.dispEspecialista(j)));
 	}
 
-	cout << "especialistas OK" << endl;
+//	cout << "especialistas OK" << endl;
 
 	//Agregamos los datos de las especialidades al vector listaEspecialidades
 	vector<Especialista> auxE;
@@ -157,7 +157,7 @@ void ACiTOptions::iniciar(void) {
 	vector<Paciente> auxP;
 	vector<int> auxIdsP;
 
-	cout << "numEspdes: " << _reader.numEspecialidades() << endl;
+//	cout << "numEspdes: " << _reader.numEspecialidades() << endl;
 
 	for (int x = 0; x < _reader.numEspecialidades(); x++) {
 		for (int j = 0; j < (int) _listaEspecialistas.size(); j++) {
@@ -193,23 +193,15 @@ void ACiTOptions::iniciar(void) {
 }
 
 int* ACiTOptions::settingCodigos(void) {
-	int a = 0;
 	int tam = _reader.numEspecialistas();
 	int* codigos;
 	codigos = (int*) malloc(sizeof(int) * tam);
-	if (_listaEspecialidades.size() > 0) {
-		for (int i = 0; i < (int) _listaEspecialidades.size(); i++) {
-			int* aux;
-			aux = (int*) malloc(sizeof(int)	* _listaEspecialidades[i].nEspecialistas());
-			aux = _listaEspecialidades[i].idEspecialistasArray();
-			for (int j = 0; j < _listaEspecialidades[i].nEspecialistas(); j++) {
-				codigos[a] = aux[j];
-				a++;
-			}
+	if (_listaEspecialistas.size() > 0) {
+		for (int i = 0; i < (int) _listaEspecialistas.size(); i++) {
+			codigos[i] = _listaEspecialistas[i].id();
 		}
-		a = 0;
 	} else {
-		cout << "ERROR: Lista de Especialidades no inicializada" << endl;
+		cout << "ERROR: Lista de Especialistas no inicializada" << endl;
 		exit(1);
 	}
 	return codigos;
