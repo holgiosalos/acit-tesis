@@ -44,7 +44,7 @@ public:
 
 			//IntArgs auxiliares para las capacidades
 			int arrAuxCap[listaEspecialidades[i].nEspecialistas()];
-			cout << "Especialidad: " << listaEspecialidades[i].nombre() << endl;
+//			cout << "Especialidad: " << listaEspecialidades[i].nombre() << endl;
 			for(int j=0; j<listaEspecialidades[i].nEspecialistas(); j++){
 				arrAuxCap[j] = listaEspecialidades[i].capacidad();
 //				cout << "arrAuxCap[" << j <<"]: " << arrAuxCap[j] << endl;
@@ -98,6 +98,7 @@ public:
 		int esp_i=0;
 
 		while(esp_i < (int) listaEspecialidades.size()){
+//			cout << "Especialidad: " << listaEspecialidades[esp_i].nombre() << endl;
 			pacEsp_i = listaEspecialidades[esp_i].pacientes();
 			for(int i = 0; i < listaEspecialidades[esp_i].nPacientes(); i++){
 				dispPi = transformarDisponibilidad(pacEsp_i[i], listaEspecialidades[esp_i].duracionCitasSlots(), opt.slotsIntervalo());
@@ -113,6 +114,8 @@ public:
 						//Restricción 2: Mismo especialista para todas las citas de un paciente
 						rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());
 
+						rel(*this, listaVarTFin[esp_i][citEsp_i], IRT_LE, listaVarTInicio[esp_i][citEsp_i+1], opt.icl());
+						/*
 						//Restricción 3: Dia diferente
 						//Asignacion previa para restriccion 3
 						rel(*this, listaSlotsDia[esp_i][citEsp_i], IRT_EQ, opt.slotsDia(), opt.icl());
@@ -121,7 +124,7 @@ public:
 						div(*this,  listaVarTInicio[esp_i][citEsp_i], listaSlotsDia[esp_i][citEsp_i], listaResultDia[esp_i][citEsp_i], opt.icl());
 						div(*this,  listaVarTInicio[esp_i][citEsp_i+1], listaSlotsDia[esp_i][citEsp_i+1], listaResultDia[esp_i][citEsp_i+1], opt.icl());
 						rel(*this, listaResultDia[esp_i][citEsp_i], IRT_LE, listaResultDia[esp_i][citEsp_i+1], opt.icl());
-
+*/
 					}
 					citEsp_i++;
 				}
@@ -237,6 +240,7 @@ public:
 		 * slots siguientes en 1 es igual a durCitEspSlot
 		 */
 		int suma=0;
+//		cout << p.nombre() << ": ";
 		for(int i=0; i< ((int)aux.size()) - durCitEspSlot; i++){
 			for(int j=i; j<i+durCitEspSlot; j++){
 				suma += aux[j];
@@ -246,8 +250,10 @@ public:
 			}else{
 				dispP[i] = 0;
 			}
+//			cout << dispP[i] << " ";
 			suma = 0;
 		}
+//		cout << endl;
 		return dispP;
 	}
 

@@ -9,10 +9,10 @@ int main(int argc, char* argv[]) {
     opt.file("test1.txt");
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
-    opt.intervalosDia(11); //11 intervalos de tiempo para cada dia
+    opt.intervalosDia(4); //11 intervalos de tiempo para cada dia
 //    cout << "sd: " << opt.slotsDia() << endl;
     opt.semanas(1); //1 semana para lograr todas las asignaciones de citas
-    opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
+    opt.intervalosSemana(20); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
 //    cout << "ms: " << opt.makespan() << endl; //El makespan se calcula semanas*intervalosSemana*slotsIntervalo
 
     opt.icl(ICL_DOM);	// Dominio consistencia
