@@ -22,7 +22,6 @@ class Lectura
 		Lectura(string n);
 		void nombreArchivo(string n);
 		string nombreArchivo();	
-		void getInfoCita(int i);	
 		
 		void saveLines();
 		vector <string> getLines();
@@ -82,6 +81,7 @@ class Lectura
 			int numCitas(int i, int e); //Numero de citas del paciente numero i en la especialidad numero e
 			vector <int> numeroCitasPac(int i); //Obtener el numero de citas del paciente numero i en todas sus especialidades
 			vector <vector<int> > listaNumCitas(); //Obtener todas las citas de todos los pacientes
+			int duracionCitTrat(int i, int e); //NUEVO METODO SE NECESITÓ PARA RESTRICCION DE NO SOLAPAMIENTO ENTRE TRATAM.
 
 			int profPrefPac(int i, int e);  //Versión Lectura
 			vector <int> listaProfPrefPac(int i); //Versión Lectura

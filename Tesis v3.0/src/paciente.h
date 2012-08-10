@@ -16,6 +16,7 @@ class Paciente
 		string _nombre;
 		vector<int> _idEspecialidades;
 		vector<vector<int> > _infoTratamientos;
+		vector<int> _duracionesT;
 		vector<int> _disponibilidad;
 
 	public:
@@ -33,6 +34,9 @@ class Paciente
 		
 		void disponibilidad(vector<int> d);
 		vector<int> disponibilidad(void);
+
+		int duracionCitTrat(int idE); //obtiene la duracion en slots
+		vector<int> duracionesT(void);
 
 		bool buscaEspecialidadPac(int id);
 

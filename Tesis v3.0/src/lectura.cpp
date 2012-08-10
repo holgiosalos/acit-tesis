@@ -16,61 +16,6 @@ string Lectura::nombreArchivo(){ // O.K
 	return nombre;
 }
 
-void Lectura::getInfoCita(int i){ // O.K
-	
-	string strCita;
-	int hora =  0; 	string strHora;
-	int dia = 0;	string strDia;
-	//int semana = 0; string strSemana;
-	
-	hora = i%8;
-	dia = (int)floor(i/8);
-	//semana = (int)i/40;
-	//semana = semana+1;
-	
-		
-	switch(dia){
-		case 0: strDia = "Lunes";
-		break;
-		case 1: strDia = "Martes";
-		break;
-		case 2: strDia = "Miercoles";
-		break;
-		case 3: strDia = "Jueves";
-		break;
-		case 4: strDia = "Viernes";
-		break;
-		default: strDia = "Invalido";
-		break;
-	}
-	
-	switch(hora){
-		case 0: strHora = "[08:00 - 09:00)";
-		break;
-		case 1: strHora = "[09:00 - 10:00)";
-		break;
-		case 2: strHora = "[10:00 - 11:00)";
-		break;
-		case 3: strHora = "[11:00 - 12:00)";
-		break;
-		case 4: strHora = "[14:00 - 15:00)";
-		break;
-		case 5: strHora = "[15:00 - 16:00)";
-		break;
-		case 6: strHora = "[16:00 - 17:00)";
-		break;
-		case 7: strHora = "[17:00 - 18:00)";
-		break;
-		default: strHora = "Invalido";
-		break;
-	}
-	
-	/*strSemana = itostr(semana);*/
-	strCita = /*"Semana "+strSemana+" - "+*/"Dia: "+strDia+" - "+"Hora: "+strHora;
-	cout<<strCita<<endl;
-	//return strCita;
-}
-
 void Lectura::saveLines(){ // O.K
 //	vector <string> lines;
 	
@@ -286,7 +231,6 @@ vector<int> Lectura::listaDuracionesCitas(){ //Versión 2.1
 	}
 	return lista;
 }
-
 
 int Lectura::numCitasEsp(int i){ //Modificación Versión 2.1 donde i es el id de la especialidad
 
@@ -622,7 +566,6 @@ vector <string> Lectura::listaNomPacientes(){ // Versión Lectura
 	return lista;
 }
 
-
 //CREAR UN MÉTODO PARA LA LISTA DE TRATAMIENTOS----------------------------------
 int Lectura::numTratamientosPac(int i){ //Modificación Versión Lectura
 
@@ -776,6 +719,20 @@ vector <vector<int> > Lectura::listaDispPacientes(){ //OK
 	return lista;
 }
 
+int Lectura::duracionCitTrat(int i, int e){
+	int idE = obtenerEspecialidadPac(i, e);
+	int dur=0;
+	for(int n=0; n<numEspecialidades(); n++){
+		if(idEspecialidad(n)==idE){
+			dur = duracionCita(n);
+			break;
+		}else if(n == numEspecialidades()-1){
+			cout << "Error duracion no encontrada" << endl;
+			exit(0);
+		}
+	}
+	return dur;
+}
 
 //--------------- MÉTODOS AUXILIARES -----------------//
 

@@ -11,6 +11,7 @@ Paciente::Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int>
 
 	for(int i=0; i< (int) _infoTratamientos.size(); i++){
 		_idEspecialidades.push_back(_infoTratamientos[i][0]);
+		_duracionesT.push_back(_infoTratamientos[i][2]);
 	}
 }
 
@@ -58,6 +59,23 @@ void Paciente::disponibilidad(vector<int> d)
 vector<int> Paciente::disponibilidad(void)
 {
 	return _disponibilidad;
+}
+
+int Paciente::duracionCitTrat(int idE)
+{
+	int duracion;
+	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+		if(_infoTratamientos[i][0]==idE){
+			duracion = _infoTratamientos[i][2];
+			break;
+		}
+	}
+	return duracion;
+}
+
+vector<int> Paciente::duracionesT(void)
+{
+	return _duracionesT;
 }
 
 bool Paciente::buscaEspecialidadPac(int id)

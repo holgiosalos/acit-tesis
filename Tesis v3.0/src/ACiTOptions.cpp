@@ -123,13 +123,14 @@ void ACiTOptions::iniciar(void) {
 
 	//Agregamos los pacientes del archivo al vector listaPacientes
 	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
-	vector<int> aux(2); //guarda el id y el numero de citas de cada especialidad asociada al paciente i
+	vector<int> aux(3); //guarda el id, el numero de citas y duracion  de cada especialidad asociada al paciente i
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
 //		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
 		for(int e=0; e<_reader.numTratamientosPac(i); e++){
 			aux[0] = _reader.obtenerEspecialidadPac(i, e);
 			aux[1] = _reader.numCitas(i, e);
+			aux[2] = _reader.duracionCitTrat(i, e)/5; //se guarda la duracion en numero de slots
 //			cout << aux[0] << "," << aux[1] << " | ";
 			infoEs.push_back(aux);
 			//aux.clear();
