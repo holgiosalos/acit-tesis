@@ -22,7 +22,6 @@ private:
 	vector<IntVarArray> listaSlotsDia;
 	vector<IntVarArray> listaResultDia;
 
-
 	vector<vector<int> > listaDuracionesPac;
 
 	vector<IntArgs> listaDuracion;
@@ -33,15 +32,23 @@ private:
 	vector<Especialidad> listaEspecialidades;
 	vector<Paciente> listaPacientes;
 
+	Escritura * e;
+
 public:
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
 	  t_fin(*this, opt.totalCitas(), 1, opt.makespan()) {
 		/************** Asignaciones Previas **************/
-
 		listaPacientes = opt.listaPacientes();
 		listaEspecialidades = opt.listaEspecialidades();
+
+		e = new Escritura(listaEspecialidades, opt.listaEspecialistas(), listaPacientes);
+		e->semanas(opt.semanas());
+		e->slotsIntervalo(opt.slotsIntervalo());
+		e->slotsDia(opt.slotsDia());
+		e->intervalosDia(opt.intervalosDia());
+		e->intervalosSemana(opt.intervalosSemana());
 
 		// Creacion de los IntArgs que representan las capacidades
 		for(int i=0; i<(int)listaEspecialidades.size(); i++){
@@ -214,7 +221,6 @@ public:
 	/// Print solution
 	virtual void
 	print(std::ostream& os) const{
-		Escritura e(12, 4, 20);
 		for(int i=0; i<(int)listaEspecialidades.size(); i++){
 			Especialidad aux = listaEspecialidades[i];
 			os << "\nEspecialidad: " << aux.id() << "-> ";
@@ -225,6 +231,8 @@ public:
 				}
 			}
 		}
+
+		e->escribirXml();
 
 		os << "\n------- CITAS ASIGNADAS POR ESPECIALIDAD -------" << endl;
 		vector<Paciente> pacientes;
@@ -237,8 +245,8 @@ public:
 				os << "\nPaciente: " << pacientes[i].id() << "\tCitas: " << pacientes[i].nCitas(listaEspecialidades[esp_i].id()) << endl;
 				for(int j = 0; j < pacientes[i].nCitas(listaEspecialidades[esp_i].id()); j++) {
 					os << "Cita " << j+1 << endl;
-					os << "\tInicio: " << listaVarTInicio[esp_i][citEsp_i].val() << " -> " << e.determinarHora(listaVarTInicio[esp_i][citEsp_i].val())
-										   << " Fin: " << listaVarTFin[esp_i][citEsp_i].val() << " -> " << e.determinarHora(listaVarTFin[esp_i][citEsp_i].val())
+					os << "\tInicio: " << listaVarTInicio[esp_i][citEsp_i].val() << " -> " << e->determinarDia(listaVarTInicio[esp_i][citEsp_i].val()) << "|" << e->determinarHora(listaVarTInicio[esp_i][citEsp_i].val())
+										   << " Fin: " << listaVarTFin[esp_i][citEsp_i].val() << " -> " << e->determinarDia(listaVarTFin[esp_i][citEsp_i].val()) << "|" << e->determinarHora(listaVarTFin[esp_i][citEsp_i].val())
 										   << " Especialista: " << listaVarEspecialistas[esp_i][citEsp_i].val() << endl;
 					citEsp_i++;
 				}
@@ -246,6 +254,7 @@ public:
 			esp_i++;
 			citEsp_i=0;
 		}
+		delete e;
 	}
 
 	vector<vector<int> > infoTratamientos(Paciente p){

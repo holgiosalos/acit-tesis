@@ -32,14 +32,14 @@ public:
 
 	int id(void) const;
 
-	string nombre(void);
+	string nombre(void) const;
 
 	int capacidad(void);
 
 	void totalCitas(int nC);
 	int totalCitas(void);
 
-	int duracionCitasMinutos(void);
+	int duracionCitasMinutos(void) const;
 	int duracionCitasSlots(void);
 
 	void nEspecialistas(int nE);
@@ -49,7 +49,7 @@ public:
 	int nPacientes(void);
 
 	void especialistas(vector<Especialista> esp);
-	vector<Especialista> especialistas(void);
+	vector<Especialista> especialistas(void) const;
 	string especialistasString(void);
 
 	void idEspecialistas(vector<int> ids);

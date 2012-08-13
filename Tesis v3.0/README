@@ -1,0 +1,5 @@
+Para que funcione el tinyxml:
+	- descargar y descomprimir el archivo
+	- en modo consola, correr el comando make
+	- incluir en el proyecto el directorio donde se instalo tinyxml
+	- incluir en los comandos del linker la libreria "tinyxml"

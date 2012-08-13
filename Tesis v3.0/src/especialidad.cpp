@@ -22,7 +22,7 @@ int Especialidad::id(void) const
 	return static_cast<int>(_id);
 }
 
-string Especialidad::nombre(void)
+string Especialidad::nombre(void) const
 {
 	return _nombre;
 }
@@ -42,7 +42,7 @@ int Especialidad::totalCitas(void)
 	return _totalCitas;
 }
 
-int Especialidad::duracionCitasMinutos(void)
+int Especialidad::duracionCitasMinutos(void) const
 {
 	return _duracionCitas;
 }
@@ -76,6 +76,25 @@ int Especialidad::nPacientes(void)
 void Especialidad::especialistas(vector<Especialista> esp)
 {
 	_especialistas = esp;
+}
+
+vector<Especialista> Especialidad::especialistas(void) const
+{
+	return _especialistas;
+}
+
+string Especialidad::especialistasString(void)
+{
+	string resultado="[";
+	for(int i=0; i<(int)_especialistas.size(); i++){
+		resultado += _especialistas[i].id();
+		if(i != (int)_especialistas.size()){
+			resultado += ", ";
+		}else{
+			resultado +="]";
+		}
+	}
+	return resultado;
 }
 
 void Especialidad::idEspecialistas(vector<int> ids)
@@ -118,25 +137,6 @@ int* Especialidad::idPacientesArray(void)
 vector<int> Especialidad::idPacientesVector(void)
 {
 	return _idPacientes;
-}
-
-vector<Especialista> Especialidad::especialistas(void)
-{
-	return _especialistas;
-}
-
-string Especialidad::especialistasString(void)
-{
-	string resultado="[";
-	for(int i=0; i<(int)_especialistas.size(); i++){
-		resultado += _especialistas[i].id();
-		if(i != (int)_especialistas.size()){
-			resultado += ", ";
-		}else{
-			resultado +="]";
-		}
-	}
-	return resultado;
 }
 
 void Especialidad::pacientes(vector<Paciente> esp)

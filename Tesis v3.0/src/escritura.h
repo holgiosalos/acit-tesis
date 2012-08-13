@@ -11,10 +11,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cstdlib>
+#include <stdlib.h>
 #include <fstream>
 #include <sstream>
 #include <cmath>
+
+#define TIXML_USE_STL
+#include "tinyxml.h"
+
+#include "especialidad.h"
+#include "especialista.h"
+#include "paciente.h"
 
 using namespace std;
 
@@ -22,22 +29,36 @@ class Escritura
 {
 private:
 	string _directorioSalida;
+	int _semanas;
 	int _slotsIntervalo;
+	int _slotsDia;
 	int _intervalosDia;
 	int _intervalosSemana;
 
+	vector<Especialidad> listaEspecialidades;
+	vector<Especialista> listaProfesionales;
+	vector<Paciente> listaPacientes;
+
+	string itostr(int n) const;
+
 public:
-	Escritura(int sI, int iD, int iS);
+	Escritura(vector<Especialidad> l0, vector<Especialista> l1, vector<Paciente> l2);
 
+	void semanas(int s);
+	int semanas(void);
 	void slotsIntervalo(int sI);
-	int slotsIntervalo(void);
+	void slotsDia(int sD);
 	void intervalosDia(int iD);
-	int intervalosDia(void);
 	void intervalosSemana(int iS);
-	int intervalosSemana(void);
 
-	int determinarHora(int i);
+	string determinarHora(int slot) const;
+	string determinarDia(int slot) const;
 	void transformarIntervalo(int i);
+	vector<vector<string> > getDatosDisponibilidad(Especialista esp, int idE) const;
+
+	void escribirXml() const;
+
+
 };
 
 

@@ -22,9 +22,9 @@ class Especialista
 		Especialista(int i, string n, int nE, vector<int> iE, vector<vector<int> > hsA);
 
 		void id(int i);
-		int id(void);
+		int id(void) const;
 
-		string nombre(void);
+		string nombre(void) const;
 
 		void idCitas(vector<int> citas);
 		vector<int> idCitas(void);

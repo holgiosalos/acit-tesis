@@ -9,17 +9,15 @@ Especialista::Especialista(int i, string n, int nE, vector<int> iE, vector<vecto
 	_horariosAtencion = hsA;
 }
 
-void Especialista::id(int i)
-{
+void Especialista::id(int i) {
 	_id = i;
 }
 
-int Especialista::id(void)
-{
+int Especialista::id(void) const {
 	return _id;
 }
 
-string Especialista::nombre(void) {
+string Especialista::nombre(void) const {
 	return _nombre;
 }
 
