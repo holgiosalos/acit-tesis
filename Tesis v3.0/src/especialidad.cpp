@@ -139,9 +139,29 @@ vector<int> Especialidad::idPacientesVector(void)
 	return _idPacientes;
 }
 
-void Especialidad::pacientes(vector<Paciente> esp)
+Especialista Especialidad::buscarEspecialista(int idE)
 {
-	_pacientes = esp;
+	int i=0;
+	for(; i<int(_especialistas.size()); i++){
+		if(_especialistas[i].id() == idE){
+			break;
+		}
+	}
+	return _especialistas[i];
+}
+
+void Especialidad::actualizarEspecialista(Especialista esp){
+	for(int i=0; i<int(_especialistas.size()); i++){
+		if(_especialistas[i].id() == esp.id()){
+			_especialistas[i] = esp;
+			break;
+		}
+	}
+}
+
+void Especialidad::pacientes(vector<Paciente> pacs)
+{
+	_pacientes = pacs;
 }
 
 vector<Paciente> Especialidad::pacientes(void) const

@@ -60,7 +60,10 @@ public:
 	int* idPacientesArray(void);
 	vector<int> idPacientesVector(void);
 
-	void pacientes(vector<Paciente> esp);
+	Especialista buscarEspecialista(int idE);
+	void actualizarEspecialista(Especialista esp);
+
+	void pacientes(vector<Paciente> pacs);
 	vector<Paciente> pacientes(void) const;
 	string pacientesString(void);
 };

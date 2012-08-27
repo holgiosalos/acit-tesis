@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "cita.h"
+
 using namespace std;
 
 class Paciente
@@ -18,20 +20,25 @@ class Paciente
 		vector<vector<int> > _infoTratamientos;
 		vector<int> _duracionesT;
 		vector<int> _disponibilidad;
+		vector<Cita> _listaCitas;
 
 	public:
 		Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int> d);
 		
 		void id(int i);
-		int id(void);
+		int id(void) const;
 
-		string nombre(void);
+		string nombre(void) const;
 
 		void nTratamientos(int nT);
 		int nTratamientos(void);
 
-		int nCitas(int idE);
+		int nCitas(int idE) const;
 		
+		void insertarCita(Cita c);
+		void listaCitas(vector<Cita> lc);
+		vector<Cita> listaCitas(void) const;
+
 		void disponibilidad(vector<int> d);
 		vector<int> disponibilidad(void);
 

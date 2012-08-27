@@ -15,7 +15,7 @@ Paciente::Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int>
 	}
 }
 
-int Paciente::nCitas(int idE)
+int Paciente::nCitas(int idE) const
 {
 	int citas;
 	for(int i=0; i< (int) _infoTratamientos.size(); i++){
@@ -32,12 +32,12 @@ void Paciente::id(int i)
 	_id = i;
 }
 
-int Paciente::id(void)
+int Paciente::id(void) const
 {
 	return _id;
 }
 
-string Paciente::nombre(void) {
+string Paciente::nombre(void) const {
 	return _nombre;
 }
 
@@ -49,6 +49,18 @@ void Paciente::nTratamientos(int nT)
 int Paciente::nTratamientos(void)
 {
 	return _nTratamientos;
+}
+
+void Paciente::insertarCita(Cita c) {
+	_listaCitas.push_back(c);
+}
+
+void Paciente::listaCitas(vector<Cita> lc) {
+	_listaCitas = lc;
+}
+
+vector<Cita> Paciente::listaCitas(void) const{
+	return _listaCitas;
 }
 
 void Paciente::disponibilidad(vector<int> d)

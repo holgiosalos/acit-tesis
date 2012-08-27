@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "paciente.h"
+
 using namespace std;
 
 class Especialista
@@ -17,6 +19,7 @@ class Especialista
 		vector<int> _idEspecialidades;
 		vector<int> _idCitas;
 		vector<vector<int> > _horariosAtencion;
+		vector<Paciente> _pacientes;
 		
 	public:
 		Especialista(int i, string n, int nE, vector<int> iE, vector<vector<int> > hsA);
@@ -34,6 +37,10 @@ class Especialista
 
 		void nEspecialidades(int nE);
 		int nEspecialidades(void);
+
+		void insertarPaciente(Paciente pac);
+		void pacientes(vector<Paciente> pac);
+		vector<Paciente> pacientes(void) const;
 
 		void horariosAtencion(vector<vector<int> > hsA);
 		vector<vector<int> > horariosAtencion(void);

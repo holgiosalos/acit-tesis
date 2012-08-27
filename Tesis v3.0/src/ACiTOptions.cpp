@@ -48,7 +48,7 @@ int ACiTOptions::intervalosDia() const {
 
 void ACiTOptions::calcularSlotsDia() {
 	//_slotsIntervalo es el valor en el que se divide cada intervaloD (hora).
-	_slotsDia = _intervalosDia * _slotsIntervalo;
+	_slotsDia = (_intervalosDia * _slotsIntervalo) + 1;
 }
 
 int ACiTOptions::slotsDia(void) const {
@@ -74,7 +74,8 @@ int ACiTOptions::intervalosSemana(void) const {
 
 void ACiTOptions::calcularMakespan() {
 	//_slotsIntervalo es el valor en el que se divide cada intervalo (hora).
-	_makespan = _intervalosSemana * _slotsIntervalo * _semanas;
+	//(_intervalosSemana/_intervalosDia) define el numero de dias por semana
+	_makespan = _slotsDia*int(ceil(_intervalosSemana/_intervalosDia))*_semanas - 1;
 }
 
 int ACiTOptions::makespan(void) const {
@@ -99,8 +100,8 @@ int ACiTOptions::totalEspecialistas(void) const {
 	return static_cast<int> (_totalEspecialistas);
 }
 
-vector<Especialidad> ACiTOptions::listaEspecialidades() const {
-	return static_cast<vector<Especialidad> > (_listaEspecialidades);
+vector<Especialidad> ACiTOptions::listaEspecialidades() const{
+	return _listaEspecialidades;
 }
 
 vector<Especialista> ACiTOptions::listaEspecialistas() const {

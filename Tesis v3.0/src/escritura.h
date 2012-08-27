@@ -22,6 +22,7 @@
 #include "especialidad.h"
 #include "especialista.h"
 #include "paciente.h"
+#include "cita.h"
 
 using namespace std;
 
@@ -29,20 +30,17 @@ class Escritura
 {
 private:
 	string _directorioSalida;
+	string _nombreArchivo;
 	int _semanas;
 	int _slotsIntervalo;
 	int _slotsDia;
 	int _intervalosDia;
 	int _intervalosSemana;
 
-	vector<Especialidad> listaEspecialidades;
-	vector<Especialista> listaProfesionales;
-	vector<Paciente> listaPacientes;
-
 	string itostr(int n) const;
 
 public:
-	Escritura(vector<Especialidad> l0, vector<Especialista> l1, vector<Paciente> l2);
+	Escritura(string directorio, string nombre);
 
 	void semanas(int s);
 	int semanas(void);
@@ -53,10 +51,11 @@ public:
 
 	string determinarHora(int slot) const;
 	string determinarDia(int slot) const;
+	int determinarDiaInt(int slot) const;
 	void transformarIntervalo(int i);
 	vector<vector<string> > getDatosDisponibilidad(Especialista esp, int idE) const;
 
-	void escribirXml() const;
+	void escribirXml(vector<Especialidad> listaEspecialidades) const;
 
 
 };

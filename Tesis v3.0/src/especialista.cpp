@@ -51,6 +51,18 @@ int Especialista::nEspecialidades(void)
 	return _nEspecialidades;
 }
 
+void Especialista::insertarPaciente(Paciente pac) {
+	_pacientes.push_back(pac);
+}
+
+void Especialista::pacientes(vector<Paciente> pac) {
+	_pacientes = pac;
+}
+
+vector<Paciente> Especialista::pacientes(void) const{
+	return _pacientes;
+}
+
 void Especialista::horariosAtencion(vector<vector<int> > hsA)
 {
 	_horariosAtencion = hsA;

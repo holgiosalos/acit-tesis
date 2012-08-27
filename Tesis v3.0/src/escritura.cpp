@@ -15,10 +15,9 @@ string Escritura::itostr(int n) const{
 
 /************************** Metodos publicos **************************/
 
-Escritura::Escritura(vector<Especialidad> l0, vector<Especialista> l1, vector<Paciente> l2) {
-	listaEspecialidades = l0;
-	listaProfesionales	= l1;
-	listaPacientes		= l2;
+Escritura::Escritura(string directorio, string nombre) {
+	_directorioSalida 	= directorio;
+	_nombreArchivo 		= nombre;
 }
 
 void Escritura::semanas(int s) {
@@ -42,17 +41,15 @@ void Escritura::intervalosSemana(int iS) {
 }
 
 string Escritura::determinarHora(int slot) const{
-	string hora = itostr((int)floor((slot / _slotsIntervalo) % _intervalosDia) + 7);
 
-	string minutos = itostr((slot % _slotsIntervalo) * 5);
+	string hora = itostr((int)floor((slot % _slotsDia) / _slotsIntervalo) + 7);
+	string minutos = itostr((int)floor((slot % _slotsDia) % _slotsIntervalo) * 5);
 
 	if(hora.size()==1){
-		string cero = "0";
-		cero += hora;
-		hora = cero;
+		hora = "0"+hora;
 	}
-	if(minutos == "0"){
-		minutos += "0";
+	if(minutos.size()==1){
+		minutos = "0"+minutos;
 	}
 
 	return hora + ":" + minutos;
@@ -62,37 +59,43 @@ string Escritura::determinarDia(int slot) const{
 	return itostr(int(slot/_slotsDia)+1);
 }
 
+int Escritura::determinarDiaInt(int slot) const{
+	return int(slot/_slotsDia)+1;
+}
+
 vector<vector<string> > Escritura::getDatosDisponibilidad(Especialista esp, int idE) const{
 	vector<vector<string> > res;
 	vector<string> aux(3);
 	vector<int> disponibilidad = esp.horariosAtencionEsp(idE);
-	int i=0;
 	bool ini,fin;
-	while(i < int(disponibilidad.size())){
-		ini=true, fin=false;
-		aux[0] = determinarDia(i*_slotsIntervalo); //dia
-		for(int j=i; j<(i+_intervalosDia); j++){
-			if( (disponibilidad[j]==1) && ini ){
-				aux[1] = determinarHora(j*_slotsIntervalo); //hora_ini
-				ini = false;
-				if(j == (i+_intervalosDia)-1){
-					aux[2] = determinarHora((j*_slotsIntervalo)-1); //hora_fin
-					fin = true;
+	for(int i=0; i<_intervalosSemana; i+=_intervalosDia){
+		ini = true; fin=false;
+		for(int j=i; j<i+_intervalosDia; j++){
+			if((disponibilidad[j] == 1)&&(ini==true)){
+				aux[0] = itostr(int(floor(j/_intervalosDia))+1);
+				aux[1] = determinarHora((j%_intervalosDia)*_slotsIntervalo);
+				ini=false;
+				if(j==(i+_intervalosDia)-1){
+					aux[2] = determinarHora( ((j%_intervalosDia)+1)*_slotsIntervalo );
+					fin=true;
 				}
-			}
-			if((disponibilidad[j]==0)&& !ini && !fin){
-				aux[2] = determinarHora(j*_slotsIntervalo); //hora_fin
+			}else if((disponibilidad[j] == 0)&&(ini==false)){
+				aux[2] = determinarHora((j%_intervalosDia)*_slotsIntervalo);
+				fin = true;
+			}else if((disponibilidad[j] == 1) && (j==(i+_intervalosDia)-1) && (ini==false)){
+				aux[2] = determinarHora( ((j%_intervalosDia)+1)*_slotsIntervalo );
 				fin=true;
+			}
+			if((ini==false)&&(fin==true)){
+				res.push_back(aux);
 				break;
 			}
 		}
-		res.push_back(aux);
-		i += _intervalosDia;
 	}
 	return res;
 }
 
-void Escritura::escribirXml() const{
+void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 
 	TiXmlDocument outputfile;
 
@@ -110,8 +113,8 @@ void Escritura::escribirXml() const{
 	TiXmlElement * especialidad;
 	TiXmlElement * profesional;
 	TiXmlElement * disponibilidad;
-//	TiXmlElement * paciente;
-//	TiXmlElement * cita;
+	TiXmlElement * paciente;
+	TiXmlElement * cita;
 
 	for(int i=0; i<(int)listaEspecialidades.size(); i++){
 		//Especialidades
@@ -133,18 +136,49 @@ void Escritura::escribirXml() const{
 			//disponibilidad
 			vector<vector<string> > infoDisponibilidad = getDatosDisponibilidad(lstProfesionales[j], listaEspecialidades[i].id());
 			for(int d=0; d<(int)infoDisponibilidad.size(); d++){
-				disponibilidad = new TiXmlElement( "disponibilidad");
+				disponibilidad = new TiXmlElement( "disponible");
 				profesional->LinkEndChild(disponibilidad);
 				disponibilidad->SetAttribute("dia", infoDisponibilidad[d][0]);
 				disponibilidad->SetAttribute("hora_ini", infoDisponibilidad[d][1]);
 				disponibilidad->SetAttribute("hora_fin", infoDisponibilidad[d][2]);
 			}
+
+			//pacientes
+			vector<Paciente> lstPacientes = lstProfesionales[j].pacientes();
+			for(int k=0; k<(int)lstPacientes.size(); k++){
+				paciente = new TiXmlElement( "paciente");
+				profesional->LinkEndChild(paciente);
+				paciente->SetAttribute("id", lstPacientes[k].id());
+				paciente->SetAttribute("nombre", lstPacientes[k].nombre());
+				paciente->SetAttribute("num_citas", lstPacientes[k].nCitas(listaEspecialidades[i].id()));
+
+				vector<Cita> lstCita = lstPacientes[k].listaCitas();
+				//antes de agregar una cita, hay que setear el numero de dias por semana
+				for(int c=0; c<int(lstCita.size()); c++){
+					lstCita[c].setDiasSemana((int)ceil(_intervalosSemana/_intervalosDia));
+					lstCita[c].calcularFechaCita(lstCita[c].dia());
+					tm_fecha fC = lstCita[c].fecha();
+					string year = itostr(fC.anio);
+					string mes = itostr(fC.mes);
+					if(mes.size() == 1){
+						mes = "0"+mes;
+					}
+					string dia = itostr(fC.dia);
+					if(dia.size() == 1){
+						dia = "0"+dia;
+					}
+
+					cita = new TiXmlElement("cita");
+					paciente->LinkEndChild(cita);
+					cita->SetAttribute("fecha", year+"-"+mes+"-"+dia);
+					cita->SetAttribute("hora_ini", determinarHora(lstCita[c].inicio()));
+					cita->SetAttribute("hora_fin", determinarHora(lstCita[c].fin()));
+				}
+			}
 		}
 	}
 
-
-			//pacientes
-				//cita
-
-	outputfile.SaveFile( "madeByHand.xml" );
+	if(outputfile.SaveFile( _directorioSalida+"/"+_nombreArchivo )){
+		cout << _directorioSalida+"/"+_nombreArchivo << endl;
+	}
 }

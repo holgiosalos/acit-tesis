@@ -3,50 +3,109 @@
     <num_semanas>1</num_semanas>
     <especialidad id="1" nombre="Rehab Física" duracion="30">
         <profesional id="1" nombre="Profesional 1">
-            <disponibilidad dia="1" hora_ini="10:00" hora_fin="09:55" />
-            <disponibilidad dia="2" hora_ini="07:00" hora_fin="09:55" />
-            <disponibilidad dia="3" hora_ini="09:00" hora_fin="09:55" />
-            <disponibilidad dia="4" hora_ini="08:00" hora_fin="09:55" />
-            <disponibilidad dia="5" hora_ini="10:00" hora_fin="09:55" />
+            <disponible dia="1" hora_ini="10:00" hora_fin="11:00" />
+            <disponible dia="2" hora_ini="07:00" hora_fin="11:00" />
+            <disponible dia="3" hora_ini="09:00" hora_fin="11:00" />
+            <disponible dia="4" hora_ini="08:00" hora_fin="11:00" />
+            <disponible dia="5" hora_ini="10:00" hora_fin="11:00" />
+            <paciente id="3" nombre="Name Paciente 03" num_citas="3">
+                <cita fecha="2012-08-27" hora_ini="10:00" hora_fin="10:30" />
+                <cita fecha="2012-08-28" hora_ini="07:00" hora_fin="07:30" />
+                <cita fecha="2012-08-29" hora_ini="09:00" hora_fin="09:30" />
+            </paciente>
         </profesional>
         <profesional id="2" nombre="Profesional 2">
-            <disponibilidad dia="1" hora_ini="09:00" hora_fin="" />
-            <disponibilidad dia="2" hora_ini="07:00" hora_fin="08:00" />
-            <disponibilidad dia="3" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="4" hora_ini="09:00" hora_fin="10:00" />
-            <disponibilidad dia="5" hora_ini="07:00" hora_fin="08:00" />
+            <disponible dia="1" hora_ini="09:00" hora_fin="11:00" />
+            <disponible dia="2" hora_ini="07:00" hora_fin="08:00" />
+            <disponible dia="3" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="4" hora_ini="09:00" hora_fin="10:00" />
+            <disponible dia="5" hora_ini="07:00" hora_fin="08:00" />
+            <paciente id="4" nombre="Name Paciente 04" num_citas="4">
+                <cita fecha="2012-08-27" hora_ini="10:00" hora_fin="10:30" />
+                <cita fecha="2012-08-28" hora_ini="07:00" hora_fin="07:30" />
+                <cita fecha="2012-08-29" hora_ini="07:00" hora_fin="07:30" />
+                <cita fecha="2012-08-30" hora_ini="09:00" hora_fin="09:30" />
+            </paciente>
         </profesional>
         <profesional id="5" nombre="Profesional 5">
-            <disponibilidad dia="1" hora_ini="09:00" hora_fin="10:00" />
-            <disponibilidad dia="2" hora_ini="07:00" hora_fin="10:00" />
-            <disponibilidad dia="3" hora_ini="08:00" hora_fin="10:00" />
-            <disponibilidad dia="4" hora_ini="08:00" hora_fin="10:00" />
-            <disponibilidad dia="5" hora_ini="08:00" hora_fin="10:00" />
+            <disponible dia="1" hora_ini="09:00" hora_fin="10:00" />
+            <disponible dia="2" hora_ini="07:00" hora_fin="10:00" />
+            <disponible dia="3" hora_ini="08:00" hora_fin="11:00" />
+            <disponible dia="4" hora_ini="08:00" hora_fin="10:00" />
+            <disponible dia="5" hora_ini="08:00" hora_fin="10:00" />
+            <paciente id="8" nombre="Name Paciente 08" num_citas="3">
+                <cita fecha="2012-08-27" hora_ini="09:00" hora_fin="09:30" />
+                <cita fecha="2012-08-28" hora_ini="07:00" hora_fin="07:30" />
+                <cita fecha="2012-08-30" hora_ini="09:00" hora_fin="09:30" />
+            </paciente>
         </profesional>
     </especialidad>
     <especialidad id="2" nombre="T Lenguaje" duracion="20">
         <profesional id="6" nombre="Profesional 6">
-            <disponibilidad dia="1" hora_ini="08:00" hora_fin="" />
-            <disponibilidad dia="2" hora_ini="09:00" hora_fin="" />
-            <disponibilidad dia="3" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="4" hora_ini="07:00" hora_fin="08:00" />
-            <disponibilidad dia="5" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="1" hora_ini="08:00" hora_fin="11:00" />
+            <disponible dia="2" hora_ini="09:00" hora_fin="11:00" />
+            <disponible dia="3" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="4" hora_ini="07:00" hora_fin="08:00" />
+            <disponible dia="5" hora_ini="07:00" hora_fin="09:00" />
+            <paciente id="1" nombre="Name Paciente 01" num_citas="4">
+                <cita fecha="2012-08-27" hora_ini="10:00" hora_fin="10:20" />
+                <cita fecha="2012-08-28" hora_ini="09:00" hora_fin="09:20" />
+                <cita fecha="2012-08-29" hora_ini="07:00" hora_fin="07:20" />
+                <cita fecha="2012-08-30" hora_ini="09:00" hora_fin="09:20" />
+            </paciente>
+            <paciente id="8" nombre="Name Paciente 08" num_citas="4">
+                <cita fecha="2012-08-27" hora_ini="08:00" hora_fin="08:20" />
+                <cita fecha="2012-08-28" hora_ini="09:00" hora_fin="09:20" />
+                <cita fecha="2012-08-29" hora_ini="07:00" hora_fin="07:20" />
+                <cita fecha="2012-08-30" hora_ini="07:00" hora_fin="07:20" />
+            </paciente>
         </profesional>
     </especialidad>
     <especialidad id="3" nombre="Espirometrías" duracion="15">
         <profesional id="3" nombre="Profesional 3">
-            <disponibilidad dia="1" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="2" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="3" hora_ini="07:00" hora_fin="10:00" />
-            <disponibilidad dia="4" hora_ini="07:00" hora_fin="10:00" />
-            <disponibilidad dia="5" hora_ini="07:00" hora_fin="08:00" />
+            <disponible dia="1" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="2" hora_ini="07:00" hora_fin="11:00" />
+            <disponible dia="3" hora_ini="07:00" hora_fin="10:00" />
+            <disponible dia="4" hora_ini="07:00" hora_fin="11:00" />
+            <disponible dia="5" hora_ini="07:00" hora_fin="08:00" />
+            <paciente id="2" nombre="Name Paciente 02" num_citas="3">
+                <cita fecha="2012-08-27" hora_ini="08:00" hora_fin="08:15" />
+                <cita fecha="2012-08-28" hora_ini="08:00" hora_fin="08:15" />
+                <cita fecha="2012-08-29" hora_ini="08:00" hora_fin="08:15" />
+            </paciente>
+            <paciente id="5" nombre="Name Paciente 05" num_citas="4">
+                <cita fecha="2012-08-27" hora_ini="07:00" hora_fin="07:15" />
+                <cita fecha="2012-08-28" hora_ini="08:00" hora_fin="08:15" />
+                <cita fecha="2012-08-29" hora_ini="08:00" hora_fin="08:15" />
+                <cita fecha="2012-08-30" hora_ini="07:00" hora_fin="07:15" />
+            </paciente>
+            <paciente id="7" nombre="Name Paciente 07" num_citas="4">
+                <cita fecha="2012-08-28" hora_ini="10:00" hora_fin="10:15" />
+                <cita fecha="2012-08-29" hora_ini="07:00" hora_fin="07:15" />
+                <cita fecha="2012-08-30" hora_ini="07:00" hora_fin="07:15" />
+                <cita fecha="2012-08-31" hora_ini="10:00" hora_fin="10:15" />
+            </paciente>
         </profesional>
         <profesional id="4" nombre="Profesional 4">
-            <disponibilidad dia="1" hora_ini="08:00" hora_fin="" />
-            <disponibilidad dia="2" hora_ini="07:00" hora_fin="08:00" />
-            <disponibilidad dia="3" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="4" hora_ini="07:00" hora_fin="09:00" />
-            <disponibilidad dia="5" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="1" hora_ini="08:00" hora_fin="11:00" />
+            <disponible dia="2" hora_ini="07:00" hora_fin="08:00" />
+            <disponible dia="3" hora_ini="07:00" hora_fin="09:00" />
+            <disponible dia="4" hora_ini="07:00" hora_fin="11:00" />
+            <disponible dia="5" hora_ini="07:00" hora_fin="09:00" />
+            <paciente id="4" nombre="Name Paciente 04" num_citas="3">
+                <cita fecha="2012-08-27" hora_ini="08:00" hora_fin="08:15" />
+                <cita fecha="2012-08-28" hora_ini="07:30" hora_fin="07:45" />
+                <cita fecha="2012-08-29" hora_ini="07:30" hora_fin="07:45" />
+            </paciente>
+            <paciente id="6" nombre="Name Paciente 06" num_citas="3">
+                <cita fecha="2012-08-27" hora_ini="10:00" hora_fin="10:15" />
+                <cita fecha="2012-08-28" hora_ini="07:00" hora_fin="07:15" />
+                <cita fecha="2012-08-29" hora_ini="07:00" hora_fin="07:15" />
+            </paciente>
+            <paciente id="8" nombre="Name Paciente 08" num_citas="2">
+                <cita fecha="2012-08-27" hora_ini="08:20" hora_fin="08:35" />
+                <cita fecha="2012-08-28" hora_ini="07:30" hora_fin="07:45" />
+            </paciente>
         </profesional>
     </especialidad>
 </acit>
