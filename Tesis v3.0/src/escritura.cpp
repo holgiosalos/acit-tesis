@@ -13,6 +13,11 @@ string Escritura::itostr(int n) const{
 	return ss.str();
 }
 
+//Funcion tomada de: http://codigoc.org/481-funcion-delay-en-c
+void Escritura::delay(int secs) const{
+	for(int i = (time(NULL) + secs); time(NULL) != i; time(NULL));
+}
+
 /************************** Metodos publicos **************************/
 
 Escritura::Escritura(string directorio) {
@@ -189,6 +194,7 @@ void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 	}
 
 	if(outputfile.SaveFile( _directorioSalida+"/"+_nombreArchivo )){
+		delay(2);
 		cout << _nombreArchivo << endl;
 	}
 }

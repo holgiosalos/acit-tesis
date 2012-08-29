@@ -39,6 +39,7 @@ private:
 	int _intervalosSemana;
 
 	string itostr(int n) const;
+	void delay(int secs) const;
 
 public:
 	Escritura(string directorio);
