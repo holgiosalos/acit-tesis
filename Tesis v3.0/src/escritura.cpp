@@ -15,9 +15,19 @@ string Escritura::itostr(int n) const{
 
 /************************** Metodos publicos **************************/
 
-Escritura::Escritura(string directorio, string nombre) {
+Escritura::Escritura(string directorio) {
 	_directorioSalida 	= directorio;
-	_nombreArchivo 		= nombre;
+	calcularNombreArchivo();
+}
+
+void Escritura::calcularNombreArchivo(void){
+	time_t tSac 	= time(NULL);       // instante actual
+	struct tm* tmP 	= localtime(&tSac);
+
+	string year_mes_dia = itostr(tmP->tm_year+1900) + itostr(tmP->tm_mon+1) + itostr(tmP->tm_mday);
+	string hh_mm_ss 	= itostr(tmP->tm_hour) + itostr(tmP->tm_min) + itostr(tmP->tm_sec);
+
+	_nombreArchivo = "ACiT-"+year_mes_dia+"-"+hh_mm_ss+".xml";
 }
 
 void Escritura::semanas(int s) {
@@ -179,6 +189,6 @@ void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 	}
 
 	if(outputfile.SaveFile( _directorioSalida+"/"+_nombreArchivo )){
-		cout << _directorioSalida+"/"+_nombreArchivo << endl;
+		cout << _nombreArchivo << endl;
 	}
 }

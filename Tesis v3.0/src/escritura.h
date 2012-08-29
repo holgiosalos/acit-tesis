@@ -23,6 +23,7 @@
 #include "especialista.h"
 #include "paciente.h"
 #include "cita.h"
+#include <ctime>
 
 using namespace std;
 
@@ -40,8 +41,9 @@ private:
 	string itostr(int n) const;
 
 public:
-	Escritura(string directorio, string nombre);
+	Escritura(string directorio);
 
+	void calcularNombreArchivo(void);
 	void semanas(int s);
 	int semanas(void);
 	void slotsIntervalo(int sI);

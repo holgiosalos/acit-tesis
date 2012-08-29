@@ -4,7 +4,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    ACiTOptions opt("Asignador");
+    ACiTOptions opt("ACiT");
     //Establecimiento de los valores por defecto
     opt.file("test3.txt");
 

@@ -51,7 +51,7 @@ public:
 		listaPacientes = opt.listaPacientes();
 		listaEspecialidades = opt.listaEspecialidades();
 
-		e = new Escritura("/var/www/ACiT/sites/all/modules/acit_aplicacion","madeByHand.xml");
+		e = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
 		e->semanas(opt.semanas());
 		e->slotsIntervalo(opt.slotsIntervalo());
 		e->slotsDia(opt.slotsDia());
