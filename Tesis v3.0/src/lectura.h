@@ -20,6 +20,8 @@ class Lectura
 	public:
 		Lectura();
 		Lectura(string n);
+		~Lectura();
+
 		void nombreArchivo(string n);
 		string nombreArchivo();	
 		

@@ -1,8 +1,10 @@
 #include "CalculaFechas.h"
 
-CalculaFechas::CalculaFechas(){ }
+CalculaFechas::CalculaFechas() { }
 
-bool CalculaFechas::bisiesto(int anio) {
+CalculaFechas::~CalculaFechas() { }
+
+bool CalculaFechas::bisiesto(int anio) const{
 	// Finalidad: Calcula si un año es bisiesto
 	// Argumentos: Se le pasará un año (int). No será necesario enviarle una fecha entera
 	// Devuelve: true si es bisiesto, false si no lo es
@@ -15,7 +17,7 @@ bool CalculaFechas::bisiesto(int anio) {
 	}
 }
 
-int CalculaFechas::dias_mes(tm_fecha fecha) {
+int CalculaFechas::dias_mes(tm_fecha fecha) const{
 	// Finalidad: Calcula los días de un mes
 	// Argumentos: Se le pasará una fecha (tm_fecha).
 	// Devuelve: Los días del mes de la fecha pasada (int).
@@ -91,7 +93,7 @@ int CalculaFechas::cuenta_dias(tm_fecha fecha1, tm_fecha fecha2) {
 	return acum;
 }
 
-tm_fecha CalculaFechas::sumarDias(tm_fecha fecha, int x) {
+tm_fecha CalculaFechas::sumarDias(tm_fecha fecha, int x) const{
 	// Finalidad: Suma a una fecha inicial una cantidad de días.
 	// Argumentos: Una fecha (tm_fecha) y una cantidad de días (int).
 	// Devuelve: La fecha final con los días sumados (tm_fecha).

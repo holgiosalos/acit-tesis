@@ -29,6 +29,7 @@ public:
 	Especialidad(int i, string n, int c, int nC, int dC, int nE, int nP,
 			vector<Especialista> esp, vector<Paciente> pac,
 			vector<int> idsE, vector<int> idsP);
+	~Especialidad();
 
 	int id(void) const;
 

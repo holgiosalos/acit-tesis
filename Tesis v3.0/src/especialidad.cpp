@@ -17,6 +17,8 @@ Especialidad::Especialidad(int i, string n, int c, int nC, int dC, int nE, int n
 	_idPacientes = idsP;
 }
 
+Especialidad::~Especialidad() {}
+
 int Especialidad::id(void) const
 {
 	return static_cast<int>(_id);

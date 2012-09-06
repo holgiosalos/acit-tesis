@@ -8,6 +8,8 @@ Lectura::Lectura(string n){ // O.K
 	saveLines();
 }
 
+Lectura::~Lectura() {}
+
 void Lectura::nombreArchivo(string n){ // O.K
 	nombre = n;
 }

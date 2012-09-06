@@ -15,6 +15,8 @@ Paciente::Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int>
 	}
 }
 
+Paciente::~Paciente() {}
+
 int Paciente::nCitas(int idE) const
 {
 	int citas;

@@ -19,6 +19,7 @@
 #define TIXML_USE_STL
 #include "tinyxml.h"
 
+#include "CalculaFechas.h"
 #include "especialidad.h"
 #include "especialista.h"
 #include "paciente.h"
@@ -37,10 +38,13 @@ private:
 	int _slotsDia;
 	int _intervalosDia;
 	int _intervalosSemana;
+	tm_fecha _fechaGnrlInicio;
+	CalculaFechas calculadora;
 
 	string itostr(int n) const;
 public:
 	Escritura(string directorio);
+	~Escritura();
 
 	void calcularNombreArchivo(void);
 	void semanas(int s);

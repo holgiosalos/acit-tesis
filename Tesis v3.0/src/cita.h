@@ -26,19 +26,23 @@ private:
 	int _dia;
 	int _diasSemana;
 	tm_fecha _fechaCita;
-	tm_fecha _fechaGnrlInicio;
 
 public:
 	Cita(int idE, int i, int f, int d);
+	~Cita();
 
 	int idEspecialidad(void) const;
 	int inicio(void) const;
 	int fin(void) const;
 	int dia(void) const;
+	void fecha(tm_fecha f);
 	tm_fecha fecha(void) const;
 
 	void setDiasSemana(int ds);
-	void calcularFechaCita(int d);
+	/* La siguiente función calcula cuantos dias calendario han transcurrido desde
+	 * el primer dia de asignacion de citas, hasta el dia en que se asigno ésta cita
+	 */
+	int transformarDia();
 };
 
 #endif

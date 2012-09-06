@@ -23,6 +23,7 @@ class Especialista
 		
 	public:
 		Especialista(int i, string n, int nE, vector<int> iE, vector<vector<int> > hsA);
+		~Especialista();
 
 		void id(int i);
 		int id(void) const;

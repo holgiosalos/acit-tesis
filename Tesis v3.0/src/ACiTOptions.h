@@ -43,6 +43,7 @@ private:
 
 public:
 	ACiTOptions(const char* s);
+	~ACiTOptions();
 
 	void reader(Lectura lector);
 	Lectura reader(void) const;

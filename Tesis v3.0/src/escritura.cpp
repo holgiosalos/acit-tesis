@@ -18,7 +18,10 @@ string Escritura::itostr(int n) const{
 Escritura::Escritura(string directorio) {
 	_directorioSalida 	= directorio;
 	calcularNombreArchivo();
+	_fechaGnrlInicio = calculadora.fechaInicioCitas();
 }
+
+Escritura::~Escritura() { }
 
 void Escritura::calcularNombreArchivo(void){
 	time_t tSac 	= time(NULL);       // instante actual
@@ -166,8 +169,7 @@ void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 				//antes de agregar una cita, hay que setear el numero de dias por semana
 				for(int c=0; c<int(lstCita.size()); c++){
 					lstCita[c].setDiasSemana((int)ceil(_intervalosSemana/_intervalosDia));
-					lstCita[c].calcularFechaCita(lstCita[c].dia());
-					tm_fecha fC = lstCita[c].fecha();
+					tm_fecha fC = calculadora.sumarDias(_fechaGnrlInicio, lstCita[c].transformarDia());
 					string year = itostr(fC.anio);
 					string mes = itostr(fC.mes);
 					if(mes.size() == 1){

@@ -25,12 +25,13 @@ private:
 
 public:
 	CalculaFechas();
+	~CalculaFechas();
 
-	bool bisiesto(int anio);
-	int dias_mes(tm_fecha fecha);
+	bool bisiesto(int anio) const;
+	int dias_mes(tm_fecha fecha) const;
 	bool validarFecha(tm_fecha fecha);
 	int cuenta_dias(tm_fecha fecha1, tm_fecha fecha2);
-	tm_fecha sumarDias(tm_fecha fecha, int x);
+	tm_fecha sumarDias(tm_fecha fecha, int x) const;
 	tm_fecha restarDias(tm_fecha fecha, int x);
 	int dia_semana(tm_fecha fecha2);
 

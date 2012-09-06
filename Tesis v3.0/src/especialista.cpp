@@ -9,6 +9,8 @@ Especialista::Especialista(int i, string n, int nE, vector<int> iE, vector<vecto
 	_horariosAtencion = hsA;
 }
 
+Especialista::~Especialista() {}
+
 void Especialista::id(int i) {
 	_id = i;
 }

@@ -24,6 +24,7 @@ class Paciente
 
 	public:
 		Paciente(int i, string n, int nT, vector<vector<int> > iT, vector<int> d);
+		~Paciente();
 		
 		void id(int i);
 		int id(void) const;

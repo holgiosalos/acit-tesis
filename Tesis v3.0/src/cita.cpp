@@ -13,6 +13,8 @@ Cita::Cita(int idE, int i, int f, int d){
 	_dia = d;
 }
 
+Cita::~Cita() { }
+
 int Cita::idEspecialidad(void) const{
 	return _idEspecialidad;
 }
@@ -25,6 +27,9 @@ int Cita::fin(void) const{
 int Cita::dia(void) const{
 	return _dia;
 }
+void Cita::fecha(tm_fecha f){
+	_fechaCita = f;
+}
 tm_fecha Cita::fecha(void) const{
 	return _fechaCita;
 }
@@ -33,8 +38,8 @@ void Cita::setDiasSemana(int ds){
 	_diasSemana = ds;
 }
 
-void Cita::calcularFechaCita(int d){
-	d--; //por si es el dia calculado por la clase escritura
+int Cita::transformarDia(){
+	int d = _dia - 1;
 
 	/* operaciones para calcular el dia en el calendario en el que se encuentra la cita */
 
@@ -45,8 +50,5 @@ void Cita::calcularFechaCita(int d){
 		d += ((7 - _diasSemana)*semana); //(7 - _diasSemana): Dias que no se asignan citas en la semana
 	}
 
-	//sumar d a fecha incial y tolisto
-	CalculaFechas calculadora;
-	_fechaGnrlInicio = calculadora.fechaInicioCitas();
-	_fechaCita = calculadora.sumarDias(_fechaGnrlInicio, d);
+	return d;
 }

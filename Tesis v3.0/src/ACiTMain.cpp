@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
 
     ACiTOptions opt("ACiT");
     //Establecimiento de los valores por defecto
-    opt.file("test3.txt");
+    opt.file("test2.txt");
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(4); //11 intervalos de tiempo para cada dia

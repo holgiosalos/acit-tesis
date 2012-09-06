@@ -11,6 +11,8 @@ ACiTOptions::ACiTOptions(const char* s) :
 	Options(s) {
 }
 
+ACiTOptions::~ACiTOptions(){}
+
 void ACiTOptions::reader(Lectura lector) {
 	_reader = lector;
 }
@@ -212,15 +214,15 @@ int* ACiTOptions::settingCodigos(void) {
 void ACiTOptions::help(void) {
 	Options::help();
 	cerr <<"\t-file (string) : default:" << file() << endl
-			<<"\t\tDirección y nombre del archivo de entrada" << endl;
-	cerr <<"\t-slInt (int) : default:" << slotsIntervalo() << endl
-			<<"\t\tNumero de slots que componen un intervalo de tiempo" << endl;
-	cerr <<"\t-intervalosDia (int) : default:" << intervalosDia() << endl
-			<<"\t\tNumero de intervalos de tiempo que componen un dia" << endl;
-	cerr <<"\t-semanas (int) : default:" << semanas() << endl
-			<<"\t\tSemanas que se tienen disponibles para lograr la asignación del total de citas" << endl;
-	cerr <<"\t-intervalosSem (int) : default:" << intervalosSemana() << endl
-			<<"\t\tNumero total de intervalo de tiempo que componen una semana" << endl;
+			<<"\t\tPath and name of input file" << endl;
+	cerr <<"\t-slsInt (int) : default:" << slotsIntervalo() << endl
+			<<"\t\tSlots number that comprising a time interval" << endl;
+	cerr <<"\t-dayInt (int) : default:" << intervalosDia() << endl
+			<<"\t\tNumber of time intervals by which a day is composed" << endl;
+	cerr <<"\t-weekInt (int) : default:" << intervalosSemana() << endl
+				<<"\t\tTotal of time intervals by which a week is composed" << endl;
+	cerr <<"\t-weeks (int) : default:" << semanas() << endl
+			<<"\t\tAvailable weeks to schedule the medical appointments" << endl;
 }
 
 void ACiTOptions::parse(int & argc, char* argv[]) {
@@ -229,14 +231,14 @@ void ACiTOptions::parse(int & argc, char* argv[]) {
 	while (++i < argc){
 		if (strcmp(argv[i],"-file")==0){
 			file(argv[++i]);
-		} else if(strcmp(argv[i],"-slInt")==0){
+		} else if(strcmp(argv[i],"-slsInt")==0){
 			slotsIntervalo(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-intervalosDia")==0){
+		}else if(strcmp(argv[i],"-dayInt")==0){
 			intervalosDia(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-semanas")==0){
-			semanas(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-intervalosSem")==0){
+		}else if(strcmp(argv[i],"-weekInt")==0){
 			intervalosSemana(atoi(argv[++i]));
+		}else if(strcmp(argv[i],"-weeks")==0){
+			semanas(atoi(argv[++i]));
 		}
 	}
 }
