@@ -18,7 +18,7 @@ void ACiTOptions::reader(Lectura lector) {
 }
 
 Lectura ACiTOptions::reader(void) const {
-	return static_cast<Lectura> (_reader);
+	return _reader;
 }
 
 void ACiTOptions::file(string dirfile) {
@@ -26,7 +26,7 @@ void ACiTOptions::file(string dirfile) {
 }
 
 string ACiTOptions::file(void) const{
-	return static_cast<string> (_file);
+	return _file;
 }
 
 /**** Calculos relacionados con el makespan y los slots de tiempo ****/
@@ -36,7 +36,7 @@ void ACiTOptions::slotsIntervalo(int sI) {
 }
 
 int ACiTOptions::slotsIntervalo(void) const{
-	return static_cast<int> (_slotsIntervalo);
+	return _slotsIntervalo;
 }
 
 void ACiTOptions::intervalosDia(int intervalosD){
@@ -45,7 +45,7 @@ void ACiTOptions::intervalosDia(int intervalosD){
 }
 
 int ACiTOptions::intervalosDia() const {
-	return static_cast<int>(_intervalosDia);
+	return _intervalosDia;
 }
 
 void ACiTOptions::calcularSlotsDia() {
@@ -54,7 +54,7 @@ void ACiTOptions::calcularSlotsDia() {
 }
 
 int ACiTOptions::slotsDia(void) const {
-	return static_cast<int> (_slotsDia);
+	return _slotsDia;
 }
 
 void ACiTOptions::semanas(int opcion){
@@ -62,7 +62,7 @@ void ACiTOptions::semanas(int opcion){
 }
 
 int ACiTOptions::semanas() const {
-	return static_cast<int> (_semanas);
+	return _semanas;
 }
 
 void ACiTOptions::intervalosSemana(int intervalos) {
@@ -71,7 +71,7 @@ void ACiTOptions::intervalosSemana(int intervalos) {
 }
 
 int ACiTOptions::intervalosSemana(void) const {
-	return static_cast<int> (_intervalosSemana);
+	return _intervalosSemana;
 }
 
 void ACiTOptions::calcularMakespan() {
@@ -81,7 +81,7 @@ void ACiTOptions::calcularMakespan() {
 }
 
 int ACiTOptions::makespan(void) const {
-	return static_cast<int>(_makespan);
+	return _makespan;
 }
 
 /**** Calculo relacionados con las citas y especialistas ****/
@@ -91,7 +91,7 @@ void ACiTOptions::totalCitas(int tC) {
 }
 
 int ACiTOptions::totalCitas(void) const {
-	return static_cast<int> (_totalCitas);
+	return _totalCitas;
 }
 
 void ACiTOptions::totalEspecialistas(int tE) {
@@ -99,7 +99,7 @@ void ACiTOptions::totalEspecialistas(int tE) {
 }
 
 int ACiTOptions::totalEspecialistas(void) const {
-	return static_cast<int> (_totalEspecialistas);
+	return _totalEspecialistas;
 }
 
 vector<Especialidad> ACiTOptions::listaEspecialidades() const{
@@ -107,11 +107,11 @@ vector<Especialidad> ACiTOptions::listaEspecialidades() const{
 }
 
 vector<Especialista> ACiTOptions::listaEspecialistas() const {
-	return static_cast<vector<Especialista> > (_listaEspecialistas);
+	return _listaEspecialistas;
 }
 
 vector<Paciente> ACiTOptions::listaPacientes() const {
-	return static_cast<vector<Paciente> > (_listaPacientes);
+	return _listaPacientes;
 }
 
 void ACiTOptions::listaCodEspecialistas(IntSet ids) {
@@ -119,21 +119,23 @@ void ACiTOptions::listaCodEspecialistas(IntSet ids) {
 }
 
 IntSet ACiTOptions::listaCodEspecialistas(void) const {
-	return static_cast<IntSet> (_listaCodEspecialistas);
+	return _listaCodEspecialistas;
 }
 
 void ACiTOptions::iniciar(void) {
 
 	//Agregamos los pacientes del archivo al vector listaPacientes
 	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
-	vector<int> aux(3); //guarda el id, el numero de citas y duracion  de cada especialidad asociada al paciente i
+	//guarda el id, el numero de citas, duracion de cada especialidad y especialista de preferencia asociada al paciente i
+	vector<int> aux(4);
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
 //		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
 		for(int e=0; e<_reader.numTratamientosPac(i); e++){
-			aux[0] = _reader.obtenerEspecialidadPac(i, e);
-			aux[1] = _reader.numCitas(i, e);
+			aux[0] = _reader.obtenerEspecialidadPac(i, e); //Id de especialidad del tratamiento
+			aux[1] = _reader.numCitas(i, e); //Numero de citas en ese tratamiento
 			aux[2] = _reader.duracionCitTrat(i, e)/5; //se guarda la duracion en numero de slots
+			aux[3] = _reader.profPrefPac(i, e); //profesional de preferencia en esa especialidad
 //			cout << aux[0] << "," << aux[1] << " | ";
 			infoEs.push_back(aux);
 			//aux.clear();

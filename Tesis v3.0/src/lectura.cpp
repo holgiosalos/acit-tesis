@@ -1,79 +1,71 @@
 #include "lectura.h"
 
+Lectura::Lectura(){}
 
-Lectura::Lectura(){} // O.K
+Lectura::~Lectura(){}
 
-Lectura::Lectura(string n){ // O.K
+Lectura::Lectura(string n){
 	nombre = n;
 	saveLines();
 }
 
-Lectura::~Lectura() {}
-
-void Lectura::nombreArchivo(string n){ // O.K
+void Lectura::nombreArchivo(string n){
 	nombre = n;
 }
 
-string Lectura::nombreArchivo(){ // O.K
+string Lectura::nombreArchivo(){
 	return nombre;
 }
 
-void Lectura::saveLines(){ // O.K
-//	vector <string> lines;
+
+//CAMBIO OCT 02
+void Lectura::saveLines(){
 	
-	FILE *archivo;
-	int tam = 157;
-    char palabra[tam]; //Cuando no alcance a leer un fragmento de la línea, cambiar este tamaño.
-    char *cadena;
-    
-    archivo = fopen(nombre.c_str(), "r");
-    
-    if (archivo == NULL){
-        printf("Error al abrir el Lectura \n");
-        exit(1);
-    }
+	ifstream archivo;
+	string linea;
 
-    do
-    {
-        cadena = fgets(palabra, tam, archivo);   /* Obtiene una linea del Lectura */
-        if (cadena != NULL){
-			lines.push_back(cadena);
-		}
-    }
-    while (cadena != NULL);                  /* Hasta encontrar NULL */
+	archivo.open(nombre.c_str());
 
-    fclose(archivo);
-	//return lines;
+	if(archivo.fail()){
+		printf("Error al abrir el Archivo \n");
+		exit(1);
+	}
+
+	while(getline(archivo, linea)){
+		lines.push_back(linea);
+	}
+
+	archivo.close();
+
     //cout<<"Size Lines "<<lines.size()<<endl;
 }
 
-vector <string> Lectura::getLines(){ // O.K
+vector <string> Lectura::getLines(){
 	return lines;
 }
 
-int Lectura::numEspecialistas(){ // O.K
+int Lectura::numEspecialistas(){
 	int n;
 	n = atoi(lines[0].c_str());
 	//~ cout <<"numEspecialistas: "<<n<<endl;
 	return n;
 }
 
-int Lectura::numEspecialidades(){ // O.K
+int Lectura::numEspecialidades(){
 	int n;
 	n = atoi(lines[1].c_str());
 	//~ cout << "numEspecialidades: " << n << endl;
 	return n;
 }
 
-int Lectura::numPacientes(){ // O.K
+int Lectura::numPacientes(){
 	int n;
 	n = atoi(lines[2].c_str());
 	//~ cout << "numPacientes: " << n << endl;
 	return n;
 }
 
-
-int Lectura::totCitas(){ //Modificación Versión 2.1
+int Lectura::totCitas(){
 
 	int _numCitas=0;
 	int _numPac = numPacientes();
@@ -86,7 +78,7 @@ int Lectura::totCitas(){ //Modificación Versión 2.1
 	return _numCitas;
 }
 
-int Lectura::totCitasPaciente(int i){ //Versión 2.1
+int Lectura::totCitasPaciente(int i){
 	int nCitasP = 0;
 	int nTratP = 0;
 
@@ -99,12 +91,23 @@ int Lectura::totCitasPaciente(int i){ //Versión 2.1
 	return nCitasP;
 }
 
+int Lectura::numIntervalos(){
+	vector<int> auxDisp = dispPaciente(0);
+	return (int)auxDisp.size();
+}
+
+int Lectura::numIntervalosDia(void){
+	int nInt = numIntervalos();
+	return (int)nInt/5;
+}
+
 //-------------- METODOS RELACIONADOS CON LAS ESPECIALIDADES -----------------//
 
 //Se cuenta apartir de Especialidad 0
-string Lectura::infoEspecialidad(int x){ // O.K
+string Lectura::infoEspecialidad(int x){
 	
 	string _infoEspecialidad = "";
+
 	if(x>=numEspecialidades() || x<0){
 		cout<<"Número de Especialidad Incorrecto"<<endl;
 		exit(1);
@@ -117,7 +120,7 @@ string Lectura::infoEspecialidad(int x){ // O.K
     return _infoEspecialidad;		
 }
 
-string Lectura::strIdEspecialidad(int x){ // O.K
+string Lectura::strIdEspecialidad(int x){
 
      string strId = "";
      int esp = idEspecialidad(x);
@@ -127,7 +130,7 @@ string Lectura::strIdEspecialidad(int x){ // O.K
     return strId;
 }
 
-int Lectura::idEspecialidad(int x){ // O.K
+int Lectura::idEspecialidad(int x){
 
     int id = 0;
     string esp = infoEspecialidad(x);
@@ -138,7 +141,7 @@ int Lectura::idEspecialidad(int x){ // O.K
     return id;    
 }
 
-vector <int> Lectura::listaIdEspecialidades(){ // O.K
+vector <int> Lectura::listaIdEspecialidades(){
 
 	vector <int> lista;
 	for(int i=0; i<numEspecialidades(); i++){
@@ -147,23 +150,25 @@ vector <int> Lectura::listaIdEspecialidades(){ // O.K
 	return lista;
 }
 
-string Lectura::nombreEspecialidadID(int id){ //Versión 2.1 OK
+string Lectura::nombreEspecialidadID(int id){
 
 	vector <int> listaIDs(listaIdEspecialidades());
 	vector <string> listaNombres(listaNomEspecialidades());
+
 	int pos = get_position(listaIDs, id);
-	string nombre = listaNombres[pos];
+	string nombre = listaNombres.at(pos);
 
 	return nombre;
 }
 
-string Lectura::nomEspecialidad(int j){ // O.K //Modificación Versión 2.1
+string Lectura::nomEspecialidad(int j){
 
 	string nombre = "";
     string cadena = infoEspecialidad(j);
 
     string caracter("'");
     size_t nomIni, nomFin;
+
     int pos_i = 0;
     int pos_f = 0;
 
@@ -180,13 +185,13 @@ string Lectura::nomEspecialidad(int j){ // O.K //Modificación Versión 2.1
     	 pos_f = int(nomFin);
     }
 
-    nombre = cadena.substr(pos_i+1,pos_f); //Desde pos_i+1, hasta (pos_i+1+pos_f)
+    nombre = cadena.substr(pos_i+1,pos_f);
 
     return nombre;
 }
 
 
-vector <string> Lectura::listaNomEspecialidades(){ // O.K
+vector <string> Lectura::listaNomEspecialidades(){
 
 	vector <string> lista;
 	for(int i=0; i<numEspecialidades(); i++){
@@ -196,7 +201,7 @@ vector <string> Lectura::listaNomEspecialidades(){ // O.K
 }
 
 
-int Lectura::capEspecialidad(int j){ //Versión 2.1
+int Lectura::capEspecialidad(int j){
 
 	string cadena;
 	int intCap = 0;
@@ -207,7 +212,7 @@ int Lectura::capEspecialidad(int j){ //Versión 2.1
     return intCap;
 }
 
-vector<int> Lectura::listaCapEspecialidad(){ //Versión 2.1
+vector<int> Lectura::listaCapEspecialidad(){
 	vector <int> lista;
 	for(int i=0; i<numEspecialidades(); i++){
 		lista.push_back(capEspecialidad(i));
@@ -215,7 +220,7 @@ vector<int> Lectura::listaCapEspecialidad(){ //Versión 2.1
 	return lista;
 }
 
-int Lectura::duracionCita(int j){ //Versión 2.1
+int Lectura::duracionCita(int j){
 
 	string cadena;
 	int duracion = 0;
@@ -226,7 +231,7 @@ int Lectura::duracionCita(int j){ //Versión 2.1
 	return duracion;
 }
 
-vector<int> Lectura::listaDuracionesCitas(){ //Versión 2.1
+vector<int> Lectura::listaDuracionesCitas(){
 	vector <int> lista;
 	for(int i=0; i<numEspecialidades(); i++){
 		lista.push_back(duracionCita(i));
@@ -234,7 +239,8 @@ vector<int> Lectura::listaDuracionesCitas(){ //Versión 2.1
 	return lista;
 }
 
-int Lectura::numCitasEsp(int i){ //Modificación Versión 2.1 donde i es el id de la especialidad
+
+int Lectura::numCitasEsp(int i){ //Donde i es el id de la especialidad
 
 	int contador = 0;
 	int nPac = numPacientes();
@@ -253,7 +259,7 @@ int Lectura::numCitasEsp(int i){ //Modificación Versión 2.1 donde i es el id d
 }
 
 
-int Lectura::numPacEsp(int i){ //Modificación Versión 2.1 donde i es el id de la Especialidad
+int Lectura::numPacEsp(int i){ //Donde i es el id de la Especialidad
 
 	int contador=0;
 	int nEsp = 0;
@@ -284,14 +290,14 @@ string Lectura::infoEspecialista(int j){ // O.K
 		exit(1);
 	}
 	else{
-         _infoEspecialista = lines[3 + j + numEspecialidades()].c_str();
+         _infoEspecialista = lines[3 + j + numEspecialidades() + get_pos_info_prof(j)].c_str();
 	     //cout<<_infoEspecialista;		
 	}
 
     return _infoEspecialista;
 }
 
-int Lectura::idEspecialista(int j){ // O.K
+int Lectura::idEspecialista(int j){
 
     int id = 0;
     string esp = infoEspecialista(j); 
@@ -302,7 +308,7 @@ int Lectura::idEspecialista(int j){ // O.K
     return id;    
 }	
 
-vector <int> Lectura::listaIdEspecialistas(){ // O.K
+vector <int> Lectura::listaIdEspecialistas(){
 	vector <int> lista;
 	for(int i=0; i<numEspecialistas(); i++){
 		lista.push_back(idEspecialista(i));
@@ -311,13 +317,14 @@ vector <int> Lectura::listaIdEspecialistas(){ // O.K
 }
 
 
-string Lectura::nomEspecialista(int j){ // Versión Lectura
+string Lectura::nomEspecialista(int j){
 
 	string nombre = "";
     string cadena = infoEspecialista(j);
 
     string caracter("'");
     size_t nomIni, nomFin;
+
     int pos_i = 0;
     int pos_f = 0;
 
@@ -334,13 +341,13 @@ string Lectura::nomEspecialista(int j){ // Versión Lectura
     	 pos_f = int(nomFin);
     }
 
-    nombre = cadena.substr(pos_i+1,pos_f); //Desde pos_i+1, hasta (pos_i+1+pos_f)
+    nombre = cadena.substr(pos_i+1,pos_f);
 
     return nombre;
 }
 
 
-vector <string> Lectura::listaNomEspecialistas(){ // Versión Lectura
+vector <string> Lectura::listaNomEspecialistas(){
 
 	vector <string> lista;
 	for(int i=0; i<numEspecialistas(); i++){
@@ -350,51 +357,46 @@ vector <string> Lectura::listaNomEspecialistas(){ // Versión Lectura
 }
 
 
-string Lectura::subcadenaProfesional(int j){ //Versión Lectura
+int Lectura::numEspProfesional(int j){
+
+	int intProf = 0;
 
 	string esp;
 	esp = infoEspecialista(j);
-    //cout<<esp<<endl;
-
     int pos = 0;
     pos = itostr(idEspecialista(j)).length()+nomEspecialista(j).length()+4;
 
 	string cadena;
 	cadena = esp.substr(pos);
 
-	return cadena;
-}
-
-
-//CREAR MÉTODO PARA CREAR LA LISTA DE NÚMERO DE ESPECIALIDADES DE PROFESIONAL ------------------
-int Lectura::numEspProfesional(int j){ //Modificación Versión Lectura
-
-	int intProf = 0;
-    string esp = subcadenaProfesional(j);
-    intProf = getField(esp, 1);
+    intProf = getField(cadena, 1);
 
     return intProf;
 }
 
-string Lectura::datosDispProfEspecialidad(int j, int e){ //Versión 2.1 ~
+string Lectura::datosDispProfEspecialidad(int j, int e){
 	string esp = "";
 	esp = datosDispProfesional(j)[e];
 	return esp;
 }
 
 
-vector <string> Lectura::datosDispProfesional(int j){ //Modificación Versión Lectura
+vector <string> Lectura::datosDispProfesional(int j){
 
 	string esp = "";
-	esp = subcadenaProfesional(j); //infoEspecialista(j);
-	esp = esp.substr(2);
-	vector <string> cadenas (subcadenasCorchetes(esp));
+	vector <string> cadenas;
+	//esp = esp.substr(2);
+
+	for(int i = 0; i < numEspProfesional(j);i++){
+		esp = lines[3 + j + i + 1 + numEspecialidades() + get_pos_info_prof(j)].c_str();
+		cadenas.push_back(esp);
+	}
 
 	return cadenas;
 }
 
 
-int Lectura::obtenerEspecialidadProf(int j, int e){ //Versión 2.1
+int Lectura::obtenerEspecialidadProf(int j, int e){
 	
 	int intProf = 0;
 	vector <string> esp (datosDispProfesional(j));
@@ -404,7 +406,7 @@ int Lectura::obtenerEspecialidadProf(int j, int e){ //Versión 2.1
 }
 
 //Profesiones Especialista j
-vector <int> Lectura::especialidadesProf(int j){ //Modificación Versión 2.1
+vector <int> Lectura::especialidadesProf(int j){
 
 	vector <int> intProf;
 	int numEP = numEspProfesional(j);
@@ -416,7 +418,7 @@ vector <int> Lectura::especialidadesProf(int j){ //Modificación Versión 2.1
 	return intProf;
 }
 
-vector <vector<int> > Lectura::listaEspecialidadesProfs(){ //Modificación Versión2.1
+vector <vector<int> > Lectura::listaEspecialidadesProfs(){
 	vector <vector<int> > lista;
 	for(int i=0; i<numEspecialistas(); i++){
 		lista.push_back(especialidadesProf(i));
@@ -424,7 +426,7 @@ vector <vector<int> > Lectura::listaEspecialidadesProfs(){ //Modificación Versi
 	return lista;
 }
 
-int Lectura::obtenerCapacidad(int j, int e){ //Versión 2.1
+int Lectura::obtenerCapacidad(int j, int e){
 
 	int intCap;
 	vector <string> esp (datosDispProfesional(j));
@@ -433,7 +435,7 @@ int Lectura::obtenerCapacidad(int j, int e){ //Versión 2.1
 	return intCap;
 }
 
-vector <int> Lectura::capEspecialista(int j){ //Modificación Versión2.1
+vector <int> Lectura::capEspecialista(int j){
 
 	vector <int> intCap;
    	int numEP = numEspProfesional(j);
@@ -445,7 +447,7 @@ vector <int> Lectura::capEspecialista(int j){ //Modificación Versión2.1
     return intCap;
 }
 
-vector <vector<int> >Lectura::listaCapEspecialistas(){ //Modificación Versión 2.1
+vector <vector<int> >Lectura::listaCapEspecialistas(){
 	vector <vector <int> > lista;
 	for(int i=0; i<numEspecialistas(); i++){
 		lista.push_back(capEspecialista(i));
@@ -454,7 +456,7 @@ vector <vector<int> >Lectura::listaCapEspecialistas(){ //Modificación Versión 
 }
 
 
-vector <string> Lectura::strDispEspecialista(int j){ //Modificación Versión2.1
+vector <string> Lectura::strDispEspecialista(int j){
 
     vector <string> disponibilidad = datosDispProfesional(j);
     size_t pos;
@@ -469,13 +471,13 @@ vector <string> Lectura::strDispEspecialista(int j){ //Modificación Versión2.1
     return disponibilidad;
 }
 
-vector<int> Lectura::dispProfesionalEsp(int j, int e){ //Versión 2.1 ~
+vector<int> Lectura::dispProfesionalEsp(int j, int e){
 	vector <int> dispo;
 	dispo = dispEspecialista(j)[e];
 	return dispo;
 }
 
-vector <vector<int> > Lectura::dispEspecialista(int j){ //Modificación Versión2.1
+vector <vector<int> > Lectura::dispEspecialista(int j){
 
 	vector <vector<int> > vectorAux;
 	vector <string> strDisponibilidad = strDispEspecialista(j);
@@ -492,8 +494,8 @@ vector <vector<int> > Lectura::dispEspecialista(int j){ //Modificación Versión
 
 //---------------- METODOS RELACIONADOS CON LOS PACIENTES -------------------//
 
-//Se cuenta apartir de Especialistas 0
-string Lectura::infoPaciente(int i){ //OK
+//Se cuenta apartir de Paciente 0
+string Lectura::infoPaciente(int i){
 	
 	string _infoPaciente = "";
 
@@ -502,7 +504,7 @@ string Lectura::infoPaciente(int i){ //OK
 		exit(1);
 	}
 	else{
-		 _infoPaciente = lines[3 + i + numEspecialidades() + numEspecialistas()].c_str();
+		 _infoPaciente = lines[3 + numEspecialidades() + numEspecialistas()+ 2*i + get_nro_total_EP()].c_str();
 	     //cout<<_infoPaciente<<endl;		
 	}
     
@@ -510,7 +512,7 @@ string Lectura::infoPaciente(int i){ //OK
 }
 
 
-int Lectura::idPaciente(int i){ //OK
+int Lectura::idPaciente(int i){
 
     int id = 0;
     string pac = infoPaciente(i);
@@ -521,7 +523,7 @@ int Lectura::idPaciente(int i){ //OK
     return id;    
 }
 
-vector <int> Lectura::listaIdPacientes(){ //OK
+vector <int> Lectura::listaIdPacientes(){
 	vector <int> lista;
 	for(int i=0; i<numPacientes(); i++){
 		lista.push_back(idPaciente(i));
@@ -530,7 +532,7 @@ vector <int> Lectura::listaIdPacientes(){ //OK
 }
 
 
-string Lectura::nomPaciente(int j){ // Versión Lectura
+string Lectura::nomPaciente(int j){
 
 	string nombre = "";
     string cadena = infoPaciente(j);
@@ -553,13 +555,13 @@ string Lectura::nomPaciente(int j){ // Versión Lectura
     	 pos_f = int(nomFin);
     }
 
-    nombre = cadena.substr(pos_i+1,pos_f); //Desde pos_i+1, hasta (pos_i+1+pos_f)
+    nombre = cadena.substr(pos_i+1,pos_f);
 
     return nombre;
 }
 
 
-vector <string> Lectura::listaNomPacientes(){ // Versión Lectura
+vector <string> Lectura::listaNomPacientes(){
 
 	vector <string> lista;
 	for(int i=0; i<numPacientes(); i++){
@@ -568,8 +570,8 @@ vector <string> Lectura::listaNomPacientes(){ // Versión Lectura
 	return lista;
 }
 
-//CREAR UN MÉTODO PARA LA LISTA DE TRATAMIENTOS----------------------------------
-int Lectura::numTratamientosPac(int i){ //Modificación Versión Lectura
+
+int Lectura::numTratamientosPac(int i){
 
 	int nTratamientos = 0;
     string infoPac = subcadenaPaciente(i);
@@ -580,11 +582,10 @@ int Lectura::numTratamientosPac(int i){ //Modificación Versión Lectura
 }
 
 
-string Lectura::subcadenaPaciente(int j){ //Versión Lectura
+string Lectura::subcadenaPaciente(int j){
 
 	string pac;
 	pac = infoPaciente(j);
-    //cout<<esp<<endl;
 
     int pos = 0;
     pos = itostr(idPaciente(j)).length()+nomPaciente(j).length()+4;
@@ -596,7 +597,7 @@ string Lectura::subcadenaPaciente(int j){ //Versión Lectura
 }
 
 
-vector<string> Lectura::datosTratamientosPaciente(int i){ //Versión 2.1
+vector<string> Lectura::datosTratamientosPaciente(int i){
 
 	string pac = "";
 	pac = infoPaciente(i);
@@ -620,7 +621,7 @@ int Lectura::obtenerEspecialidadPac(int i, int e){
 }
 
 // Especialidad que requiere el Paciente i
-vector <int> Lectura::espPaciente(int i){ //Modificación Versión2.1
+vector <int> Lectura::espPaciente(int i){
 	
 	vector <int> intEsp;
     int numTrat = numTratamientosPac(i);
@@ -632,7 +633,7 @@ vector <int> Lectura::espPaciente(int i){ //Modificación Versión2.1
     return intEsp;
 }
 
-vector <vector<int> > Lectura::listaEspPacientes(){ //Modificación Versión2.1
+vector <vector<int> > Lectura::listaEspPacientes(){
 	vector <vector<int> > lista;
 	int numP = numPacientes();
 	for(int i=0; i<numP; i++){
@@ -643,7 +644,7 @@ vector <vector<int> > Lectura::listaEspPacientes(){ //Modificación Versión2.1
 }
 
 // Número de Citas que requiere el Paciente i en la especialidad e
-int Lectura::numCitas(int i, int e){  //Modificación Versión 2.1
+int Lectura::numCitas(int i, int e){
 	
 	int intCitas;
 	vector <string> datos (datosTratamientosPaciente(i));
@@ -664,7 +665,7 @@ vector <int> Lectura::numeroCitasPac(int i){
 }
 
 // Lista con el numero de citas
-vector <vector<int> > Lectura::listaNumCitas(){ //Modificación Versión 2.1
+vector <vector<int> > Lectura::listaNumCitas(){
 	vector <vector<int> > lista;
 	for(int i=0; i<numPacientes(); i++){
 		lista.push_back(numeroCitasPac(i));
@@ -672,7 +673,7 @@ vector <vector<int> > Lectura::listaNumCitas(){ //Modificación Versión 2.1
 	return lista;
 }
 
-int Lectura::profPrefPac(int i, int e){  //Versión Lectura
+int Lectura::profPrefPac(int i, int e){
 
 	int intCitas;
 	vector <string> datos (datosTratamientosPaciente(i));
@@ -681,7 +682,7 @@ int Lectura::profPrefPac(int i, int e){  //Versión Lectura
 	return intCitas;
 }
 
-vector <int> Lectura::listaProfPrefPac(int i){ //Versión Lectura
+vector <int> Lectura::listaProfPrefPac(int i){
 	vector <int> intCitas;
 	int numTrat = numTratamientosPac(i);
 
@@ -693,18 +694,18 @@ vector <int> Lectura::listaProfPrefPac(int i){ //Versión Lectura
 }
 
 
-string Lectura::strDispPaciente(int i){ //OK
+string Lectura::strDispPaciente(int i){
 	string disponibilidad = ""; 
     size_t pos;
-    
-    disponibilidad = infoPaciente(i);
+
+    disponibilidad = lines[3 + numEspecialidades() + numEspecialistas() + (2*i + 1) + + get_nro_total_EP()].c_str();
 	pos = disponibilidad.find("-");   
-	disponibilidad = disponibilidad.substr(pos+2); 
+	disponibilidad = disponibilidad.substr(pos+1);
 	
     return disponibilidad;
 }
 
-vector <int> Lectura::dispPaciente(int i){ //OK
+vector <int> Lectura::dispPaciente(int i){
 	
 	vector <int> vectorAux;
 	string strDisponibilidad = strDispPaciente(i);
@@ -713,7 +714,7 @@ vector <int> Lectura::dispPaciente(int i){ //OK
 	return vectorAux;
 }
 
-vector <vector<int> > Lectura::listaDispPacientes(){ //OK
+vector <vector<int> > Lectura::listaDispPacientes(){
 	vector <vector<int> > lista;
 	for(int i=0; i<numPacientes(); i++){
 		lista.push_back(dispPaciente(i));
@@ -796,7 +797,7 @@ vector <int> Lectura::splitStrDisponibilidad(string cadena){
     return vectorAux;
 }
 
-string Lectura::subcadenaEspecialidad(int j){ //Versión 2.1
+string Lectura::subcadenaEspecialidad(int j){
 
 	string esp;
     esp = infoEspecialidad(j);
@@ -812,7 +813,7 @@ string Lectura::subcadenaEspecialidad(int j){ //Versión 2.1
 }
 
 
-vector <string> Lectura::subcadenasCorchetes(string cadena){ //Versión2.1 OK
+vector <string> Lectura::subcadenasCorchetes(string cadena){
 
 	vector <string> vectorAux;
 	char *caracteres;
@@ -831,7 +832,7 @@ vector <string> Lectura::subcadenasCorchetes(string cadena){ //Versión2.1 OK
     return vectorAux;
 }
 
-int Lectura::get_position(vector <int> vector, int num){ //Versión2.1 OK
+int Lectura::get_position(vector <int> vector, int num){
 
 	int pos;
 
@@ -852,4 +853,28 @@ int Lectura::get_position(vector <int> vector, int num){ //Versión2.1 OK
 	}
 
 	return pos;
+}
+
+int Lectura::get_pos_info_prof(int j){
+
+	int pos = 0;
+
+	if( j == 0){
+		pos = j;
+	}
+	else{
+		for(int i = j; i > 0; i--){
+			pos = pos + numEspProfesional(i-1);
+		}
+	}
+	return pos;
+}
+
+int Lectura::get_nro_total_EP(){
+
+	int total = 0;
+	for(int i=0; i < numEspecialistas(); i++){
+		total = total + numEspProfesional(i);
+	}
+	return total;
 }

@@ -92,6 +92,17 @@ vector<int> Paciente::duracionesT(void)
 	return _duracionesT;
 }
 
+int Paciente::especialistaPref(int idE) {
+	int idEspecialista;
+	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+		if(_infoTratamientos[i][0]==idE){
+			idEspecialista = _infoTratamientos[i][3];
+			break;
+		}
+	}
+	return idEspecialista;
+}
+
 bool Paciente::buscaEspecialidadPac(int id)
 {
 	bool aux=false;

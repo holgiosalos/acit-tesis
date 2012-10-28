@@ -21,7 +21,7 @@ Especialidad::~Especialidad() {}
 
 int Especialidad::id(void) const
 {
-	return static_cast<int>(_id);
+	return _id;
 }
 
 string Especialidad::nombre(void) const

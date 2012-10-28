@@ -43,6 +43,16 @@ private:
 	Escritura * e;
 
 public:
+	// GETTERS
+	vector<Especialidad> lstEspecialidades() {
+		return listaEspecialidades;
+	}
+
+	vector<Paciente> lstPacientes() {
+		return listaPacientes;
+	}
+
+
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
@@ -92,7 +102,7 @@ public:
 		}
 
 		for(int i=0; i<(int)listaEspecialidades.size(); i++){
-//			cout << listaEspecialidades[i].nombre() << endl;
+			cout << listaEspecialidades[i].nombre() << " citas: " << listaEspecialidades[i].totalCitas() << endl;
 			listaVarEspecialistas.push_back(IntVarArray(*this,
 					listaEspecialidades[i].totalCitas(),
 					listaCodigos[i]));//especialistas
@@ -138,11 +148,17 @@ public:
 							rel(*this, listaVarTInicio[esp_i][citEsp_i], IRT_NQ, k, opt.icl());
 						}
 					}
-
+/*
+					if(j == 0){
+						//Restricción de preferencia
+						if(pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) != 0){
+							rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()), opt.icl());
+						}
+					}
+*/
 					if(j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id())-1){
 						//Restricción 2: Mismo especialista para todas las citas de un paciente
 						rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());
-
 //						rel(*this, listaVarTFin[esp_i][citEsp_i], IRT_LE, listaVarTInicio[esp_i][citEsp_i+1], opt.icl());
 
 						//Restricción 3: Dia diferente para dos citas distintas

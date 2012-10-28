@@ -41,7 +41,8 @@ int main(int argc, char* argv[]) {
     		cout << "	-NPac:		" << _listaEspecialidades[i].nPacientes() << " - " << _listaEspecialidades[i].pacientesString() << endl;
     		cout << "	-NEsp:		" << _listaEspecialidades[i].nEspecialistas() << " - " << _listaEspecialidades[i].especialistasString() << endl;
     		cout << endl;
-    }*/
+    }
+    */
 
     Script::run<ACiTConstraints,DFS,ACiTOptions>(opt);
     return 0;

@@ -1,17 +1,17 @@
 #include <gecode/int.hh>
 #include <limits>
+#include "paciente.h"
 #include "especialidad.h"
-
 
 using namespace Gecode;
 using namespace std;
-
 
 class Distribuidor : public Brancher {
 protected:
 	ViewArray<Int::IntView> x;
 	vector<Especialidad> lstEspecialidades;
 	vector<vector<int> > prioridades;
+	int proxima;
 	//Choice Definition
 	class PosVal : public Choice {
 		public:
@@ -31,17 +31,17 @@ public:
 		: Brancher(home), x(x0) {
 		lstEspecialidades = lstEsp;
 		prioridades = p;
-
+		proxima=0; //proximo variable a asignar
 	}
 
 	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, vector<vector<int> > p){
 		(void) new (home) Distribuidor(home, x, lstEsp, p);
 	}
 
-	 virtual size_t dispose(Space& home) {
-		 (void) Brancher::dispose(home);
-		 return sizeof(*this);
-	 }
+	virtual size_t dispose(Space& home) {
+		(void) Brancher::dispose(home);
+		return sizeof(*this);
+	}
 
 	Distribuidor(Space& home, bool share, Distribuidor& b)
 		: Brancher(home,share,b) {
@@ -62,17 +62,64 @@ public:
 
 	//Choice
 	virtual Choice* choice(Space& home) {
-		int esp, pr;
+		vector<int> infoVar(2);
+		int pos;
 		for (int i=0; i<x.size(); i++){
-			if (!x[i].assigned()){
-				esp = determinarEspecialidad(i);
-				//cout << "esp[" << i << "]: " << esp << endl;
-				int* codigos = lstEspecialidades[esp].idEspecialistasArray();
-				pr = determinarEspecialista(prioridades[esp]);
-				//cout << pr << endl;
-				prioridades[esp][pr] +=1;
-				return new PosVal(*this, i, codigos[pr]);
+			infoVar = infoVariable(i);
+			if (!x[i].assigned())
+			{
+				//ultimo + citas
+				proxima = i + infoVar[1];
+				//cout << "i: " << i << " -> " << proxima << endl;
+//				cout << "esp[" << i << "]: " << esp << endl;
+				int* codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
+				pos = determinarEspecialista(prioridades[infoVar[0]]);
+//				cout << pr << endl;
+				prioridades[infoVar[0]][pos] +=1;
+				cout << "prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
+				cout << "seleccionado codigos[" << pos << "]: " << codigos[pos] << endl;
+				if (i == x.size()-2)
+				{
+					cout << "valores finales: " << endl;
+					for (int j=0; j<(int)prioridades.size(); j++)
+					{
+						for (int k=0; k<(int)prioridades[j].size(); k++)
+						{
+							cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
+						}
+					}
+				}
+				return new PosVal(*this, i, codigos[pos]);
 			}
+			else
+			{
+				//cout << "i': " << i << " -> " << proxima << endl;
+/*
+				if(i >= proxima) {
+					// sumar paciente al especialista que corresponde
+					int* codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
+					pos = determinarEspecialista(prioridades[infoVar[0]]);
+					prioridades[infoVar[0]][pos] +=1 ;
+					//actualizar proxima
+					proxima = i + infoVar[1];
+					cout << "+ prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
+					cout << "sumado codigos[" << pos << "]: " << codigos[pos] << endl;
+				}
+*/
+				if (i == x.size()-2)
+				{
+					cout << "valores finales: " << endl;
+					for (int j=0; j<(int)prioridades.size(); j++)
+					{
+						for (int k=0; k<(int)prioridades[j].size(); k++)
+						{
+							cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
+						}
+					}
+				}
+			}
+			infoVar.clear();
+			infoVar.resize(2);
 		}
 		GECODE_NEVER;
 		return NULL;
@@ -94,25 +141,27 @@ public:
 	    	return me_failed(x[pos].nq(home,val)) ? ES_FAILED : ES_OK;
 	}
 
-	//Determinar los especialidad
-	int determinarEspecialidad(int i) {
-		int acumulado=0;
-		int nEsp;
-		for(int a=0; a<(int)lstEspecialidades.size(); a++){
-			if(a>0){
-				if( (i >= acumulado) && (i < acumulado+lstEspecialidades[a].totalCitas()) ){
-					nEsp = a;
+	//Determinar la especialidad y las citas faltantes para cambio de paciente
+	vector<int> infoVariable(int i) {
+		vector<int> _infoVariable(2);
+		int acumulado = 0;
+		for (int nEsp = 0; nEsp < (int)lstEspecialidades.size(); nEsp++){
+			if (nEsp > 0){
+				if( (i >= acumulado) && (i < acumulado+lstEspecialidades[nEsp].totalCitas()) ){
+					_infoVariable[0] = nEsp;
+					_infoVariable[1] = determinarPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}else {
-				if(i < lstEspecialidades[a].totalCitas()){
-					nEsp = a;
+				if(i < lstEspecialidades[nEsp].totalCitas()){
+					_infoVariable[0] = nEsp;
+					_infoVariable[1] = determinarPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}
-			acumulado += lstEspecialidades[a].totalCitas();
+			acumulado += lstEspecialidades[nEsp].totalCitas();
 		}
-		return nEsp;
+		return _infoVariable;
 	}
 
 	//Determinar la prioridad de asignación para un especialista
@@ -126,5 +175,40 @@ public:
 			}
 		}
 		return posEsp;
+	}
+
+	int determinarPaciente(int i, int esp, int acumulado){
+		vector<Paciente> pacientes = lstEspecialidades[esp].pacientes();
+		int idEsp = lstEspecialidades[esp].id();
+		int citasP=0;
+		int posIni = i - acumulado; //indica la posicion de la primera cita de esa especialidad
+		int acumuladoCitas = 0;
+		for (int b = 0; b < (int)pacientes.size(); b++){
+			if (b > 0){
+				if ((posIni >= acumuladoCitas) && (posIni < acumuladoCitas+pacientes[b].nCitas(idEsp)))
+				{
+					citasP = pacientes[b].nCitas(idEsp);
+					break;
+				}
+			}
+			else if (posIni < pacientes[b].nCitas(idEsp))
+			{
+					citasP = pacientes[b].nCitas(idEsp);
+					break;
+			}
+			acumuladoCitas += pacientes[b].nCitas(idEsp);
+		}
+		return citasP;
+	}
+
+	int determinarPosicion(int esp, int idE, int* cods){
+		int pos;
+		for(int i=0; i<lstEspecialidades[esp].nEspecialistas(); i++){
+			if(cods[i] == idE){
+				pos = i;
+				break;
+			}
+		}
+		return pos;
 	}
 };

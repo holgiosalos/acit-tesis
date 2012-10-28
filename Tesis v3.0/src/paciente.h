@@ -46,8 +46,11 @@ class Paciente
 		int duracionCitTrat(int idE); //obtiene la duracion en slots
 		vector<int> duracionesT(void);
 
+		int especialistaPref(int idE);
+
 		bool buscaEspecialidadPac(int id);
+
 
 };
 
-#endif /* PACIENTE_H */ 
+#endif /* PACIENTE_H */
