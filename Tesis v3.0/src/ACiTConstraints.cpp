@@ -61,7 +61,7 @@ public:
 		listaPacientes = opt.listaPacientes();
 		listaEspecialidades = opt.listaEspecialidades();
 
-		e = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
+		e = new Escritura("/home/holmes/workspace/output_files");
 		e->semanas(opt.semanas());
 		e->slotsIntervalo(opt.slotsIntervalo());
 		e->slotsDia(opt.slotsDia());
@@ -148,14 +148,18 @@ public:
 							rel(*this, listaVarTInicio[esp_i][citEsp_i], IRT_NQ, k, opt.icl());
 						}
 					}
-/*
+
 					if(j == 0){
 						//Restricción de preferencia
 						if(pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) != 0){
+							cout << "Activada restriccion de preferencia: " << endl;
+							cout << "Paciente: " << pacEsp_i[i].id() << endl;
+							cout << "Profesional: " << pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) << endl;
 							rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()), opt.icl());
+							cout << endl;
 						}
 					}
-*/
+
 					if(j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id())-1){
 						//Restricción 2: Mismo especialista para todas las citas de un paciente
 						rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());

@@ -64,51 +64,45 @@ public:
 	virtual Choice* choice(Space& home) {
 		vector<int> infoVar(2);
 		int pos;
+		int* codigos;
 		for (int i=0; i<x.size(); i++){
 			infoVar = infoVariable(i);
 			if (!x[i].assigned())
 			{
 				//ultimo + citas
 				proxima = i + infoVar[1];
-				//cout << "i: " << i << " -> " << proxima << endl;
+				cout << "i: " << i << " -> " << proxima << endl;
 //				cout << "esp[" << i << "]: " << esp << endl;
-				int* codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
+				codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
 				pos = determinarEspecialista(prioridades[infoVar[0]]);
 //				cout << pr << endl;
 				prioridades[infoVar[0]][pos] +=1;
-				cout << "prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
-				cout << "seleccionado codigos[" << pos << "]: " << codigos[pos] << endl;
-				if (i == x.size()-2)
+				cout << "- prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
+				cout << "seleccionado codigos[" << infoVar[0] << "][" << pos << "]: " << codigos[pos] << endl;
+				cout << "INICIO RESUMEN" << endl;
+				for (int j=0; j<(int)prioridades.size(); j++)
 				{
-					cout << "valores finales: " << endl;
-					for (int j=0; j<(int)prioridades.size(); j++)
+					for (int k=0; k<(int)prioridades[j].size(); k++)
 					{
-						for (int k=0; k<(int)prioridades[j].size(); k++)
-						{
-							cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
-						}
+						cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
 					}
 				}
+				cout << "FIN RESUMEN" << endl;
 				return new PosVal(*this, i, codigos[pos]);
 			}
 			else
 			{
-				//cout << "i': " << i << " -> " << proxima << endl;
-/*
 				if(i >= proxima) {
 					// sumar paciente al especialista que corresponde
-					int* codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
+					codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
 					pos = determinarEspecialista(prioridades[infoVar[0]]);
 					prioridades[infoVar[0]][pos] +=1 ;
 					//actualizar proxima
 					proxima = i + infoVar[1];
+					cout << "i': " << i << " -> " << proxima << endl;
 					cout << "+ prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
-					cout << "sumado codigos[" << pos << "]: " << codigos[pos] << endl;
-				}
-*/
-				if (i == x.size()-2)
-				{
-					cout << "valores finales: " << endl;
+					cout << "sumado codigos[" << infoVar[0] << "][" << pos << "]: " << codigos[pos] << endl;
+					cout << "INICIO RESUMEN PATCH" << endl;
 					for (int j=0; j<(int)prioridades.size(); j++)
 					{
 						for (int k=0; k<(int)prioridades[j].size(); k++)
@@ -116,6 +110,7 @@ public:
 							cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
 						}
 					}
+					cout << "FIN RESUMEN PATCH" << endl;
 				}
 			}
 			infoVar.clear();
