@@ -61,7 +61,7 @@ public:
 		listaPacientes = opt.listaPacientes();
 		listaEspecialidades = opt.listaEspecialidades();
 
-		e = new Escritura("/home/holmes/workspace/output_files");
+		e = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
 		e->semanas(opt.semanas());
 		e->slotsIntervalo(opt.slotsIntervalo());
 		e->slotsDia(opt.slotsDia());
@@ -195,26 +195,26 @@ public:
 		for(int i = 0; i < (int)listaPacientes.size(); i++){
 			if(listaPacientes[i].nTratamientos()>1){
 //				cout << listaPacientes[i].nombre() << endl;
-				vector<vector<int> > infT = infoTratamientos(listaPacientes[i]);
+				vector<vector<int> > infoNS = infoNoSolapamiento(listaPacientes[i]);
 
-				if( (int)infT.size() == listaPacientes[i].nTratamientos() ) {
-					int nEsp = 0, cit = infT[nEsp][2], sigEsp = 1;
+				if( (int)infoNS.size() == listaPacientes[i].nTratamientos() ) {
+					int nEsp = 0, cit = infoNS[nEsp][2], sigEsp = 1;
 //					cout << "nT: " << listaPacientes[i].nTratamientos() << endl;
 //					cout << "cit== " << tiemposInicio[esp].size() << endl;
-					while(nEsp < int(infT.size())- 1){
+					while(nEsp < int(infoNS.size())- 1){
 //						cout << "esp: " << nEsp << " - " << cit << endl;
 						// _infoEspecialidad[N][0] obtiene el id de la especialidad numero N
-						for(int j=infT[sigEsp][2]; j< infT[sigEsp][3]; j++){
+						for(int j=infoNS[sigEsp][2]; j< infoNS[sigEsp][3]; j++){
 //							cout << "\tesp: " << sigEsp << " - " << j << endl;
-							for(int k=0; k<listaPacientes[i].duracionCitTrat(infT[nEsp][0]); k++){
-								rel(*this, listaVarTInicio[infT[sigEsp][1]][j] != listaVarTInicio[infT[nEsp][1]][cit] + k, opt.icl());
+							for(int k=0; k<listaPacientes[i].duracionCitTrat(infoNS[nEsp][0]); k++){
+								rel(*this, listaVarTInicio[infoNS[sigEsp][1]][j] != listaVarTInicio[infoNS[nEsp][1]][cit] + k, opt.icl());
 							}
 						}
 						cit++;
-						if(cit == infT[nEsp][3]){
+						if(cit == infoNS[nEsp][3]){
 							cit=0;
 							sigEsp++;
-							if(sigEsp == (int)infT.size()){
+							if(sigEsp == (int)infoNS.size()){
 								nEsp++;
 								sigEsp=nEsp+1;
 							}
@@ -306,8 +306,8 @@ public:
 		delete e;
 	}
 
-	vector<vector<int> > infoTratamientos(Paciente p){
-		vector<vector<int> > infoT;
+	vector<vector<int> > infoNoSolapamiento(Paciente p){
+		vector<vector<int> > infoNS;
 		vector<int> auxInfo(4);
 		for(int i = 0; i < (int)listaEspecialidades.size(); i++){
 			if(p.buscaEspecialidadPac(listaEspecialidades[i].id())){
@@ -320,26 +320,27 @@ public:
 						auxInfo[1] = i;				//posicion de la especialidad en el vector listaEspecialidades
 						auxInfo[2] = inicio;		//posicion de inicio de las citas para esa especialidad
 						auxInfo[3] = inicio+citas;	//posicion de fin de las citas para esa especialidad
-						infoT.push_back(auxInfo);
+						infoNS.push_back(auxInfo);
 					}
 					inicio += citas;
 				}
 			}
 		}
-		return infoT;
+		return infoNS;
 	}
 
 	void distribuidor(Home home, const IntVarArgs& x, vector<Especialidad> lstEsp){
 		if(home.failed()) return;
-		ViewArray<Int::IntView> y(home, x);
-		//inicializacion del vector de prioridades
-		vector<vector<int> > p(lstEsp.size());
-		//cout << "tamaño p: " << p.size() << endl;
-		for(int i=0; i<(int)p.size(); i++){
-			p[i].resize(lstEsp[i].nEspecialistas());
-			//cout << "p[" << i << "]: " << p[i].size() << endl;
+		vector<map<int, int> > numPacientes(lstEsp.size());
+		for (int i = 0; i < (int)numPacientes.size(); i ++) {
+			vector<int> ids = lstEsp[i].idEspecialistasVector();
+			for (int j = 0; j < (int)ids.size(); j++) {
+				numPacientes[i][ids[j]] = 0;
+//				cout << "ids[" << i << "][" << j << "]: " << ids[j] << endl;
+			}
 		}
-		Distribuidor::post(home, y, lstEsp, p);
+		ViewArray<Int::IntView> y(home, x);
+		Distribuidor::post(home, y, lstEsp, numPacientes);
 	}
 
 	vector<int> transformarDisponibilidad(vector<int> disp, int durCitEspSlot, int slotsIntervalo){

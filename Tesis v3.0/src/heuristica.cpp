@@ -1,5 +1,6 @@
 #include <gecode/int.hh>
 #include <limits>
+#include <map>
 #include "paciente.h"
 #include "especialidad.h"
 
@@ -10,7 +11,7 @@ class Distribuidor : public Brancher {
 protected:
 	ViewArray<Int::IntView> x;
 	vector<Especialidad> lstEspecialidades;
-	vector<vector<int> > prioridades;
+	vector<map<int, int> > numPacientes;
 	int proxima;
 	//Choice Definition
 	class PosVal : public Choice {
@@ -27,15 +28,15 @@ protected:
 			}
 	};
 public:
-	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad> lstEsp, vector<vector<int> > p)
+	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad> lstEsp, vector<map<int, int> > nP)
 		: Brancher(home), x(x0) {
 		lstEspecialidades = lstEsp;
-		prioridades = p;
-		proxima=0; //proximo variable a asignar
+		numPacientes = nP;
+		proxima=0; //proxima variable a asignar
 	}
 
-	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, vector<vector<int> > p){
-		(void) new (home) Distribuidor(home, x, lstEsp, p);
+	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, vector<map<int, int> > nP){
+		(void) new (home) Distribuidor(home, x, lstEsp, nP);
 	}
 
 	virtual size_t dispose(Space& home) {
@@ -62,56 +63,20 @@ public:
 
 	//Choice
 	virtual Choice* choice(Space& home) {
+		actualizarNumPacientes();
 		vector<int> infoVar(2);
-		int pos;
-		int* codigos;
+		int id;
+		vector<int> codigos;
 		for (int i=0; i<x.size(); i++){
 			infoVar = infoVariable(i);
 			if (!x[i].assigned())
 			{
-				//ultimo + citas
 				proxima = i + infoVar[1];
-				cout << "i: " << i << " -> " << proxima << endl;
-//				cout << "esp[" << i << "]: " << esp << endl;
-				codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
-				pos = determinarEspecialista(prioridades[infoVar[0]]);
-//				cout << pr << endl;
-				prioridades[infoVar[0]][pos] +=1;
-				cout << "- prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
-				cout << "seleccionado codigos[" << infoVar[0] << "][" << pos << "]: " << codigos[pos] << endl;
-				cout << "INICIO RESUMEN" << endl;
-				for (int j=0; j<(int)prioridades.size(); j++)
-				{
-					for (int k=0; k<(int)prioridades[j].size(); k++)
-					{
-						cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
-					}
-				}
-				cout << "FIN RESUMEN" << endl;
-				return new PosVal(*this, i, codigos[pos]);
-			}
-			else
-			{
-				if(i >= proxima) {
-					// sumar paciente al especialista que corresponde
-					codigos = lstEspecialidades[infoVar[0]].idEspecialistasArray();
-					pos = determinarEspecialista(prioridades[infoVar[0]]);
-					prioridades[infoVar[0]][pos] +=1 ;
-					//actualizar proxima
-					proxima = i + infoVar[1];
-					cout << "i': " << i << " -> " << proxima << endl;
-					cout << "+ prioridades[" << infoVar[0] << "][" << pos << "]: " << prioridades[infoVar[0]][pos] << endl;
-					cout << "sumado codigos[" << infoVar[0] << "][" << pos << "]: " << codigos[pos] << endl;
-					cout << "INICIO RESUMEN PATCH" << endl;
-					for (int j=0; j<(int)prioridades.size(); j++)
-					{
-						for (int k=0; k<(int)prioridades[j].size(); k++)
-						{
-							cout << "prioridades[" << j << "][" << k << "]: " << prioridades[j][k] << endl;
-						}
-					}
-					cout << "FIN RESUMEN PATCH" << endl;
-				}
+				codigos = lstEspecialidades[infoVar[0]].idEspecialistasVector();
+				id = determinarEspecialista(numPacientes[infoVar[0]], codigos);
+				numPacientes[infoVar[0]][id] += 1;
+				cout << "- numPacientes[" << infoVar[0] << "][" << id << "]: " << numPacientes[infoVar[0]][id] << endl;
+				return new PosVal(*this, i, id);
 			}
 			infoVar.clear();
 			infoVar.resize(2);
@@ -134,6 +99,22 @@ public:
 	    	return me_failed(x[pos].eq(home,val)) ? ES_FAILED : ES_OK;
 	    else
 	    	return me_failed(x[pos].nq(home,val)) ? ES_FAILED : ES_OK;
+	}
+
+	//Busca que especialistas ya poseen pacientes/citas asignadas
+	void actualizarNumPacientes() {
+		vector<int> infoVar(2);
+		vector<int> codigos;
+		for (int i=0; i<x.size(); i++){
+			if ((x[i].assigned()) && (i >= proxima)) {
+				infoVar = infoVariable(i);
+				proxima = i + infoVar[1];
+				numPacientes[infoVar[0]][x[i].val()] += 1;
+				cout << "++ numPacientes[" << infoVar[0] << "][" << x[i].val() << "]: " << numPacientes[infoVar[0]][x[i].val()] << endl;
+			}
+			infoVar.clear();
+			infoVar.resize(2);
+		}
 	}
 
 	//Determinar la especialidad y las citas faltantes para cambio de paciente
@@ -160,16 +141,16 @@ public:
 	}
 
 	//Determinar la prioridad de asignación para un especialista
-	int determinarEspecialista(vector<int> pEsp) {
-		int posEsp = 0;
+	int determinarEspecialista(map<int, int> numPac, vector<int> ids) {
+		int idProf = 0;
 		int menor = numeric_limits<int>::max();
-		for(int j=0; j<(int)pEsp.size(); j++){
-			if(pEsp[j] < menor){
-				menor = pEsp[j];
-				posEsp = j;
+		for(int j=0; j<(int)numPac.size(); j++){
+			if(numPac[ids[j]] < menor){
+				menor = numPac[ids[j]];
+				idProf = ids[j];
 			}
 		}
-		return posEsp;
+		return idProf;
 	}
 
 	int determinarPaciente(int i, int esp, int acumulado){
