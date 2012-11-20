@@ -6,7 +6,11 @@ Lectura::~Lectura(){}
 
 Lectura::Lectura(string n){
 	nombre = n;
+	contador = 0;
+
 	saveLines();
+	init_suma_esp();
+	set_nro_total_EP();
 }
 
 void Lectura::nombreArchivo(string n){
@@ -18,9 +22,8 @@ string Lectura::nombreArchivo(){
 }
 
 
-//CAMBIO OCT 02
 void Lectura::saveLines(){
-	
+
 	ifstream archivo;
 	string linea;
 
@@ -36,7 +39,6 @@ void Lectura::saveLines(){
 	}
 
 	archivo.close();
-
     //cout<<"Size Lines "<<lines.size()<<endl;
 }
 
@@ -73,7 +75,6 @@ int Lectura::totCitas(){
 	for(int i=0; i<_numPac; i++){
 		_numCitas += totCitasPaciente(i);
 	}
-
 	//~ cout << "totalCitas: " << _numCitas << endl;
 	return _numCitas;
 }
@@ -273,7 +274,6 @@ int Lectura::numPacEsp(int i){ //Donde i es el id de la Especialidad
 			}
 		}
 	}
-
 	return contador;
 }
 
@@ -290,7 +290,9 @@ string Lectura::infoEspecialista(int j){ // O.K
 		exit(1);
 	}
 	else{
-         _infoEspecialista = lines[3 + j + numEspecialidades() + get_pos_info_prof(j)].c_str();
+
+		count_esp(j);
+		_infoEspecialista = lines[3 + j + numEspecialidades() + suma_esp_ant.at(j)].c_str();
 	     //cout<<_infoEspecialista;		
 	}
 
@@ -385,10 +387,9 @@ vector <string> Lectura::datosDispProfesional(int j){
 
 	string esp = "";
 	vector <string> cadenas;
-	//esp = esp.substr(2);
 
 	for(int i = 0; i < numEspProfesional(j);i++){
-		esp = lines[3 + j + i + 1 + numEspecialidades() + get_pos_info_prof(j)].c_str();
+		esp = lines[3 + j + i + 1 + numEspecialidades() + suma_esp_ant.at(j)].c_str();
 		cadenas.push_back(esp);
 	}
 
@@ -404,6 +405,7 @@ int Lectura::obtenerEspecialidadProf(int j, int e){
 
 	return intProf;
 }
+
 
 //Profesiones Especialista j
 vector <int> Lectura::especialidadesProf(int j){
@@ -608,7 +610,6 @@ vector<string> Lectura::datosTratamientosPaciente(int i){
 	vector <string> cadenas (subcadenasCorchetes(pac));
 
 	return cadenas;
-
 }
 
 int Lectura::obtenerEspecialidadPac(int i, int e){
@@ -722,6 +723,7 @@ vector <vector<int> > Lectura::listaDispPacientes(){
 	return lista;
 }
 
+
 int Lectura::duracionCitTrat(int i, int e){
 	int idE = obtenerEspecialidadPac(i, e);
 	int dur=0;
@@ -736,6 +738,7 @@ int Lectura::duracionCitTrat(int i, int e){
 	}
 	return dur;
 }
+
 
 //--------------- MÉTODOS AUXILIARES -----------------//
 
@@ -855,26 +858,38 @@ int Lectura::get_position(vector <int> vector, int num){
 	return pos;
 }
 
-int Lectura::get_pos_info_prof(int j){
+void Lectura::set_nro_total_EP(){
 
-	int pos = 0;
+	nro_total_EP = 0;
 
-	if( j == 0){
-		pos = j;
+	for(int i=0; i < numEspecialistas(); i++){
+		nro_total_EP = nro_total_EP + numEspProfesional(i);
 	}
-	else{
-		for(int i = j; i > 0; i--){
-			pos = pos + numEspProfesional(i-1);
-		}
-	}
-	return pos;
 }
 
 int Lectura::get_nro_total_EP(){
+	return nro_total_EP;
+}
 
-	int total = 0;
-	for(int i=0; i < numEspecialistas(); i++){
-		total = total + numEspProfesional(i);
+
+void Lectura::count_esp(int j){
+
+	int aux = 0;
+
+	if(suma_esp_ant.at(j) == -1){
+
+		if(j == 0){
+			aux = j;
+		}
+		else{
+			aux = numEspProfesional(j-1);
+			contador += aux;
+		}
+		suma_esp_ant.at(j) = contador;
 	}
-	return total;
+}
+
+void Lectura::init_suma_esp(){
+	for(int i=0; i<numEspecialistas(); i++)
+		suma_esp_ant.push_back(-1);
 }

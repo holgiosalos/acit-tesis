@@ -17,14 +17,19 @@ class Lectura
 	private:
 		string nombre;
 		vector <string> lines;
+		int contador; //CREACIÓN NOV 20: Variable temporal que almacena las especialidades de los profesionales (hasta el momento)
+		vector<int> suma_esp_ant; //CREACIÓN NOV 20: Estructura que almacena las especialidades de los profesionales previas al profesional dado
+		int nro_total_EP; //CREACIÓN NOV 20: Almacena el número total de especialidades de los profesionales
 	public:
 		//CONSTRUCTORES
 		Lectura();
 		~Lectura();
+		//-------------MODIFICACIÓN NOV 20
 		Lectura(string n); //Constructor cuyo parámetro es el nombre de archivo
 		//MÉTODOS GENERALES
 		void nombreArchivo(string n); //Fija el nombre del archivo
 		string nombreArchivo();	//Retorna el nombre del archivo
+		//-------------MODIFICACIÓN NOV 20
 		void saveLines(); //Almacena las lineas del archivo en el vector "lines"
 		vector <string> getLines(); //Retorna el vector "lines"
 		int numEspecialistas();	//Devuelve el número de Especialistas (Profesionales)
@@ -54,7 +59,7 @@ class Lectura
 			string subcadenaEspecialidad(int e); //Crea una subcadena de la información que se encuentra después del nombre de la Especialidad, esto es:  capacidad y duración
 
 		//MÉTODOS RELACIONADOS CON LOS PROFESIONALES
-		//CAMBIO OCT O2
+		//-------------MODIFICACIÓN NOV 20
 		string infoEspecialista(int j); //Obtiene la información del Profesional que se encuentra en la posición j
             int idEspecialista(int j); //Retorna el identificador del Profesional que se encuentra en la posición j
             string nomEspecialista(int j); //Retorna el nombre del Profesional que se encuentra en la posición j
@@ -62,7 +67,7 @@ class Lectura
             int obtenerEspecialidadProf(int j, int e); //Retorna el Identificador de la Especialidad e del Profesional que se encuentra en la posición j
             int obtenerCapacidad(int j, int e); //Retorna el límite de pacientes (capacidad) del Profesional j en la Especialidad e
             //Métodos referentes a la disponibilidad
-            //CAMBIO OCT 02
+            //-------------MODIFICACIÓN NOV 20
             vector <string> datosDispProfesional(int j); //Retorna el vector con los datos de las disponibilidades (IdEspecialidad - Disponibilidad) del Profesional j en las distintas Especialidades
             string datosDispProfEspecialidad(int j, int e); //Retorna el vector con los datos de la disponibilidad (IdEspecialidad - Disponibilidad) del Profesional j en la Especialiad e
             vector <string> strDispEspecialista(int j); //Retorna el vector de disponibilidades (de tipo string) del Profesional j en las distintas Especialidades
@@ -110,10 +115,15 @@ class Lectura
 		int get_position(vector <int> vector, int num); //Obtiene la posición del elemento "num" dentro del vector "vector"
 		vector <string> subcadenasCorchetes(string cadena); //Separa la información contenida en los corchetes
 		vector <int> splitStrDisponibilidad(string cadena); //Convierte la cadena de disponibilidades en un vector de enteros
-		//CREACIÓN OCT 02
-		int get_pos_info_prof(int j); //Devuelve la línea en la cual se encuentra la información del Profesional j
-		//CREACIÓN OCT 02
+		//ELIMINACIÓN NOV 20
+		//int get_pos_info_prof(int j); //Devuelve la línea en la cual se encuentra la información del Profesional j
+		//MODIFICACIÓN NOV 20
 		int get_nro_total_EP(); //Obtiene la suma del número de Especialidades de todos los Profesionales
+		//CREACIÓN NOV 20
+		void set_nro_total_EP(); //Estable la suma del número de Especialidades de todos los Profesionales
+		void count_esp(int j); //Lleva el conteo de las especialidades de los profesionales anteriores al profesional j
+		void init_suma_esp(); //Inicializa la estructura de datos que almacena la suma de las especialidades de los profesionales
+									  //anteriores al profesional j
 };
 
 #endif
