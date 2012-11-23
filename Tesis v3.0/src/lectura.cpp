@@ -784,20 +784,17 @@ int Lectura::getField(string cadena, int field){
 vector <int> Lectura::splitStrDisponibilidad(string cadena){
 	
 	vector <int> vectorAux;
-	char *caracteres;
-	char *aux;
-  
-	caracteres = new char[cadena.size()];
-	caracteres = (char*)cadena.data();
-	
-	aux = strtok(caracteres," ");
-	
-	while(aux != NULL){
-		vectorAux.push_back(atoi(aux));
-		aux = strtok(NULL," ");
-    }
+
+	string buf;
+	stringstream ss(cadena);
+
+	vector<string> tokens;
+
+	while(getline(ss, buf, ' ')) {
+		vectorAux.push_back(atoi(buf.c_str()));
+	}
 		
-    return vectorAux;
+	return vectorAux;
 }
 
 string Lectura::subcadenaEspecialidad(int j){
