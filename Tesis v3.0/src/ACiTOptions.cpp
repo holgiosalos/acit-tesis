@@ -102,6 +102,22 @@ int ACiTOptions::totalEspecialistas(void) const {
 	return _totalEspecialistas;
 }
 
+void ACiTOptions::nPacientesPreferencia(int n) {
+	_nPacientesPreferencia = n;
+}
+
+int ACiTOptions::nPacientesPreferencia() const{
+	return _nPacientesPreferencia;
+}
+
+void ACiTOptions::mayorIdProfesional(int m) {
+	_mayorIdProfesional = m;
+}
+
+int ACiTOptions::mayorIdProfesional() const{
+	return _mayorIdProfesional;
+}
+
 vector<Especialidad> ACiTOptions::listaEspecialidades() const{
 	return _listaEspecialidades;
 }
@@ -128,6 +144,8 @@ void ACiTOptions::iniciar(void) {
 	vector<vector<int> > infoEs; //guarda los datos de todas las especialidades asociadas al paciente i
 	//guarda el id, el numero de citas, duracion de cada especialidad y especialista de preferencia asociada al paciente i
 	vector<int> aux(4);
+	int pacientespref = 0; //cuenta el numero de pacientes que tienen algun especialista de preferencia
+	int mayorId = 0; //almacena el id de profesional mas alto.
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
 //		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
@@ -137,23 +155,33 @@ void ACiTOptions::iniciar(void) {
 			aux[2] = _reader.duracionCitTrat(i, e)/5; //se guarda la duracion en numero de slots
 			aux[3] = _reader.profPrefPac(i, e); //profesional de preferencia en esa especialidad
 //			cout << aux[0] << "," << aux[1] << " | ";
+			if (aux[3] > 0) {
+				pacientespref++;
+			}
 			infoEs.push_back(aux);
 			//aux.clear();
 		}
 //		cout << endl;
-
 		_listaPacientes.push_back(Paciente(_reader.idPaciente(i),
 				_reader.nomPaciente(i), _reader.numTratamientosPac(i),
 				infoEs,	_reader.dispPaciente(i)));
 
 		infoEs.clear();
 	}
+
+	nPacientesPreferencia(pacientespref);
+
 	//Agregamos los especialistas del archivo al vector listaEspecialistas
 	for (int j = 0; j < _reader.numEspecialistas(); j++) {
 		_listaEspecialistas.push_back(Especialista(_reader.idEspecialista(j),
 				_reader.nomEspecialista(j), _reader.numEspProfesional(j),
 				_reader.especialidadesProf(j), _reader.dispEspecialista(j)));
+		if (mayorId < _reader.idEspecialista(j)) {
+			mayorId = _reader.idEspecialista(j);
+		}
 	}
+
+	mayorIdProfesional(mayorId);
 
 //	cout << "especialistas OK" << endl;
 

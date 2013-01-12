@@ -36,6 +36,8 @@ private:
 	int _intervalosDia;
 	int _slotsIntervalo;
 	int _totalEspecialistas;
+	int _nPacientesPreferencia;
+	int _mayorIdProfesional;
 	vector<Especialidad> _listaEspecialidades;
 	vector<Paciente> _listaPacientes;
 	vector<Especialista> _listaEspecialistas;
@@ -72,6 +74,12 @@ public:
 
 	void totalEspecialistas(int tE);
 	int totalEspecialistas(void) const;
+
+	//Funciones para la optimizacion de la restriccion de preferencia
+	void nPacientesPreferencia(int n);
+	int nPacientesPreferencia() const;
+	void mayorIdProfesional(int m);
+	int mayorIdProfesional() const;
 
 	vector<Especialidad> listaEspecialidades() const;
 	vector<Especialista> listaEspecialistas() const;

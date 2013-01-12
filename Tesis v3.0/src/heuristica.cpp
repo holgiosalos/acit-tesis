@@ -4,6 +4,8 @@
 #include "paciente.h"
 #include "especialidad.h"
 
+enum EnfoquesHeuristica { PACIENTES, CITAS };
+
 using namespace Gecode;
 using namespace std;
 
@@ -11,8 +13,9 @@ class Distribuidor : public Brancher {
 protected:
 	ViewArray<Int::IntView> x;
 	vector<Especialidad> lstEspecialidades;
-	vector<map<int, int> > numPacientes;
+	vector<map<int, int> > contador;
 	int proxima;
+	int enfoqueHeuristica;
 	//Choice Definition
 	class PosVal : public Choice {
 		public:
@@ -28,15 +31,22 @@ protected:
 			}
 	};
 public:
-	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad> lstEsp, vector<map<int, int> > nP)
+	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad> lstEsp, int enfoque) //vector<map<int, int> > nP
 		: Brancher(home), x(x0) {
 		lstEspecialidades = lstEsp;
-		numPacientes = nP;
+		enfoqueHeuristica = enfoque;
+		contador.resize(lstEspecialidades.size());
+		for (int i = 0; i < (int)contador.size(); i ++) {
+			vector<int> ids = lstEspecialidades[i].idEspecialistasVector();
+			for (int j = 0; j < (int)ids.size(); j++) {
+				contador[i][ids[j]] = 0;
+			}
+		}
 		proxima=0; //proxima variable a asignar
 	}
 
-	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, vector<map<int, int> > nP){
-		(void) new (home) Distribuidor(home, x, lstEsp, nP);
+	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, int enfoque){
+		(void) new (home) Distribuidor(home, x, lstEsp, enfoque);
 	}
 
 	virtual size_t dispose(Space& home) {
@@ -47,6 +57,10 @@ public:
 	Distribuidor(Space& home, bool share, Distribuidor& b)
 		: Brancher(home,share,b) {
 		x.update(home,share,b.x);
+		lstEspecialidades = b.lstEspecialidades;
+		contador = b.contador;
+		proxima = b.proxima;
+		enfoqueHeuristica = b.enfoqueHeuristica;
 	}
 
 	virtual Brancher* copy(Space& home, bool share) {
@@ -63,7 +77,7 @@ public:
 
 	//Choice
 	virtual Choice* choice(Space& home) {
-		actualizarNumPacientes();
+		//actualizarNumPacientes();
 		vector<int> infoVar(2);
 		int id;
 		vector<int> codigos;
@@ -73,9 +87,14 @@ public:
 			{
 				proxima = i + infoVar[1];
 				codigos = lstEspecialidades[infoVar[0]].idEspecialistasVector();
-				id = determinarEspecialista(numPacientes[infoVar[0]], codigos);
-				numPacientes[infoVar[0]][id] += 1;
-				cout << "- numPacientes[" << infoVar[0] << "][" << id << "]: " << numPacientes[infoVar[0]][id] << endl;
+				id = determinarEspecialista(contador[infoVar[0]], codigos);
+				if (enfoqueHeuristica == PACIENTES) {
+					contador[infoVar[0]][id] += 1;
+				}
+				else {
+					contador[infoVar[0]][id] += infoVar[1];
+				}
+//				cout << "- contador[" << infoVar[0] << "][" << id << "]: " << contador[infoVar[0]][id] << endl;
 				return new PosVal(*this, i, id);
 			}
 			infoVar.clear();
@@ -109,8 +128,13 @@ public:
 			if ((x[i].assigned()) && (i >= proxima)) {
 				infoVar = infoVariable(i);
 				proxima = i + infoVar[1];
-				numPacientes[infoVar[0]][x[i].val()] += 1;
-				cout << "++ numPacientes[" << infoVar[0] << "][" << x[i].val() << "]: " << numPacientes[infoVar[0]][x[i].val()] << endl;
+				if (enfoqueHeuristica == PACIENTES) {
+					contador[infoVar[0]][x[i].val()] += 1;
+				}
+				else {
+					contador[infoVar[0]][x[i].val()] += infoVar[1];
+				}
+//				cout << "++ contador[" << infoVar[0] << "][" << x[i].val() << "]: " << contador[infoVar[0]][x[i].val()] << endl;
 			}
 			infoVar.clear();
 			infoVar.resize(2);
@@ -125,13 +149,13 @@ public:
 			if (nEsp > 0){
 				if( (i >= acumulado) && (i < acumulado+lstEspecialidades[nEsp].totalCitas()) ){
 					_infoVariable[0] = nEsp;
-					_infoVariable[1] = determinarPaciente(i, nEsp, acumulado);
+					_infoVariable[1] = determinarCitasPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}else {
 				if(i < lstEspecialidades[nEsp].totalCitas()){
 					_infoVariable[0] = nEsp;
-					_infoVariable[1] = determinarPaciente(i, nEsp, acumulado);
+					_infoVariable[1] = determinarCitasPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}
@@ -153,7 +177,7 @@ public:
 		return idProf;
 	}
 
-	int determinarPaciente(int i, int esp, int acumulado){
+	int determinarCitasPaciente(int i, int esp, int acumulado){
 		vector<Paciente> pacientes = lstEspecialidades[esp].pacientes();
 		int idEsp = lstEspecialidades[esp].id();
 		int citasP=0;
