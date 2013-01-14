@@ -46,6 +46,13 @@ private:
 	Escritura * writer;
 
 public:
+	// Distintas opciones de búsqueda i.e "Branching variants"
+	enum {					// NOMBRE BÚSQUEDA | DESCRIPCIÓN
+		BRANCH_DEFAULT, 	//   0 = Default   | sel-var: dom-wdeg, sel-val: random
+		BRANCH_PACIENTES,	//   1 = branch1   | sel-val: menor-num-pacientes
+		BRANCH_CITAS,		//   2 = branch2   | sel-val: menor-num-citas
+	};
+
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
@@ -251,11 +258,21 @@ public:
 		}
 
 		/************ Estrategias de Busqueda ************/
-//		branch(*this, especialistas, INT_VAR_NONE, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
-//		distribuidor(*this, especialistas, listaEspecialidades, CITAS);
-		distribuidor(*this, especialistas, listaEspecialidades, PACIENTES);
-		branch(*this, t_inicio, INT_VAR_NONE, INT_VAL_MIN);
-		branch(*this, t_fin, INT_VAR_NONE, INT_VAL_MIN);
+		switch(opt.branching())
+		{
+			case BRANCH_DEFAULT:
+				branch(*this, especialistas, INT_VAR_SIZE_DEGREE_MIN, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
+				break;
+
+			case BRANCH_PACIENTES:
+				distribuidor(*this, especialistas, listaEspecialidades, PACIENTES);
+				break;
+			case BRANCH_CITAS:
+				distribuidor(*this, especialistas, listaEspecialidades, CITAS);
+				break;
+		}
+		branch(*this, t_inicio, INT_VAR_SIZE_DEGREE_MIN, INT_VAL_MIN);
+		branch(*this, t_fin, INT_VAR_SIZE_DEGREE_MIN, INT_VAL_MIN);
 	}
 
 	static void recDispEsp(Space& _home){
@@ -388,6 +405,12 @@ public:
 	/// Print solution when the preference constraint is activated
 	virtual void
 	print(vector<Especialidad> lstEspecialidades, int nPacPref) const{
+		if (this->failed())
+		{
+			cout << "Failed" << endl;
+			return;
+		}
+
 		vector<Paciente> pacientes;
 		int esp_i=0;
 		int citEsp_i=0;
@@ -415,13 +438,19 @@ public:
 
 		writer->escribirXml(lstEspecialidades);
 		double porcentaje = maximo.val() / (double)nPacPref;
-		cout << "Porcentaje de satisfacción: " << porcentaje << endl;
+		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
 		delete writer;
 	}
 
 	/// Print solution when the preference constraint is inactivated
 	virtual void
 	print(std::ostream& os) const {
+		if (this->failed())
+		{
+			os << "Failed" << endl;
+			return;
+		}
+
 		vector<Especialidad> lstEspecialidades = listaEspecialidades;
 		vector<Paciente> pacientes;
 		int esp_i=0;

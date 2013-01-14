@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     opt.solutions(0);
     //Establecimiento de los valores por defecto
     opt.file("test4.txt");
-    //opt.file("test_files/dist0_10pac.txt");
+//    opt.file("test_files/dist0_1000pac.txt");
     opt.preferencia(true);
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
@@ -53,6 +53,13 @@ int main(int argc, char* argv[]) {
 //    cout << "ms: " << opt.makespan() << endl;
 
     opt.icl(ICL_BND);
+
+    // Opciones de branching
+    opt.branching(ACiTConstraints::BRANCH_CITAS);
+    opt.branching(ACiTConstraints::BRANCH_DEFAULT,"default","= sel-var: dom-wdeg, sel-val: random");
+    opt.branching(ACiTConstraints::BRANCH_PACIENTES, "pacientes", "= sel-val: min-num-pacientes");
+    opt.branching(ACiTConstraints::BRANCH_CITAS, "citas", "= sel-val: min-num-citas");
+
     opt.parse(argc,argv);
 
     Lectura lector(opt.file());
@@ -81,6 +88,8 @@ int main(int argc, char* argv[]) {
     		cout << endl;
     }
     */
+
+
 
     if (!opt.preferencia())
     {
