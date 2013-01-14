@@ -28,6 +28,7 @@ class ACiTOptions : public Options {
 private:
 	Lectura _reader;
 	string _file;
+	bool _preferencia;
 	int _semanas;
 	int _totalCitas;
 	int _intervalosSemana;
@@ -52,6 +53,9 @@ public:
 
 	void file(string dirfile);
 	string file(void) const;
+
+	void preferencia(bool pref);
+	bool preferencia(void) const;
 
 	void slotsIntervalo(int sI);
 	int slotsIntervalo(void) const;

@@ -29,6 +29,14 @@ string ACiTOptions::file(void) const{
 	return _file;
 }
 
+void ACiTOptions::preferencia(bool pref) {
+	_preferencia = pref;
+}
+
+bool ACiTOptions::preferencia() const {
+	return _preferencia;
+}
+
 /**** Calculos relacionados con el makespan y los slots de tiempo ****/
 
 void ACiTOptions::slotsIntervalo(int sI) {
@@ -242,16 +250,29 @@ int* ACiTOptions::settingCodigos(void) {
 }
 
 void ACiTOptions::help(void) {
+	string prefStr;
+
+	if (preferencia())
+	{
+		prefStr = "true";
+	}
+	else
+	{
+		prefStr = "false";
+	}
+
 	Options::help();
-	cerr <<"\t-file (string) : default:" << file() << endl
+	cerr <<"\t-file (string) : default: " << file() << endl
 			<<"\t\tPath and name of input file" << endl;
-	cerr <<"\t-slsInt (int) : default:" << slotsIntervalo() << endl
+	cerr <<"\t-pref (false, true) : default: " << prefStr << endl
+				<<"\t\tWheter the preference constraint is taken into account (true) or not (false)" << endl;
+	cerr <<"\t-slsInt (int) : default: " << slotsIntervalo() << endl
 			<<"\t\tSlots number that comprising a time interval" << endl;
-	cerr <<"\t-dayInt (int) : default:" << intervalosDia() << endl
+	cerr <<"\t-dayInt (int) : default: " << intervalosDia() << endl
 			<<"\t\tNumber of time intervals by which a day is composed" << endl;
-	cerr <<"\t-weekInt (int) : default:" << intervalosSemana() << endl
+	cerr <<"\t-weekInt (int) : default: " << intervalosSemana() << endl
 				<<"\t\tTotal of time intervals by which a week is composed" << endl;
-	cerr <<"\t-weeks (int) : default:" << semanas() << endl
+	cerr <<"\t-weeks (int) : default: " << semanas() << endl
 			<<"\t\tAvailable weeks to schedule the medical appointments" << endl;
 }
 
@@ -259,15 +280,35 @@ void ACiTOptions::parse(int & argc, char* argv[]) {
 	Options::parse(argc, argv);
 	int i=0;
 	while (++i < argc){
-		if (strcmp(argv[i],"-file")==0){
+		if (strcmp(argv[i],"-file")==0)
+		{
 			file(argv[++i]);
-		} else if(strcmp(argv[i],"-slsInt")==0){
+		}
+		else if (strcmp(argv[i],"-pref")==0)
+		{
+			if (strcmp(argv[++i],"true")==0)
+			{
+				preferencia(true);
+			}
+			else
+			{
+				preferencia(false);
+			}
+		}
+		else if (strcmp(argv[i],"-slsInt")==0)
+		{
 			slotsIntervalo(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-dayInt")==0){
+		}
+		else if (strcmp(argv[i],"-dayInt")==0)
+		{
 			intervalosDia(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-weekInt")==0){
+		}
+		else if (strcmp(argv[i],"-weekInt")==0)
+		{
 			intervalosSemana(atoi(argv[++i]));
-		}else if(strcmp(argv[i],"-weeks")==0){
+		}
+		else if (strcmp(argv[i],"-weeks")==0)
+		{
 			semanas(atoi(argv[++i]));
 		}
 	}

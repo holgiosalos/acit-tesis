@@ -41,13 +41,15 @@ int main(int argc, char* argv[]) {
     ACiTOptions opt("ACiT");
     opt.solutions(0);
     //Establecimiento de los valores por defecto
-    opt.file("test1.txt");
+    opt.file("test4.txt");
+    //opt.file("test_files/dist0_10pac.txt");
+    opt.preferencia(true);
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
-    opt.intervalosDia(4); //11 intervalos de tiempo para cada dia
+    opt.intervalosDia(11); //11 intervalos de tiempo para cada dia
 //    cout << "sd: " << opt.slotsDia() << endl;
-    opt.semanas(2); //1 semana para lograr todas las asignaciones de citas
-    opt.intervalosSemana(20); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
+    opt.semanas(1); //1 semana para lograr todas las asignaciones de citas
+    opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
 //    cout << "ms: " << opt.makespan() << endl;
 
     opt.icl(ICL_BND);
@@ -80,38 +82,45 @@ int main(int argc, char* argv[]) {
     }
     */
 
-    cronousec(1);
-    ACiTConstraints* acit = new ACiTConstraints(opt);
-    int np = acit->propagators();
-    int nb = acit->branchers();
-    BAB<ACiTConstraints> search(acit);
-    ACiTConstraints* ultimaSoulucion;
+    if (!opt.preferencia())
+    {
+    	opt.solutions(1);
+    	Script::run<ACiTConstraints,BAB,ACiTOptions>(opt);
+    }
+    else
+    {
+    	cronousec(1);
+    	ACiTConstraints* acit = new ACiTConstraints(opt);
+    	int np = acit->propagators();
+    	int nb = acit->branchers();
+    	BAB<ACiTConstraints> search(acit);
+    	ACiTConstraints* ultimaSolucion;
 
-    int contador = -1;
-    do {
-    	ultimaSoulucion = acit;
-    	contador++;
-    } while ((acit = search.next()));
-    unsigned long long tiempo = cronousec(0);
+    	int contador = -1;
+    	do {
+    		ultimaSolucion = acit;
+    		contador++;
+    	} while ((acit = search.next()));
+    	unsigned long long tiempo = cronousec(0);
 
-    // Prints the statistics
+    	// Prints the statistics
+    	cout << opt.name() << endl;
+    	ultimaSolucion->print(opt.listaEspecialidades(), opt.nPacientesPreferencia());
+    	Search::Statistics stat = search.statistics();
 
-    cout << opt.name() << endl;
-    ultimaSoulucion->print(opt.listaEspecialidades());
-    Search::Statistics stat = search.statistics();
-
-    cout << "Initial:" << endl;
-    cout << "\tpropagators: " << np << endl;
-    cout << "\tbranchers:   " << nb << endl;
-    cout << endl;
-    cout << "Summary:" << endl;
-    cout << "\truntime:      " << convertir(tiempo, false) << " (" << convertir(tiempo, true) << " ms)" << endl;
-    cout << "\tsoulutions:   " << contador << endl;
-    cout << "\tpropagations: " << stat.propagate << endl;
-    cout << "\tnodes:        " << stat.node << endl;
-    cout << "\tfailures:     " << stat.fail << endl;
-    cout << "\tpeak depth:   " << stat.depth << endl;
-    cout << "\tpeak memory:  " << (stat.memory/1024) << " KB" << endl;
+    	cout << "Initial:" << endl;
+    	cout << "\tpropagators: " << np << endl;
+    	cout << "\tbranchers:   " << nb << endl;
+    	cout << endl;
+    	cout << "Summary:" << endl;
+    	cout << "\truntime:      " << convertir(tiempo, false) << " (" << convertir(tiempo, true) << " ms)" << endl;
+    	cout << "\tsoulutions:   " << contador << endl;
+    	cout << "\tpropagations: " << stat.propagate << endl;
+    	cout << "\tnodes:        " << stat.node << endl;
+    	cout << "\tfailures:     " << stat.fail << endl;
+    	cout << "\tpeak depth:   " << stat.depth << endl;
+    	cout << "\tpeak memory:  " << (stat.memory/1024) << " KB" << endl;
+    }
 
     return 0;
 }

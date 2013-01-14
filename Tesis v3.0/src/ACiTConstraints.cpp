@@ -46,22 +46,13 @@ private:
 	Escritura * writer;
 
 public:
-	// GETTERS
-	vector<Especialidad> lstEspecialidades() {
-		return listaEspecialidades;
-	}
-
-	vector<Paciente> lstPacientes() {
-		return listaPacientes;
-	}
-
-
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
 	  t_fin(*this, opt.totalCitas(), 1, opt.makespan()),
 	  preferencias(*this, opt.nPacientesPreferencia(), 0, 1),
-	  maximo(*this, 0, 4) {
+	  maximo(*this, 0, opt.nPacientesPreferencia()) {
+
 		/************** Asignaciones Previas **************/
 		listaPacientes = opt.listaPacientes();
 		listaEspecialidades = opt.listaEspecialidades();
@@ -155,10 +146,9 @@ public:
 						}
 					}
 
-					if(j == 0){
-						//Restricción de preferencia
+					//Restricción de preferencia
+					if(j == 0 && opt.preferencia()){
 						if(pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) != 0) {
-//							cout << "Activada restriccion de preferencia: " << endl;
 //							cout << "Paciente: " << pacEsp_i[i].id() << endl;
 //							cout << "Profesional: " << pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) << endl;
 							rel(
@@ -255,91 +245,44 @@ public:
 		}
 //		cout << "fin restricciones" << endl;
 
-		rel(*this, maximo == sum(preferencias), opt.icl());
+		if (opt.preferencia())
+		{
+			rel(*this, maximo == sum(preferencias), opt.icl());
+		}
+
 		/************ Estrategias de Busqueda ************/
 //		branch(*this, especialistas, INT_VAR_NONE, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
+//		distribuidor(*this, especialistas, listaEspecialidades, CITAS);
 		distribuidor(*this, especialistas, listaEspecialidades, PACIENTES);
 		branch(*this, t_inicio, INT_VAR_NONE, INT_VAL_MIN);
 		branch(*this, t_fin, INT_VAR_NONE, INT_VAL_MIN);
-//		branch(*this, t_inicio, INT_VAR_NONE, INT_VAL_MAX);
-//		branch(*this, t_fin, INT_VAR_NONE, INT_VAL_MAX);
-//		branch(*this, t_inicio, INT_VAR_NONE, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
-//		branch(*this, t_fin, INT_VAR_NONE, INT_VAL_RND, VarBranchOptions::time(),ValBranchOptions::time());
 	}
 
-	/// Constructor for cloning \a s
-	ACiTConstraints(bool share, ACiTConstraints& s) : MaximizeScript(share, s) {
-		especialistas.update(*this, share, s.especialistas);
-		t_inicio.update(*this, share, s.t_inicio);
-		t_fin.update(*this, share, s.t_fin);
-		preferencias.update(*this, share, s.preferencias);
-		maximo.update(*this, share, s.maximo);
-		writer = s.writer;
-	}
+	static void recDispEsp(Space& _home){
+		ACiTConstraints& home = static_cast<ACiTConstraints&>(_home);
+		vector<Especialista> profEsp_i; //Vector auxiliar que contendra los profesionales pertenecientes a la especialidad i
+		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
 
-	/// Perform copying during cloning
-	virtual Space* copy(bool share) {
-		return new ACiTConstraints(share,*this);
-	}
-
-	virtual IntVar cost(void) const {
-		return maximo;
-	}
-
-	/// Print solution
-	virtual void
-	print(vector<Especialidad> lstEspecialidades) const{
-//		vector<Especialidad> lstEspecialidades = listaEspecialidades;
-
-//		cout << "\n------- CITAS ASIGNADAS POR ESPECIALIDAD -------" << endl;
-		vector<Paciente> pacientes;
 		int esp_i=0;
-		int citEsp_i=0;
-		while(esp_i < (int) lstEspecialidades.size()) {
-//			cout << "\nEspecialidad " << lstEspecialidades[esp_i].id() << endl;
-			pacientes = lstEspecialidades[esp_i].pacientes();
-			for(int i = 0; i < (int) pacientes.size(); i++){
-//				cout << "\nPaciente: " << pacientes[i].id() << "\tCitas: " << pacientes[i].nCitas(lstEspecialidades[esp_i].id()) << endl;
-				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades[esp_i].id()); j++) {
-					pacientes[i].insertarCita(Cita(lstEspecialidades[esp_i].id(),
-							t_inicio[citEsp_i].val(),
-							t_fin[citEsp_i].val(),
-							writer->determinarDiaInt(t_inicio[citEsp_i].val())
-					));
-
-//					cout << "Cita " << j+1 << endl;
-//					cout << "\tInicio: " << t_inicio[citEsp_i].val();
-//					cout << " Fin: " << t_fin[citEsp_i].val();
-//					cout << " Especialista: " << especialistas[citEsp_i].val() << endl;
-
-					if(j == (pacientes[i].nCitas(lstEspecialidades[esp_i].id()) - 1)) {
-						Especialista auxEsp = lstEspecialidades[esp_i].buscarEspecialista(especialistas[citEsp_i].val());
-						auxEsp.insertarPaciente(pacientes[i]);
-						lstEspecialidades[esp_i].actualizarEspecialista(auxEsp);
+		while (esp_i < (int)home.listaEspecialidades.size()) {
+			profEsp_i = home.listaEspecialidades[esp_i].especialistas();
+			for(int i=0; i<(int)profEsp_i.size();i++){
+				dispEi = home.transformarDisponibilidad(
+									profEsp_i[i].horariosAtencionEsp(home.listaEspecialidades[esp_i].id()),
+									home.listaEspecialidades[esp_i].duracionCitasSlots(),
+									12);
+				for(int j=0; j<home.especialistas.size(); j++){
+					if(home.especialistas[j].val() == profEsp_i[i].id()){
+						for (int k = 0; k < (int) dispEi.size(); k++) {
+							if (dispEi[k] == 0) {
+								rel(home, home.t_inicio[j], IRT_NQ, k);
+							}
+						}
 					}
-					citEsp_i++;
 				}
 			}
 			esp_i++;
-			//citEsp_i=0;
 		}
-
-		writer->escribirXml(lstEspecialidades);
-//		cout << "Maximizacion: " << maximo << endl;
-		delete writer;
-	}
-
-	/// Print solution
-	virtual void
-	print(std::ostream& os) const {
-		os << "Maximizacion: " << maximo << endl;
-	}
-
-	void distribuidor(Home home, const IntVarArgs& x, vector<Especialidad> lstEsp, int enfoque){
-		if(home.failed()) return;
-
-		ViewArray<Int::IntView> y(home, x);
-		Distribuidor::post(home, y, lstEsp, enfoque); // numPacientes
 	}
 
 	vector<vector<int> > infoNoSolapamiento(Paciente p){
@@ -370,8 +313,6 @@ public:
 		int tam = slSem*num_semanas;
 		vector<int> aux(tam);
 
-//		cout << "tam: " << tam << endl;
-
 		/*
 		 * Primero se duplica cada valor en el vector de disponibilidades, tantas veces como
 		 * numero de slots hayan por cada intervalo, debido a que el vector de disponibilidades
@@ -384,9 +325,9 @@ public:
 			for(int i=(slSem*sem); i <(slSem*(sem+1)); i++){
 				if((i % slDia) != 48){
 					pos = (
-						  (int)floor((i % slDia) / slotsIntervalo) +
-						  (intDia*((int)floor(i/slDia)))
-						  ) % (int)disp.size(); // i/slDia = numero de dia del slot
+							(int)floor((i % slDia) / slotsIntervalo) +
+							(intDia*((int)floor(i/slDia)))
+					) % (int)disp.size(); // i/slDia = numero de dia del slot
 				}
 				aux[i] = disp[pos];
 			}
@@ -402,7 +343,6 @@ public:
 		 * slots siguientes en 1 es igual a durCitEspSlot
 		 */
 		int suma=0;
-//		cout << p.nombre() << ": ";
 		for(int i=0; i< ((int)aux.size()) - durCitEspSlot; i++){
 			for(int j=i; j<i+durCitEspSlot; j++){
 				suma += aux[j];
@@ -412,40 +352,103 @@ public:
 			}else{
 				disp[i] = 0;
 			}
-//			cout << dispP[i] << " ";
 			suma = 0;
 		}
-//		cout << endl;
 		return aux;
 	}
 
-	static void recDispEsp(Space& _home){
-		ACiTConstraints& home = static_cast<ACiTConstraints&>(_home);
-		vector<Especialista> profEsp_i; //Vector auxiliar que contendra los profesionales pertenecientes a la especialidad i
-		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+	// Brancher
+	void distribuidor(Home home, const IntVarArgs& x, vector<Especialidad> lstEsp, int enfoque){
+		if(home.failed()) return;
 
+		ViewArray<Int::IntView> y(home, x);
+		Distribuidor::post(home, y, lstEsp, enfoque); // numPacientes
+	}
+
+	/// Constructor for cloning \a s
+	ACiTConstraints(bool share, ACiTConstraints& s) : MaximizeScript(share, s) {
+		especialistas.update(*this, share, s.especialistas);
+		t_inicio.update(*this, share, s.t_inicio);
+		t_fin.update(*this, share, s.t_fin);
+		preferencias.update(*this, share, s.preferencias);
+		maximo.update(*this, share, s.maximo);
+		writer = s.writer;
+	}
+
+	/// Perform copying during cloning
+	virtual Space* copy(bool share) {
+		return new ACiTConstraints(share,*this);
+	}
+
+	// Cost function
+	virtual IntVar cost(void) const {
+		return maximo;
+	}
+
+	/// Print solution when the preference constraint is activated
+	virtual void
+	print(vector<Especialidad> lstEspecialidades, int nPacPref) const{
+		vector<Paciente> pacientes;
 		int esp_i=0;
-		while (esp_i < (int)home.listaEspecialidades.size()) {
-			profEsp_i = home.listaEspecialidades[esp_i].especialistas();
-//			cout << home.listaEspecialidades[esp_i].nombre() << " - " << home.listaEspecialidades[esp_i].nEspecialistas() << endl;
-			for(int i=0; i<(int)profEsp_i.size();i++){
-//				cout << profEsp_i[i].horariosAtencionEsp(home.listaEspecialidades[esp_i].id())[3] << endl;
-				dispEi = home.transformarDisponibilidad(
-									profEsp_i[i].horariosAtencionEsp(home.listaEspecialidades[esp_i].id()),
-									home.listaEspecialidades[esp_i].duracionCitasSlots(),
-									12);
-//				cout << "dispEi: " << dispEi.size() << endl;
-				for(int j=0; j<home.especialistas.size(); j++){
-					if(home.especialistas[j].val() == profEsp_i[i].id()){
-						for (int k = 0; k < (int) dispEi.size(); k++) {
-							if (dispEi[k] == 0) {
-								rel(home, home.t_inicio[j], IRT_NQ, k);
-							}
-						}
+		int citEsp_i=0;
+
+		while(esp_i < (int) lstEspecialidades.size()) {
+			pacientes = lstEspecialidades[esp_i].pacientes();
+			for(int i = 0; i < (int) pacientes.size(); i++){
+				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades[esp_i].id()); j++) {
+					pacientes[i].insertarCita(Cita(lstEspecialidades[esp_i].id(),
+							t_inicio[citEsp_i].val(),
+							t_fin[citEsp_i].val(),
+							writer->determinarDiaInt(t_inicio[citEsp_i].val())
+					));
+
+					if(j == (pacientes[i].nCitas(lstEspecialidades[esp_i].id()) - 1)) {
+						Especialista auxEsp = lstEspecialidades[esp_i].buscarEspecialista(especialistas[citEsp_i].val());
+						auxEsp.insertarPaciente(pacientes[i]);
+						lstEspecialidades[esp_i].actualizarEspecialista(auxEsp);
 					}
+					citEsp_i++;
 				}
 			}
 			esp_i++;
 		}
+
+		writer->escribirXml(lstEspecialidades);
+		double porcentaje = maximo.val() / (double)nPacPref;
+		cout << "Porcentaje de satisfacción: " << porcentaje << endl;
+		delete writer;
+	}
+
+	/// Print solution when the preference constraint is inactivated
+	virtual void
+	print(std::ostream& os) const {
+		vector<Especialidad> lstEspecialidades = listaEspecialidades;
+		vector<Paciente> pacientes;
+		int esp_i=0;
+		int citEsp_i=0;
+
+		while(esp_i < (int) lstEspecialidades.size()) {
+			pacientes = lstEspecialidades[esp_i].pacientes();
+			for(int i = 0; i < (int) pacientes.size(); i++){
+				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades[esp_i].id()); j++) {
+					pacientes[i].insertarCita(Cita(lstEspecialidades[esp_i].id(),
+							t_inicio[citEsp_i].val(),
+							t_fin[citEsp_i].val(),
+							writer->determinarDiaInt(t_inicio[citEsp_i].val())
+					));
+
+					if(j == (pacientes[i].nCitas(lstEspecialidades[esp_i].id()) - 1)) {
+						Especialista auxEsp = lstEspecialidades[esp_i].buscarEspecialista(especialistas[citEsp_i].val());
+						auxEsp.insertarPaciente(pacientes[i]);
+						lstEspecialidades[esp_i].actualizarEspecialista(auxEsp);
+					}
+					citEsp_i++;
+				}
+			}
+			esp_i++;
+		}
+
+		writer->escribirXml(lstEspecialidades);
+		delete writer;
 	}
 };
