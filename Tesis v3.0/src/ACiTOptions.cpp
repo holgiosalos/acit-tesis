@@ -262,10 +262,10 @@ void ACiTOptions::help(void) {
 	}
 
 	Options::help();
+	cerr <<"\t-pref (false, true) : default: " << prefStr << endl
+					<<"\t\tWheter the preference constraint is taken into account (true) or not (false)" << endl;
 	cerr <<"\t-file (string) : default: " << file() << endl
 			<<"\t\tPath and name of input file" << endl;
-	cerr <<"\t-pref (false, true) : default: " << prefStr << endl
-				<<"\t\tWheter the preference constraint is taken into account (true) or not (false)" << endl;
 	cerr <<"\t-slsInt (int) : default: " << slotsIntervalo() << endl
 			<<"\t\tSlots number that comprising a time interval" << endl;
 	cerr <<"\t-dayInt (int) : default: " << intervalosDia() << endl
@@ -280,11 +280,7 @@ void ACiTOptions::parse(int & argc, char* argv[]) {
 	Options::parse(argc, argv);
 	int i=0;
 	while (++i < argc){
-		if (strcmp(argv[i],"-file")==0)
-		{
-			file(argv[++i]);
-		}
-		else if (strcmp(argv[i],"-pref")==0)
+		if (strcmp(argv[i],"-pref")==0)
 		{
 			if (strcmp(argv[++i],"true")==0)
 			{
@@ -294,6 +290,10 @@ void ACiTOptions::parse(int & argc, char* argv[]) {
 			{
 				preferencia(false);
 			}
+		}
+		else if (strcmp(argv[i],"-file")==0)
+		{
+			file(argv[++i]);
 		}
 		else if (strcmp(argv[i],"-slsInt")==0)
 		{

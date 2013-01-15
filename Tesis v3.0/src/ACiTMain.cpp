@@ -42,13 +42,13 @@ int main(int argc, char* argv[]) {
     opt.solutions(0);
     //Establecimiento de los valores por defecto
     opt.file("test4.txt");
-//    opt.file("test_files/dist0_1000pac.txt");
+//    opt.file("test_files/dist1_500pac.txt");
     opt.preferencia(true);
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(11); //11 intervalos de tiempo para cada dia
 //    cout << "sd: " << opt.slotsDia() << endl;
-    opt.semanas(1); //1 semana para lograr todas las asignaciones de citas
+    opt.semanas(4); //1 semana para lograr todas las asignaciones de citas
     opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
 //    cout << "ms: " << opt.makespan() << endl;
 
