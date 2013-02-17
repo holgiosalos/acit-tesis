@@ -19,14 +19,13 @@ Paciente::~Paciente() {}
 
 int Paciente::nCitas(int idE) const
 {
-	int citas;
-	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+	int i;
+	for(i=0; i< (int) _infoTratamientos.size(); i++){
 		if(_infoTratamientos[i][0]==idE){
-			citas = _infoTratamientos[i][1];
 			break;
 		}
 	}
-	return citas;
+	return _infoTratamientos[i][1];
 }
 
 void Paciente::id(int i)
@@ -77,14 +76,13 @@ vector<int> Paciente::disponibilidad(void)
 
 int Paciente::duracionCitTrat(int idE)
 {
-	int duracion;
-	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+	int i;
+	for(i=0; i< (int) _infoTratamientos.size(); i++){
 		if(_infoTratamientos[i][0]==idE){
-			duracion = _infoTratamientos[i][2];
 			break;
 		}
 	}
-	return duracion;
+	return _infoTratamientos[i][2];
 }
 
 vector<int> Paciente::duracionesT(void)
@@ -93,14 +91,13 @@ vector<int> Paciente::duracionesT(void)
 }
 
 int Paciente::especialistaPref(int idE) {
-	int idEspecialista;
-	for(int i=0; i< (int) _infoTratamientos.size(); i++){
+	int i;
+	for(i=0; i< (int) _infoTratamientos.size(); i++){
 		if(_infoTratamientos[i][0]==idE){
-			idEspecialista = _infoTratamientos[i][3];
 			break;
 		}
 	}
-	return idEspecialista;
+	return _infoTratamientos[i][3];
 }
 
 bool Paciente::buscaEspecialidadPac(int id)

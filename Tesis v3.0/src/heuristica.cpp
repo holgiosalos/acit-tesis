@@ -77,7 +77,6 @@ public:
 
 	//Choice
 	virtual Choice* choice(Space& home) {
-		//actualizarNumPacientes();
 		vector<int> infoVar(2);
 		int id;
 		vector<int> codigos;
@@ -94,7 +93,6 @@ public:
 				else {
 					contador[infoVar[0]][id] += infoVar[1];
 				}
-//				cout << "- contador[" << infoVar[0] << "][" << id << "]: " << contador[infoVar[0]][id] << endl;
 				return new PosVal(*this, i, id);
 			}
 			infoVar.clear();
@@ -115,9 +113,13 @@ public:
 		const PosVal& pv = static_cast<const PosVal&>(c);
 		int pos=pv.pos, val=pv.val;
 	    if (a == 0)
+	    {
 	    	return me_failed(x[pos].eq(home,val)) ? ES_FAILED : ES_OK;
+	    }
 	    else
+	    {
 	    	return me_failed(x[pos].nq(home,val)) ? ES_FAILED : ES_OK;
+	    }
 	}
 
 	//Busca que especialistas ya poseen pacientes/citas asignadas
@@ -134,7 +136,6 @@ public:
 				else {
 					contador[infoVar[0]][x[i].val()] += infoVar[1];
 				}
-//				cout << "++ contador[" << infoVar[0] << "][" << x[i].val() << "]: " << contador[infoVar[0]][x[i].val()] << endl;
 			}
 			infoVar.clear();
 			infoVar.resize(2);
@@ -202,7 +203,7 @@ public:
 	}
 
 	int determinarPosicion(int esp, int idE, int* cods){
-		int pos;
+		int pos = -1;
 		for(int i=0; i<lstEspecialidades[esp].nEspecialistas(); i++){
 			if(cods[i] == idE){
 				pos = i;

@@ -14,14 +14,14 @@ long long cronousec(int startstop)
   if (startstop)
     {
       gettimeofday(&tv, NULL);
-      pre_time=tv.tv_sec*1000000+tv.tv_usec;
+      pre_time = tv.tv_sec*1000000+tv.tv_usec;
     }
   else
     {
       gettimeofday(&tv, NULL);
-      return tv.tv_sec*1000000+tv.tv_usec - pre_time;
+      return (tv.tv_sec*1000000+tv.tv_usec - pre_time);
     }
-    return 0;
+    return (0);
 }
 
 // Funcion que convierte de microsegundos a mili segundos (si opc=true) o a segundos (si opc=false)
@@ -34,23 +34,23 @@ double convertir(unsigned long long microsecs, bool opc)
 	} else {
 		result = (double)(microsecs/1000000.0);
 	}
-	return result;
+	return (result);
 }
 
 int main(int argc, char* argv[]) {
     ACiTOptions opt("ACiT");
     opt.solutions(0);
     //Establecimiento de los valores por defecto
-    opt.file("test4.txt");
-//    opt.file("test_files/dist1_500pac.txt");
+//    opt.file("test4.txt");
+    opt.file("test_files/dist1_10pac.txt");
+    opt.c_d(10);
+    opt.a_d(20);
     opt.preferencia(true);
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(11); //11 intervalos de tiempo para cada dia
-//    cout << "sd: " << opt.slotsDia() << endl;
     opt.semanas(4); //1 semana para lograr todas las asignaciones de citas
     opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
-//    cout << "ms: " << opt.makespan() << endl;
 
     opt.icl(ICL_BND);
 
@@ -65,31 +65,12 @@ int main(int argc, char* argv[]) {
     Lectura lector(opt.file());
     opt.reader(lector);
     opt.totalCitas(lector.totCitas());
-//    cout << "totCit: " << opt.totalCitas() << endl;
     opt.totalEspecialistas(lector.numEspecialistas());
-//    cout << "nE: " << opt.totalEspecialistas() << endl;
 
     opt.iniciar();
 
-//    cout << "nPacPref: " << opt.nPacientesPreferencia() << endl;
     Gecode::IntSet codigos(opt.settingCodigos(), lector.numEspecialistas());
     opt.listaCodEspecialistas(codigos);
-
-    /*
-    //Comprobar que all ha quedado OK:
-    vector<Especialidad> _listaEspecialidades = opt.listaEspecialidades();
-    for(int i=0; i<(int)_listaEspecialidades.size(); i++){
-    		cout << "Nombre: " << _listaEspecialidades[i].nombre() << " - ID:" <<_listaEspecialidades[i].id() << endl;
-    		cout << "	-Citas:		" << _listaEspecialidades[i].totalCitas() << endl;
-    		cout << "	-DuraciónM:	" << _listaEspecialidades[i].duracionCitasMinutos() << endl;
-    		cout << "	-DuraciónS:	" << _listaEspecialidades[i].duracionCitasSlots() << endl;
-    		cout << "	-NPac:		" << _listaEspecialidades[i].nPacientes() << " - " << _listaEspecialidades[i].pacientesString() << endl;
-    		cout << "	-NEsp:		" << _listaEspecialidades[i].nEspecialistas() << " - " << _listaEspecialidades[i].especialistasString() << endl;
-    		cout << endl;
-    }
-    */
-
-
 
     if (!opt.preferencia())
     {
@@ -105,31 +86,34 @@ int main(int argc, char* argv[]) {
     	BAB<ACiTConstraints> search(acit);
     	ACiTConstraints* ultimaSolucion;
 
-    	int contador = -1;
-    	do {
-    		ultimaSolucion = acit;
+    	int contador = 0;
+    	while (ACiTConstraints* s = search.next()) {
+    		ultimaSolucion = s;
     		contador++;
-    	} while ((acit = search.next()));
+    	}
     	unsigned long long tiempo = cronousec(0);
 
     	// Prints the statistics
     	cout << opt.name() << endl;
-    	ultimaSolucion->print(opt.listaEspecialidades(), opt.nPacientesPreferencia());
+    	ultimaSolucion->print(opt.listaEspecialidades());
     	Search::Statistics stat = search.statistics();
+
+    	double memoriaKB = (stat.memory/1024);
+    	int memoriaMB = (memoriaKB/1024);
 
     	cout << "Initial:" << endl;
     	cout << "\tpropagators: " << np << endl;
     	cout << "\tbranchers:   " << nb << endl;
     	cout << endl;
     	cout << "Summary:" << endl;
-    	cout << "\truntime:      " << convertir(tiempo, false) << " (" << convertir(tiempo, true) << " ms)" << endl;
+    	cout << "\truntime:      " << convertir(tiempo, false) << " s (" << convertir(tiempo, true) << " ms)" << endl;
     	cout << "\tsoulutions:   " << contador << endl;
     	cout << "\tpropagations: " << stat.propagate << endl;
     	cout << "\tnodes:        " << stat.node << endl;
     	cout << "\tfailures:     " << stat.fail << endl;
     	cout << "\tpeak depth:   " << stat.depth << endl;
-    	cout << "\tpeak memory:  " << (stat.memory/1024) << " KB" << endl;
+    	cout << "\tpeak memory:  " << memoriaMB << " MB (" << memoriaKB << " KB)" << endl;
     }
 
-    return 0;
+    return (0);
 }

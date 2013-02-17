@@ -775,7 +775,7 @@ int Lectura::getField(string cadena, int field){
 		default: cout<<"Campo "<<field<<" no Existe"<<endl;
 		break;
 	}
-	
+
 	value = atoi(aux);
 	return value;
 }
@@ -793,7 +793,7 @@ vector <int> Lectura::splitStrDisponibilidad(string cadena){
 	while(getline(ss, buf, ' ')) {
 		vectorAux.push_back(atoi(buf.c_str()));
 	}
-		
+
 	return vectorAux;
 }
 
