@@ -48,9 +48,9 @@ int main(int argc, char* argv[]) {
     opt.preferencia(true);
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
-    opt.intervalosDia(11); //11 intervalos de tiempo para cada dia
+    opt.intervalosDia(12); //12 intervalos de tiempo para cada dia
     opt.semanas(4); //1 semana para lograr todas las asignaciones de citas
-    opt.intervalosSemana(60); //60 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
+    opt.intervalosSemana(65); //65 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
 
     opt.icl(ICL_BND);
 

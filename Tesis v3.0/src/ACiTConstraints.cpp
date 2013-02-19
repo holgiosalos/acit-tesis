@@ -400,7 +400,11 @@ public:
 		preferencias.update(*this, share, s.preferencias);
 		maximo.update(*this, share, s.maximo);
 		writer = s.writer;
+
 		nPacPref = s.nPacPref;
+		intDia = s.intDia;
+		num_semanas = s.num_semanas;
+		slDia = s.slDia;
 	}
 
 	/// Perform copying during cloning
