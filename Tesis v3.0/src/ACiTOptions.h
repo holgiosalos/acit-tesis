@@ -39,9 +39,9 @@ private:
 	int _totalEspecialistas;
 	int _nPacientesPreferencia;
 	int _mayorIdProfesional;
-	vector<Especialidad> _listaEspecialidades;
+	vector<Especialidad>* _listaEspecialidades;
 	vector<Paciente> _listaPacientes;
-	vector<Especialista> _listaEspecialistas;
+	vector<Especialista>* _listaEspecialistas;
 	IntSet _listaCodEspecialistas;
 
 public:
@@ -85,8 +85,8 @@ public:
 	void mayorIdProfesional(int m);
 	int mayorIdProfesional() const;
 
-	vector<Especialidad> listaEspecialidades() const;
-	vector<Especialista> listaEspecialistas() const;
+	vector<Especialidad>* listaEspecialidades() const;
+	vector<Especialista>* listaEspecialistas() const;
 	vector<Paciente> listaPacientes() const;
 
 	void iniciar(void);

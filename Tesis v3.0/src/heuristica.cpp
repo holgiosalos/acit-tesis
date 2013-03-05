@@ -12,8 +12,8 @@ using namespace std;
 class Distribuidor : public Brancher {
 protected:
 	ViewArray<Int::IntView> x;
-	vector<Especialidad> lstEspecialidades;
-	vector<map<int, int> > contador;
+	vector<Especialidad>* lstEspecialidades;
+	vector<map<int, int> >* contador;
 	int proxima;
 	int enfoqueHeuristica;
 	//Choice Definition
@@ -31,21 +31,21 @@ protected:
 			}
 	};
 public:
-	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad> lstEsp, int enfoque) //vector<map<int, int> > nP
+	Distribuidor(Home home, ViewArray<Int::IntView>& x0, vector<Especialidad>* lstEsp, int enfoque) //vector<map<int, int> > nP
 		: Brancher(home), x(x0) {
 		lstEspecialidades = lstEsp;
 		enfoqueHeuristica = enfoque;
-		contador.resize(lstEspecialidades.size());
-		for (int i = 0; i < (int)contador.size(); i ++) {
-			vector<int> ids = lstEspecialidades[i].idEspecialistasVector();
+		contador = new vector<map<int, int> >(lstEspecialidades->size());
+		for (int i = 0; i < (int)contador->size(); i ++) {
+			vector<int> ids = lstEspecialidades->at(i).idEspecialistasVector();
 			for (int j = 0; j < (int)ids.size(); j++) {
-				contador[i][ids[j]] = 0;
+				contador->at(i)[ids[j]] = 0;
 			}
 		}
 		proxima=0; //proxima variable a asignar
 	}
 
-	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad> lstEsp, int enfoque){
+	static void post(Home home, ViewArray<Int::IntView>& x, vector<Especialidad>* lstEsp, int enfoque){
 		(void) new (home) Distribuidor(home, x, lstEsp, enfoque);
 	}
 
@@ -85,13 +85,13 @@ public:
 			if (!x[i].assigned())
 			{
 				proxima = i + infoVar[1];
-				codigos = lstEspecialidades[infoVar[0]].idEspecialistasVector();
-				id = determinarEspecialista(contador[infoVar[0]], codigos);
+				codigos = lstEspecialidades->at(infoVar[0]).idEspecialistasVector();
+				id = determinarEspecialista(contador->at(infoVar[0]), codigos);
 				if (enfoqueHeuristica == PACIENTES) {
-					contador[infoVar[0]][id] += 1;
+					contador->at(infoVar[0]).at(id) += 1;
 				}
 				else {
-					contador[infoVar[0]][id] += infoVar[1];
+					contador->at(infoVar[0]).at(id) += infoVar[1];
 				}
 				return new PosVal(*this, i, id);
 			}
@@ -131,10 +131,10 @@ public:
 				infoVar = infoVariable(i);
 				proxima = i + infoVar[1];
 				if (enfoqueHeuristica == PACIENTES) {
-					contador[infoVar[0]][x[i].val()] += 1;
+					contador->at(infoVar[0]).at(x[i].val()) += 1;
 				}
 				else {
-					contador[infoVar[0]][x[i].val()] += infoVar[1];
+					contador->at(infoVar[0]).at(x[i].val()) += infoVar[1];
 				}
 			}
 			infoVar.clear();
@@ -146,21 +146,21 @@ public:
 	vector<int> infoVariable(int i) {
 		vector<int> _infoVariable(2);
 		int acumulado = 0;
-		for (int nEsp = 0; nEsp < (int)lstEspecialidades.size(); nEsp++){
+		for (int nEsp = 0; nEsp < (int)lstEspecialidades->size(); nEsp++){
 			if (nEsp > 0){
-				if( (i >= acumulado) && (i < acumulado+lstEspecialidades[nEsp].totalCitas()) ){
+				if( (i >= acumulado) && (i < acumulado+lstEspecialidades->at(nEsp).totalCitas()) ){
 					_infoVariable[0] = nEsp;
 					_infoVariable[1] = determinarCitasPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}else {
-				if(i < lstEspecialidades[nEsp].totalCitas()){
+				if(i < lstEspecialidades->at(nEsp).totalCitas()){
 					_infoVariable[0] = nEsp;
 					_infoVariable[1] = determinarCitasPaciente(i, nEsp, acumulado);
 					break;
 				}
 			}
-			acumulado += lstEspecialidades[nEsp].totalCitas();
+			acumulado += lstEspecialidades->at(nEsp).totalCitas();
 		}
 		return _infoVariable;
 	}
@@ -179,8 +179,8 @@ public:
 	}
 
 	int determinarCitasPaciente(int i, int esp, int acumulado){
-		vector<Paciente> pacientes = lstEspecialidades[esp].pacientes();
-		int idEsp = lstEspecialidades[esp].id();
+		vector<Paciente> pacientes = lstEspecialidades->at(esp).pacientes();
+		int idEsp = lstEspecialidades->at(esp).id();
 		int citasP=0;
 		int posIni = i - acumulado; //indica la posicion de la primera cita de esa especialidad
 		int acumuladoCitas = 0;
@@ -204,7 +204,7 @@ public:
 
 	int determinarPosicion(int esp, int idE, int* cods){
 		int pos = -1;
-		for(int i=0; i<lstEspecialidades[esp].nEspecialistas(); i++){
+		for(int i=0; i<lstEspecialidades->at(esp).nEspecialistas(); i++){
 			if(cods[i] == idE){
 				pos = i;
 				break;

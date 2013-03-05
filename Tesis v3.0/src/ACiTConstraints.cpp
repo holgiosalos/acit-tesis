@@ -36,11 +36,13 @@ private:
 	vector<IntArgs> listaCapacidad;
 	vector<IntSet> listaCodigos;
 
-	vector<Especialidad> listaEspecialidades;
+	vector<Especialidad> * listaEspecialidades;
 	vector<Paciente> listaPacientes;
 
 	int intDia; //intervalos por dia
+	int intSem;
 	int num_semanas;
+	int slInt;
 	int slDia; //slots por dia
 	int nPacPref;
 
@@ -54,16 +56,27 @@ public:
 		BRANCH_CITAS,		//   2 = branch2   | sel-val: menor-num-citas
 	};
 
+	vector<Especialidad>* getListaEspecialidades() const
+	{
+	    return listaEspecialidades;
+	}
+
+	void setListaEspecialidades(vector<Especialidad>* listaEspecialidades)
+	{
+	    this->listaEspecialidades = listaEspecialidades;
+	}
+
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
 	  t_fin(*this, opt.totalCitas(), 1, opt.makespan()),
 	  preferencias(*this, opt.nPacientesPreferencia(), 0, 1),
 	  maximo(*this, 0, opt.nPacientesPreferencia()) {
+		cout << "init constraints" << endl;
 
 		/************** Asignaciones Previas **************/
 		listaPacientes = opt.listaPacientes();
-		listaEspecialidades = opt.listaEspecialidades();
+		setListaEspecialidades(opt.listaEspecialidades());
 
 		writer = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
 		writer->semanas(opt.semanas());
@@ -73,59 +86,60 @@ public:
 		writer->intervalosSemana(opt.intervalosSemana());
 
 		intDia = opt.intervalosDia();
+		intSem = opt.intervalosSemana();
 		num_semanas = opt.semanas();
 		slDia = opt.slotsDia();
+		slInt = opt.slotsIntervalo();
 		nPacPref = opt.nPacientesPreferencia();
 
 		// Creacion de los IntArgs que representan las capacidades
-		for(int i=0; i<(int)listaEspecialidades.size(); i++){
-
+		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			//IntArgs auxiliares para las capacidades
-			int arrAuxCap[listaEspecialidades[i].nEspecialistas()];
-			for(int j=0; j<listaEspecialidades[i].nEspecialistas(); j++){
-				arrAuxCap[j] = listaEspecialidades[i].capacidad();
+			int arrAuxCap[listaEspecialidades->at(i).nEspecialistas()];
+			for(int j=0; j<listaEspecialidades->at(i).nEspecialistas(); j++){
+				arrAuxCap[j] = listaEspecialidades->at(i).capacidad();
 			}
-			listaCapacidad.push_back(IntArgs(listaEspecialidades[i].nEspecialistas(), arrAuxCap));
+			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).nEspecialistas(), arrAuxCap));
 
 			//IntArgs auxiliar para los recursos
-			int arrAux[listaEspecialidades[i].totalCitas()];
-			for(int j=0; j<listaEspecialidades[i].totalCitas(); j++){
+			int arrAux[listaEspecialidades->at(i).totalCitas()];
+			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
 				arrAux[j] = 1;
 			}
-			listaRecursos.push_back(IntArgs(listaEspecialidades[i].totalCitas(), arrAux));
+			listaRecursos.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAux));
 
 			//IntArgs auxiliar para las duraciones
-			int arrAuxD[listaEspecialidades[i].totalCitas()];
-			for(int j=0; j<listaEspecialidades[i].totalCitas(); j++){
-				arrAuxD[j] = listaEspecialidades[i].duracionCitasSlots();
+			int arrAuxD[listaEspecialidades->at(i).totalCitas()];
+			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
+				arrAuxD[j] = listaEspecialidades->at(i).duracionCitasSlots();
 			}
-			listaDuracion.push_back(IntArgs(listaEspecialidades[i].totalCitas(), arrAuxD));
+			listaDuracion.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAuxD));
 
-			listaCodigos.push_back(IntSet(listaEspecialidades[i].idEspecialistasArray(),listaEspecialidades[i].nEspecialistas()));
+			listaCodigos.push_back(IntSet(listaEspecialidades->at(i).idEspecialistasArray(),listaEspecialidades->at(i).nEspecialistas()));
 		}
 
-		for(int i=0; i<(int)listaEspecialidades.size(); i++){
+		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			listaVarEspecialistas.push_back(
-				IntVarArray(*this, listaEspecialidades[i].totalCitas(), listaCodigos[i]));
+				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), listaCodigos[i]));
 
 			listaVarTInicio.push_back(
-				IntVarArray(*this,listaEspecialidades[i].totalCitas(),0,opt.makespan()));
+				IntVarArray(*this,listaEspecialidades->at(i).totalCitas(),0,opt.makespan()));
 
 			listaVarTFin.push_back(
-				IntVarArray(*this,listaEspecialidades[i].totalCitas(),1,opt.makespan()));
+				IntVarArray(*this,listaEspecialidades->at(i).totalCitas(),1,opt.makespan()));
 
 			listaSlotsDia.push_back(
-				IntVarArray(*this, listaEspecialidades[i].totalCitas(), 0, opt.slotsDia()));
+				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
 			listaResultDia.push_back(
-				IntVarArray(*this, listaEspecialidades[i].totalCitas(), 0, opt.slotsDia()));
+				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
 			listaResultDia2.push_back(
-				IntVarArray(*this, listaEspecialidades[i].totalCitas(), 0, opt.slotsDia()));
+				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
 		}
 
 		/************** Restricciones **************/
 		//Preservar coherencia
 		int tam = 0;
-		for(int i=0; i<(int)listaEspecialidades.size(); i++){
+		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			for(int j=0; j<listaVarEspecialistas[i].size(); j++){
 				rel(*this, listaVarEspecialistas[i][j], IRT_EQ, especialistas[tam], opt.icl());
 				rel(*this, listaVarTInicio[i][j], IRT_EQ, t_inicio[tam], opt.icl());
@@ -141,11 +155,11 @@ public:
 		int esp_i=0;
 		int itPref=0; //iterador del IntVarArray preferencias
 
-		while(esp_i < (int) listaEspecialidades.size()){
-			pacEsp_i = listaEspecialidades[esp_i].pacientes();
-			for(int i = 0; i < listaEspecialidades[esp_i].nPacientes(); i++){
-				dispPi = transformarDisponibilidad(pacEsp_i[i].disponibilidad(), listaEspecialidades[esp_i].duracionCitasSlots(), opt.slotsIntervalo());
-				for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id()); j++){
+		while(esp_i < (int) listaEspecialidades->size()){
+			pacEsp_i = listaEspecialidades->at(esp_i).pacientes();
+			for(int i = 0; i < listaEspecialidades->at(esp_i).nPacientes(); i++){
+				dispPi = transformarDisponibilidad(pacEsp_i[i].disponibilidad(), listaEspecialidades->at(esp_i).duracionCitasSlots());
+				for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id()); j++){
 					//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
 					for (int k = 0; k < (int) dispPi.size(); k++) {
 						if (dispPi[k] == 0) {
@@ -155,17 +169,17 @@ public:
 
 					//Restricción de preferencia
 					if(j == 0 && opt.preferencia()){
-						if(pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()) != 0) {
+						if(pacEsp_i[i].especialistaPref(listaEspecialidades->at(esp_i).id()) != 0) {
 							rel(
 								*this,
-								(listaVarEspecialistas[esp_i][citEsp_i] == pacEsp_i[i].especialistaPref(listaEspecialidades[esp_i].id()))
+								(listaVarEspecialistas[esp_i][citEsp_i] == pacEsp_i[i].especialistaPref(listaEspecialidades->at(esp_i).id()))
 									== preferencias[itPref],
 								opt.icl());
 							itPref++;
 						}
 					}
 
-					if(j < pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id())-1){
+					if(j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id())-1){
 						//Restricción 2: Mismo especialista para todas las citas de un paciente
 						rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());
 //						rel(*this, listaVarTFin[esp_i][citEsp_i], IRT_LE, listaVarTInicio[esp_i][citEsp_i+1], opt.icl());
@@ -183,7 +197,7 @@ public:
 						//División de b/(num intervalos dia) = z
 						div(*this,  listaVarTInicio[esp_i][citEsp_i], listaSlotsDia[esp_i][citEsp_i], listaResultDia2[esp_i][citEsp_i], opt.icl());
 						rel(*this, listaResultDia[esp_i][citEsp_i], IRT_EQ, listaResultDia2[esp_i][citEsp_i], opt.icl());
-						if(j == pacEsp_i[i].nCitas(listaEspecialidades[esp_i].id())-2){
+						if(j == pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id())-2){
 							div(*this, listaVarTInicio[esp_i][citEsp_i+1], listaSlotsDia[esp_i][citEsp_i], listaResultDia2[esp_i][citEsp_i+1], opt.icl());
 							rel(*this, listaResultDia[esp_i][citEsp_i+1], IRT_EQ, listaResultDia2[esp_i][citEsp_i+1], opt.icl());
 						}
@@ -232,15 +246,15 @@ public:
 
 		//Aplicamos la restriccion cumulatives para cada una de las especialidades
 		//p+i= e
-		for(int i=0; i<(int)listaEspecialidades.size(); i++){
+		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			for(int j=0; j<listaVarTInicio[i].size(); j++){
 				rel(*this, listaVarTFin[i][j] == listaDuracion[i][j]+listaVarTInicio[i][j], opt.icl());
 			}
 		}
 
-		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
+//		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
-		for(int i=0; i<(int)listaEspecialidades.size(); i++){
+		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, opt.icl());
 		}
 
@@ -248,6 +262,8 @@ public:
 		{
 			rel(*this, maximo == sum(preferencias), opt.icl());
 		}
+
+		cout << "end constraints" << endl;
 
 		/************ Estrategias de Busqueda ************/
 		switch(opt.branching())
@@ -265,35 +281,23 @@ public:
 		}
 		branch(*this, t_inicio, INT_VAR_SIZE_DEGREE_MIN, INT_VAL_MIN);
 		branch(*this, t_fin, INT_VAR_SIZE_DEGREE_MIN, INT_VAL_MIN);
-
-		listaVarEspecialistas.clear();
-		listaVarTInicio.clear();
-		listaVarTFin.clear();
-		listaSlotsDia.clear();
-		listaResultDia.clear();
-		listaResultDia2.clear();
-		listaDuracion.clear();
-		listaRecursos.clear();
-		listaCapacidad.clear();
-		listaCodigos.clear();
-		listaPacientes.clear();
 	}
 
 	static void recDispEsp(Space& _home){
 		ACiTConstraints& home = static_cast<ACiTConstraints&>(_home);
-		vector<Especialista> profEsp_i; //Vector auxiliar que contendra los profesionales pertenecientes a la especialidad i
 		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+		int id;
 
 		int esp_i=0;
-		while (esp_i < (int)home.listaEspecialidades.size()) {
-			profEsp_i = home.listaEspecialidades[esp_i].especialistas();
-			for(int i=0; i<(int)profEsp_i.size();i++){
+		while (esp_i < (int)home.listaEspecialidades->size()) {
+			for(int i=0; i<(int)home.listaEspecialidades->at(esp_i).especialistas()->size(); i++){
 				dispEi = home.transformarDisponibilidad(
-					profEsp_i[i].horariosAtencionEsp(home.listaEspecialidades[esp_i].id()),
-					home.listaEspecialidades[esp_i].duracionCitasSlots(),
-					12);
+					home.listaEspecialidades->at(esp_i).especialistas()->at(i).horariosAtencionEsp(
+						home.listaEspecialidades->at(esp_i).id()),
+						home.listaEspecialidades->at(esp_i).duracionCitasSlots());
+				id = home.listaEspecialidades->at(esp_i).especialistas()->at(i).id();
 				for(int j=0; j<home.especialistas.size(); j++){
-					if(home.especialistas[j].val() == profEsp_i[i].id()){
+					if(home.especialistas[j].val() == id){
 						for (int k = 0; k < (int) dispEi.size(); k++) {
 							if (dispEi[k] == 0) {
 								rel(home, home.t_inicio[j], IRT_NQ, k);
@@ -301,6 +305,7 @@ public:
 						}
 					}
 				}
+				dispEi.clear();
 			}
 			esp_i++;
 		}
@@ -311,14 +316,14 @@ public:
 		vector<vector<int> > infoNS;
 		vector<int> auxInfo(4);
 		vector<Paciente> aux;
-		for(int i = 0; i < (int)listaEspecialidades.size(); i++){
-			if(p.buscaEspecialidadPac(listaEspecialidades[i].id())){
-				aux = listaEspecialidades[i].pacientes();
+		for(int i = 0; i < (int)listaEspecialidades->size(); i++){
+			if(p.buscaEspecialidadPac(listaEspecialidades->at(i).id())){
+				aux = listaEspecialidades->at(i).pacientes();
 				inicio = 0; citas = 0;
 				for(int j = 0; j < (int)aux.size(); j++){
-					citas = aux[j].nCitas(listaEspecialidades[i].id());
+					citas = aux[j].nCitas(listaEspecialidades->at(i).id());
 					if(aux[j].id() == p.id()){
-						auxInfo[0] = listaEspecialidades[i].id(); //Id de la especialidad
+						auxInfo[0] = listaEspecialidades->at(i).id(); //Id de la especialidad
 						auxInfo[1] = i;				//posicion de la especialidad en el vector listaEspecialidades
 						auxInfo[2] = inicio;		//posicion de inicio de las citas para esa especialidad
 						auxInfo[3] = inicio+citas;	//posicion de fin de las citas para esa especialidad
@@ -335,9 +340,10 @@ public:
 		return infoNS;
 	}
 
-	vector<int> transformarDisponibilidad(vector<int> disp, int durCitEspSlot, int slotsIntervalo){
-		int slSem = slDia*(disp.size()/intDia);
+	vector<int> transformarDisponibilidad(vector<int> disp, int durCitEspSlot){
+		int slSem = slInt * intSem;
 		int tam = slSem*num_semanas;
+		int ultimoSlDia = slInt * intDia; // Almacena el ultimo slot del día
 		vector<int> aux(tam);
 
 		/*
@@ -350,42 +356,22 @@ public:
 		while(sem < num_semanas){
 			pos = 0;
 			for(int i=(slSem*sem); i <(slSem*(sem+1)); i++){
-				if((i % slDia) != 48){
+				if((i % slDia) != ultimoSlDia){
 					pos = (
-							(int)floor((i % slDia) / slotsIntervalo) +
+							(int)floor((i % slDia) / slInt) +
 							(intDia*((int)floor(i/slDia)))
-					) % (int)disp.size(); // i/slDia = numero de dia del slot
+					) % intSem; // i/slDia = numero de dia del slot
 				}
 				aux[i] = disp[pos];
 			}
 			sem++;
 		}
-
-		disp.clear(); disp.resize(aux.size());
-
-		/*
-		 * Luego vamos a calcular que slots de tiempo son los candidatos como tiempos de inicio
-		 * para las citas, si un numero de slot es candidato, el valor que toma es 1, de lo
-		 * contrario el valor es 0. Se determina que un slot es candidato cuando el numero de
-		 * slots siguientes en 1 es igual a durCitEspSlot
-		 */
-		int suma=0;
-		for(int i=0; i< ((int)aux.size()) - durCitEspSlot; i++){
-			for(int j=i; j<i+durCitEspSlot; j++){
-				suma += aux[j];
-			}
-			if(suma==durCitEspSlot){
-				disp[i] = 1;
-			}else{
-				disp[i] = 0;
-			}
-			suma = 0;
-		}
+		disp.clear();
 		return aux;
 	}
 
 	// Brancher
-	void distribuidor(Home home, const IntVarArgs& x, vector<Especialidad> lstEsp, int enfoque){
+	void distribuidor(Home home, const IntVarArgs& x, vector<Especialidad>* lstEsp, int enfoque){
 		if(home.failed()) return;
 
 		ViewArray<Int::IntView> y(home, x);
@@ -401,10 +387,14 @@ public:
 		maximo.update(*this, share, s.maximo);
 		writer = s.writer;
 
+		listaEspecialidades = s.listaEspecialidades;
+
 		nPacPref = s.nPacPref;
 		intDia = s.intDia;
+		intSem = s.intSem;
 		num_semanas = s.num_semanas;
 		slDia = s.slDia;
+		slInt = s.slInt;
 	}
 
 	/// Perform copying during cloning
@@ -419,7 +409,7 @@ public:
 
 	/// Print solution when the preference constraint is activated
 	virtual void
-	print(vector<Especialidad> lstEspecialidades) const{
+	print(vector<Especialidad>* lstEspecialidades) const{
 		if (this->failed())
 		{
 			cout << "Failed" << endl;
@@ -430,20 +420,20 @@ public:
 		int esp_i=0;
 		int citEsp_i=0;
 
-		while(esp_i < (int) lstEspecialidades.size()) {
-			pacientes = lstEspecialidades[esp_i].pacientes();
+		while(esp_i < (int) lstEspecialidades->size()) {
+			pacientes = lstEspecialidades->at(esp_i).pacientes();
 			for(int i = 0; i < (int) pacientes.size(); i++){
-				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades[esp_i].id()); j++) {
-					pacientes[i].insertarCita(Cita(lstEspecialidades[esp_i].id(),
+				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades->at(esp_i).id()); j++) {
+					pacientes[i].insertarCita(Cita(lstEspecialidades->at(esp_i).id(),
 						t_inicio[citEsp_i].val(),
 						t_fin[citEsp_i].val(),
 						writer->determinarDiaInt(t_inicio[citEsp_i].val())
 					));
 
-					if(j == (pacientes[i].nCitas(lstEspecialidades[esp_i].id()) - 1)) {
-						Especialista auxEsp = lstEspecialidades[esp_i].buscarEspecialista(especialistas[citEsp_i].val());
+					if(j == (pacientes[i].nCitas(lstEspecialidades->at(esp_i).id()) - 1)) {
+						Especialista auxEsp = lstEspecialidades->at(esp_i).buscarEspecialista(especialistas[citEsp_i].val());
 						auxEsp.insertarPaciente(pacientes[i]);
-						lstEspecialidades[esp_i].actualizarEspecialista(auxEsp);
+						lstEspecialidades->at(esp_i).actualizarEspecialista(auxEsp);
 					}
 					citEsp_i++;
 				}
@@ -466,30 +456,29 @@ public:
 			return;
 		}
 
-		vector<Especialidad> lstEspecialidades = listaEspecialidades;
+		vector<Especialidad>* lstEspecialidades = listaEspecialidades;
 		vector<Paciente> pacientes;
 		int esp_i=0;
 		int citEsp_i=0;
 
 		int contadorPref=0;
-		while(esp_i < (int) lstEspecialidades.size()) {
-			pacientes = lstEspecialidades[esp_i].pacientes();
+		while(esp_i < (int) lstEspecialidades->size()) {
+			pacientes = lstEspecialidades->at(esp_i).pacientes();
 			for(int i = 0; i < (int) pacientes.size(); i++){
-				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades[esp_i].id()); j++) {
-					pacientes[i].insertarCita(Cita(lstEspecialidades[esp_i].id(),
+				for(int j = 0; j < pacientes[i].nCitas(lstEspecialidades->at(esp_i).id()); j++) {
+					pacientes[i].insertarCita(Cita(lstEspecialidades->at(esp_i).id(),
 							t_inicio[citEsp_i].val(),
 							t_fin[citEsp_i].val(),
 							writer->determinarDiaInt(t_inicio[citEsp_i].val())
 					));
-					if(j == (pacientes[i].nCitas(lstEspecialidades[esp_i].id()) - 1)) {
-						Especialista auxEsp = lstEspecialidades[esp_i].buscarEspecialista(especialistas[citEsp_i].val());
+					if(j == 0) {
+						Especialista auxEsp = lstEspecialidades->at(esp_i).buscarEspecialista(especialistas[citEsp_i].val());
 						auxEsp.insertarPaciente(pacientes[i]);
-						lstEspecialidades[esp_i].actualizarEspecialista(auxEsp);
-					}
-					if (pacientes[i].especialistaPref(lstEspecialidades[esp_i].id())
-						== especialistas[citEsp_i].val())
-					{
-						contadorPref++;
+						lstEspecialidades->at(esp_i).actualizarEspecialista(auxEsp);
+						if (pacientes[i].especialistaPref(lstEspecialidades->at(esp_i).id()) == auxEsp.id())
+						{
+							contadorPref++;
+						}
 					}
 					citEsp_i++;
 				}
@@ -502,4 +491,5 @@ public:
 		double porcentaje = contadorPref / (double)nPacPref;
 		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
 	}
-};
+}
+;

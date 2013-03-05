@@ -22,12 +22,12 @@ private:
 	string _nombre;
 	vector<int> _idEspecialistas;
 	vector<int> _idPacientes;
-	vector<Especialista> _especialistas; //Lista de especialistas pertenecientes a la especialidad
+	vector<Especialista>* _especialistas; //Lista de especialistas pertenecientes a la especialidad
 	vector<Paciente> _pacientes; //Lista de pacientes que necesitan ser atendidos en dicha especialidad
 
 public:
 	Especialidad(int i, string n, int c, int nC, int dC, int nE, int nP,
-			vector<Especialista> esp, vector<Paciente> pac,
+			vector<Especialista>* esp, vector<Paciente> pac,
 			vector<int> idsE, vector<int> idsP);
 	~Especialidad();
 
@@ -49,8 +49,8 @@ public:
 	void nPacientes(int nP);
 	int nPacientes(void);
 
-	void especialistas(vector<Especialista> esp);
-	vector<Especialista> especialistas(void) const;
+	void especialistas(vector<Especialista>* esp);
+	vector<Especialista>* especialistas(void) const;
 	string especialistasString(void);
 
 	void idEspecialistas(vector<int> ids);

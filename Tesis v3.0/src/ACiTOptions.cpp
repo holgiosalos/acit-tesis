@@ -126,11 +126,11 @@ int ACiTOptions::mayorIdProfesional() const{
 	return _mayorIdProfesional;
 }
 
-vector<Especialidad> ACiTOptions::listaEspecialidades() const{
+vector<Especialidad>* ACiTOptions::listaEspecialidades() const{
 	return _listaEspecialidades;
 }
 
-vector<Especialista> ACiTOptions::listaEspecialistas() const {
+vector<Especialista>* ACiTOptions::listaEspecialistas() const {
 	return _listaEspecialistas;
 }
 
@@ -178,10 +178,12 @@ void ACiTOptions::iniciar(void) {
 	}
 
 	nPacientesPreferencia(pacientespref);
+	_listaEspecialidades = new vector<Especialidad>();
+	_listaEspecialistas = new vector<Especialista>();
 
 	//Agregamos los especialistas del archivo al vector listaEspecialistas
 	for (int j = 0; j < _reader.numEspecialistas(); j++) {
-		_listaEspecialistas.push_back(Especialista(_reader.idEspecialista(j),
+		_listaEspecialistas->push_back(Especialista(_reader.idEspecialista(j),
 				_reader.nomEspecialista(j), _reader.numEspProfesional(j),
 				_reader.especialidadesProf(j), _reader.dispEspecialista(j)));
 		if (mayorId < _reader.idEspecialista(j)) {
@@ -194,7 +196,7 @@ void ACiTOptions::iniciar(void) {
 //	cout << "especialistas OK" << endl;
 
 	//Agregamos los datos de las especialidades al vector listaEspecialidades
-	vector<Especialista> auxE;
+	vector<Especialista>* auxE;
 	vector<int> auxIdsE;
 	vector<Paciente> auxP;
 	vector<int> auxIdsP;
@@ -202,10 +204,11 @@ void ACiTOptions::iniciar(void) {
 //	cout << "numEspdes: " << _reader.numEspecialidades() << endl;
 
 	for (int x = 0; x < _reader.numEspecialidades(); x++) {
-		for (int j = 0; j < (int) _listaEspecialistas.size(); j++) {
-			if (_listaEspecialistas[j].buscaEspecialidadProf(_reader.idEspecialidad(x))) {
-				auxE.push_back(_listaEspecialistas[j]);
-				auxIdsE.push_back(_listaEspecialistas[j].id());
+		auxE = new vector<Especialista>();
+		for (int j = 0; j < (int) _listaEspecialistas->size(); j++) {
+			if (_listaEspecialistas->at(j).buscaEspecialidadProf(_reader.idEspecialidad(x))) {
+				auxE->push_back(_listaEspecialistas->at(j));
+				auxIdsE.push_back(_listaEspecialistas->at(j).id());
 			}
 		}
 
@@ -217,11 +220,10 @@ void ACiTOptions::iniciar(void) {
 		}
 
 		if (_reader.numPacEsp(_reader.idEspecialidad(x)) == (int) auxP.size()) {
-			_listaEspecialidades.push_back(Especialidad(
+			_listaEspecialidades->push_back(Especialidad(
 						_reader.idEspecialidad(x), _reader.nomEspecialidad(x), _reader.capEspecialidad(x),
-						_reader.numCitasEsp(_reader.idEspecialidad(x)),	_reader.duracionCita(x), auxE.size(),
+						_reader.numCitasEsp(_reader.idEspecialidad(x)),	_reader.duracionCita(x), auxE->size(),
 						_reader.numPacEsp(_reader.idEspecialidad(x)), auxE, auxP, auxIdsE, auxIdsP));
-			auxE.clear();
 			auxP.clear();
 			auxIdsE.clear();
 			auxIdsP.clear();
@@ -238,9 +240,9 @@ int* ACiTOptions::settingCodigos(void) {
 	int tam = _reader.numEspecialistas();
 	int* codigos;
 	codigos = (int*) malloc(sizeof(int) * tam);
-	if (_listaEspecialistas.size() > 0) {
-		for (int i = 0; i < (int) _listaEspecialistas.size(); i++) {
-			codigos[i] = _listaEspecialistas[i].id();
+	if (_listaEspecialistas->size() > 0) {
+		for (int i = 0; i < (int) _listaEspecialistas->size(); i++) {
+			codigos[i] = _listaEspecialistas->at(i).id();
 		}
 	} else {
 		cout << "ERROR: Lista de Especialistas no inicializada" << endl;

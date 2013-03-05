@@ -1,7 +1,7 @@
 #include "especialidad.h"
 
 Especialidad::Especialidad(int i, string n, int c, int nC, int dC, int nE, int nP,
-		vector<Especialista> esp, vector<Paciente> pac,
+		vector<Especialista>* esp, vector<Paciente> pac,
 		vector<int> idsE, vector<int> idsP)
 {
 	_id = i;
@@ -75,12 +75,12 @@ int Especialidad::nPacientes(void)
 	return _nPacientes;
 }
 
-void Especialidad::especialistas(vector<Especialista> esp)
+void Especialidad::especialistas(vector<Especialista>* esp)
 {
 	_especialistas = esp;
 }
 
-vector<Especialista> Especialidad::especialistas(void) const
+vector<Especialista>* Especialidad::especialistas(void) const
 {
 	return _especialistas;
 }
@@ -88,9 +88,9 @@ vector<Especialista> Especialidad::especialistas(void) const
 string Especialidad::especialistasString(void)
 {
 	string resultado="[";
-	for(int i=0; i<(int)_especialistas.size(); i++){
-		resultado += _especialistas[i].id();
-		if(i != (int)_especialistas.size()){
+	for(int i=0; i<(int)_especialistas->size(); i++){
+		resultado += _especialistas->at(i).id();
+		if(i != (int)_especialistas->size()){
 			resultado += ", ";
 		}else{
 			resultado +="]";
@@ -144,18 +144,18 @@ vector<int> Especialidad::idPacientesVector(void)
 Especialista Especialidad::buscarEspecialista(int idE)
 {
 	int i=0;
-	for(; i<int(_especialistas.size()); i++){
-		if(_especialistas[i].id() == idE){
+	for(; i<int(_especialistas->size()); i++){
+		if(_especialistas->at(i).id() == idE){
 			break;
 		}
 	}
-	return _especialistas[i];
+	return _especialistas->at(i);
 }
 
 void Especialidad::actualizarEspecialista(Especialista esp){
-	for(int i=0; i<int(_especialistas.size()); i++){
-		if(_especialistas[i].id() == esp.id()){
-			_especialistas[i] = esp;
+	for(int i=0; i<int(_especialistas->size()); i++){
+		if(_especialistas->at(i).id() == esp.id()){
+			_especialistas->at(i) = esp;
 			break;
 		}
 	}

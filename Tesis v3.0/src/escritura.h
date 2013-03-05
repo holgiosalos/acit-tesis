@@ -60,7 +60,7 @@ public:
 	void transformarIntervalo(int i);
 	vector<vector<string> > getDatosDisponibilidad(Especialista esp, int idE) const;
 
-	void escribirXml(vector<Especialidad> listaEspecialidades) const;
+	void escribirXml(vector<Especialidad>* listaEspecialidades) const;
 
 
 };

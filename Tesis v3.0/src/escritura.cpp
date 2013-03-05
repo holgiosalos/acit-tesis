@@ -108,7 +108,7 @@ vector<vector<string> > Escritura::getDatosDisponibilidad(Especialista esp, int 
 	return res;
 }
 
-void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
+void Escritura::escribirXml(vector<Especialidad>* listaEspecialidades) const{
 
 	TiXmlDocument outputfile;
 
@@ -129,25 +129,25 @@ void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 	TiXmlElement * paciente;
 	TiXmlElement * cita;
 
-	for(int i=0; i<(int)listaEspecialidades.size(); i++){
+	for(int i=0; i<(int)listaEspecialidades->size(); i++){
 		//Especialidades
 		especialidad = new TiXmlElement( "especialidad");
 		root->LinkEndChild( especialidad );
-		especialidad->SetAttribute("id", listaEspecialidades[i].id());
-		especialidad->SetAttribute("nombre", listaEspecialidades[i].nombre());
-		especialidad->SetAttribute("duracion", listaEspecialidades[i].duracionCitasMinutos());
+		especialidad->SetAttribute("id", listaEspecialidades->at(i).id());
+		especialidad->SetAttribute("nombre", listaEspecialidades->at(i).nombre());
+		especialidad->SetAttribute("duracion", listaEspecialidades->at(i).duracionCitasMinutos());
 
-		vector<Especialista> lstProfesionales = listaEspecialidades[i].especialistas();
+		vector<Especialista>* lstProfesionales = listaEspecialidades->at(i).especialistas();
 
-		for(int j=0; j<(int)lstProfesionales.size(); j++){
+		for(int j=0; j<(int)lstProfesionales->size(); j++){
 			//especialista
 			profesional = new TiXmlElement( "profesional");
 			especialidad->LinkEndChild( profesional );
-			profesional->SetAttribute("id", lstProfesionales[j].id());
-			profesional->SetAttribute("nombre", lstProfesionales[j].nombre());
+			profesional->SetAttribute("id", lstProfesionales->at(j).id());
+			profesional->SetAttribute("nombre", lstProfesionales->at(j).nombre());
 
 			//disponibilidad
-			vector<vector<string> > infoDisponibilidad = getDatosDisponibilidad(lstProfesionales[j], listaEspecialidades[i].id());
+			vector<vector<string> > infoDisponibilidad = getDatosDisponibilidad(lstProfesionales->at(j), listaEspecialidades->at(i).id());
 			for(int d=0; d<(int)infoDisponibilidad.size(); d++){
 				disponibilidad = new TiXmlElement( "disponible");
 				profesional->LinkEndChild(disponibilidad);
@@ -157,13 +157,13 @@ void Escritura::escribirXml(vector<Especialidad> listaEspecialidades) const{
 			}
 
 			//pacientes
-			vector<Paciente> lstPacientes = lstProfesionales[j].pacientes();
+			vector<Paciente> lstPacientes = lstProfesionales->at(j).pacientes();
 			for(int k=0; k<(int)lstPacientes.size(); k++){
 				paciente = new TiXmlElement( "paciente");
 				profesional->LinkEndChild(paciente);
 				paciente->SetAttribute("id", lstPacientes[k].id());
 				paciente->SetAttribute("nombre", lstPacientes[k].nombre());
-				paciente->SetAttribute("num_citas", lstPacientes[k].nCitas(listaEspecialidades[i].id()));
+				paciente->SetAttribute("num_citas", lstPacientes[k].nCitas(listaEspecialidades->at(i).id()));
 
 				vector<Cita> lstCita = lstPacientes[k].listaCitas();
 				//antes de agregar una cita, hay que setear el numero de dias por semana
