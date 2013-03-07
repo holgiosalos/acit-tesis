@@ -150,7 +150,9 @@ public:
 
 		//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
 		vector<Paciente> pacEsp_i; //Vector auxiliar que contendra los pacientes pertenecientes a la especialidad i
-		vector<int> dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
+//		vector<int> dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
+		IntArgs dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
+		IntSet setDom;
 		int citEsp_i=0; //Contador que me servira para recorrer las variables de tiempos de inicio de la especialidad i
 		int esp_i=0;
 		int itPref=0; //iterador del IntVarArray preferencias
@@ -158,14 +160,16 @@ public:
 		while(esp_i < (int) listaEspecialidades->size()){
 			pacEsp_i = listaEspecialidades->at(esp_i).pacientes();
 			for(int i = 0; i < listaEspecialidades->at(esp_i).nPacientes(); i++){
-				dispPi = transformarDisponibilidad(pacEsp_i[i].disponibilidad(), listaEspecialidades->at(esp_i).duracionCitasSlots());
+				dispPi = transformarDisponibilidadEsp(pacEsp_i[i].disponibilidad());
 				for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id()); j++){
 					//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
-					for (int k = 0; k < (int) dispPi.size(); k++) {
-						if (dispPi[k] == 0) {
-							rel(*this, listaVarTInicio[esp_i][citEsp_i], IRT_NQ, k, opt.icl());
-						}
-					}
+					setDom = IntSet(dispPi);
+					dom(*this, listaVarTInicio[esp_i][citEsp_i], setDom, ICL_BND);
+//					for (int k = 0; k < (int) dispPi.size(); k++) {
+//						if (dispPi[k] == 0) {
+//							rel(*this, listaVarTInicio[esp_i][citEsp_i], IRT_NQ, k, opt.icl());
+//						}
+//					}
 
 					//Restricción de preferencia
 					if(j == 0 && opt.preferencia()){
@@ -285,27 +289,30 @@ public:
 
 	static void recDispEsp(Space& _home){
 		ACiTConstraints& home = static_cast<ACiTConstraints&>(_home);
-		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+//		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+		IntArgs dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+		IntSet setDom;
 		int id;
 
 		int esp_i=0;
 		while (esp_i < (int)home.listaEspecialidades->size()) {
 			for(int i=0; i<(int)home.listaEspecialidades->at(esp_i).especialistas()->size(); i++){
-				dispEi = home.transformarDisponibilidad(
+				dispEi = home.transformarDisponibilidadEsp(
 					home.listaEspecialidades->at(esp_i).especialistas()->at(i).horariosAtencionEsp(
-						home.listaEspecialidades->at(esp_i).id()),
-						home.listaEspecialidades->at(esp_i).duracionCitasSlots());
+						home.listaEspecialidades->at(esp_i).id()));
 				id = home.listaEspecialidades->at(esp_i).especialistas()->at(i).id();
+				setDom = IntSet(dispEi);
 				for(int j=0; j<home.especialistas.size(); j++){
 					if(home.especialistas[j].val() == id){
-						for (int k = 0; k < (int) dispEi.size(); k++) {
-							if (dispEi[k] == 0) {
-								rel(home, home.t_inicio[j], IRT_NQ, k);
-							}
-						}
+						cout << setDom << endl;
+						dom(home, home.t_inicio[j], setDom, ICL_BND);
+//						for (int k = 0; k < (int) dispEi.size(); k++) {
+//							if (dispEi[k] == 0) {
+//								rel(home, home.t_inicio[j], IRT_NQ, k);
+//							}
+//						}
 					}
 				}
-				dispEi.clear();
 			}
 			esp_i++;
 		}
@@ -340,10 +347,10 @@ public:
 		return infoNS;
 	}
 
-	vector<int> transformarDisponibilidad(vector<int> disp, int durCitEspSlot){
+	vector<int> transformarDisponibilidad(vector<int> disp){
 		int slSem = slInt * intSem;
 		int tam = slSem*num_semanas;
-		int ultimoSlDia = slInt * intDia; // Almacena el ultimo slot del día
+//		int ultimoSlDia = slInt * intDia; // Almacena el ultimo slot del día
 		vector<int> aux(tam);
 
 		/*
@@ -355,19 +362,50 @@ public:
 		int pos, sem=0;
 		while(sem < num_semanas){
 			pos = 0;
-			for(int i=(slSem*sem); i <(slSem*(sem+1)); i++){
-				if((i % slDia) != ultimoSlDia){
-					pos = (
-							(int)floor((i % slDia) / slInt) +
-							(intDia*((int)floor(i/slDia)))
-					) % intSem; // i/slDia = numero de dia del slot
-				}
+			for(int i = (slSem * sem); i < (slSem * (sem+1)); i++){
+				pos = (
+					(int)floor((i % slDia) / slInt) +
+					(intDia*((int)floor(i/slDia))) ) % intSem; // i/slDia = numero de dia del slot
+				aux[i] = disp[pos];
+			}
+			sem++;
+		}
+		return aux;
+	}
+
+	IntArgs transformarDisponibilidadEsp(vector<int> disp){
+		int slSem = slInt * intSem;
+		int tam = slSem*num_semanas;
+		vector<int> aux(tam);
+
+		/*
+		 * Primero se duplica cada valor en el vector de disponibilidades, tantas veces como
+		 * numero de slots hayan por cada intervalo, debido a que el vector de disponibilidades
+		 * esta dado por intervalos que representan 60 minutos cada uno, pero no todas las citas
+		 * consumen ese intervalo, por ende se debe hacer esta conversion
+		 */
+		int pos, sem=0;
+		while(sem < num_semanas){
+			pos = 0;
+			for(int i = (slSem * sem); i < (slSem * (sem+1)); i++){
+				pos = (
+						(int)floor((i % slDia) / slInt) +
+						(intDia*((int)floor(i/slDia))) ) % intSem; // i/slDia = numero de dia del slot
 				aux[i] = disp[pos];
 			}
 			sem++;
 		}
 		disp.clear();
-		return aux;
+		for (int i = 0; i < (int)aux.size(); i++)
+		{
+			if (aux[i] == 1) {
+				disp.push_back(i);
+			}
+		}
+		aux.clear();
+		IntArgs result(disp);
+
+		return result;
 	}
 
 	// Brancher
