@@ -58,7 +58,7 @@ int ACiTOptions::intervalosDia() const {
 
 void ACiTOptions::calcularSlotsDia() {
 	//_slotsIntervalo es el valor en el que se divide cada intervaloD (hora).
-	_slotsDia = (_intervalosDia * _slotsIntervalo);
+	_slotsDia = (_intervalosDia * _slotsIntervalo) + 1;
 }
 
 int ACiTOptions::slotsDia(void) const {
@@ -84,7 +84,8 @@ int ACiTOptions::intervalosSemana(void) const {
 
 void ACiTOptions::calcularMakespan() {
 	//_slotsIntervalo es el valor en el que se divide cada intervalo (hora).
-	_makespan = _slotsIntervalo * _intervalosSemana *_semanas;
+	int dias = int(floor(_intervalosSemana/_intervalosDia));
+	_makespan = (_slotsIntervalo * _intervalosSemana *_semanas) + (dias * _semanas) + (_semanas-1);
 }
 
 int ACiTOptions::makespan(void) const {

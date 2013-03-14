@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     opt.solutions(0);
     //Establecimiento de los valores por defecto
 //    opt.file("test4.txt");
-    //opt.file("test_files/dist0_10pac.txt");
+//    opt.file("test_files/dist0_10pac.txt");
     opt.file("test_solution01.txt");
     opt.c_d(10);
     opt.a_d(20);
@@ -52,12 +52,12 @@ int main(int argc, char* argv[]) {
     opt.intervalosDia(12); //12 intervalos de tiempo para cada dia
     opt.semanas(1); //1 semana para lograr todas las asignaciones de citas
     opt.intervalosSemana(65); //65 intervalos de tiempo por toda la semana (Lunes a Sabado) el sabado solo tendra 5 intervalos
-    cout << "makespan: " << opt.makespan() << endl;
-
+//    cout << "makespan: " << opt.makespan() << endl;
+//RECORDAR PROBLEMA CON MAS DE UNA SEMANA
     opt.icl(ICL_BND);
 
     // Opciones de branching
-    opt.branching(ACiTConstraints::BRANCH_PACIENTES);
+    opt.branching(ACiTConstraints::BRANCH_DEFAULT);
     opt.branching(ACiTConstraints::BRANCH_DEFAULT,"default","= sel-var: dom-wdeg, sel-val: random");
     opt.branching(ACiTConstraints::BRANCH_PACIENTES, "pacientes", "= sel-val: min-num-pacientes");
     opt.branching(ACiTConstraints::BRANCH_CITAS, "citas", "= sel-val: min-num-citas");

@@ -8,6 +8,7 @@
 #include "cita.h"
 
 Cita::Cita(int idE, int i, int f, int d){
+	_idEspecialidad = idE;
 	_inicio = i;
 	_fin = f;
 	_dia = d;

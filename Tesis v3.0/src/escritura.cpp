@@ -18,6 +18,7 @@ string Escritura::itostr(int n) const{
 Escritura::Escritura(string directorio) {
 	_directorioSalida 	= directorio;
 	calcularNombreArchivo();
+	calculadora.calcularFechaInicioCitas();
 	_fechaGnrlInicio = calculadora.fechaInicioCitas();
 }
 
@@ -78,33 +79,39 @@ int Escritura::determinarDiaInt(int slot) const{
 
 vector<vector<string> > Escritura::getDatosDisponibilidad(Especialista esp, int idE) const{
 	vector<vector<string> > res;
-	vector<string> aux(3);
 	vector<int> disponibilidad = esp.horariosAtencionEsp(idE);
-	bool ini,fin;
-	for(int i=0; i<_intervalosSemana; i+=_intervalosDia){
-		ini = true; fin=false;
-		for(int j=i; j<i+_intervalosDia; j++){
-			if((disponibilidad[j] == 1)&&(ini==true)){
-				aux[0] = itostr(int(floor(j/_intervalosDia))+1);
-				aux[1] = determinarHora((j%_intervalosDia)*_slotsIntervalo);
-				ini=false;
-				if(j==(i+_intervalosDia)-1){
-					aux[2] = determinarHora( ((j%_intervalosDia)+1)*_slotsIntervalo );
-					fin=true;
-				}
-			}else if((disponibilidad[j] == 0)&&(ini==false)){
-				aux[2] = determinarHora((j%_intervalosDia)*_slotsIntervalo);
-				fin = true;
-			}else if((disponibilidad[j] == 1) && (j==(i+_intervalosDia)-1) && (ini==false)){
-				aux[2] = determinarHora( ((j%_intervalosDia)+1)*_slotsIntervalo );
-				fin=true;
+
+	int dia = 0;
+	int dias_man = 5;
+
+	for(int i=0; i<(int)disponibilidad.size(); i+=_intervalosDia){
+		vector<string> aux(3);
+		dia = int(floor(i/_intervalosDia))+1;
+
+		if(disponibilidad[i] == 1){
+			aux[0] = itostr(dia);
+			aux[1] = determinarHora(0);
+			if(disponibilidad[i+(_intervalosDia-1)] == 1){ //Disponible todo el dia
+				aux[2] = determinarHora(_slotsDia-1); //se le resta uno porque comienza en 0
 			}
-			if((ini==false)&&(fin==true)){
-				res.push_back(aux);
-				break;
+			else if(disponibilidad[i+(dias_man-1)] == 1){ // Disponible solo en la mañana
+				aux[2] = determinarHora(dias_man*_slotsIntervalo);
 			}
 		}
+		else{
+			if(disponibilidad[i+(dias_man)] == 1){ // Disponible solo en la tarde
+				aux[0] = itostr(dia);
+				aux[1] = determinarHora(dias_man*_slotsIntervalo);
+				aux[2] = determinarHora(_slotsDia-1);
+			}
+		}
+
+		if((aux[0] != "") && (aux[1] != "") && (aux[2] != "")){
+			res.push_back(aux);
+			aux.clear();
+		}
 	}
+
 	return res;
 }
 
@@ -166,6 +173,7 @@ void Escritura::escribirXml(vector<Especialidad>* listaEspecialidades) const{
 				paciente->SetAttribute("num_citas", lstPacientes[k].nCitas(listaEspecialidades->at(i).id()));
 
 				vector<Cita> lstCita = lstPacientes[k].listaCitas();
+
 				//antes de agregar una cita, hay que setear el numero de dias por semana
 				for(int c=0; c<int(lstCita.size()); c++){
 					lstCita[c].setDiasSemana((int)ceil(_intervalosSemana/_intervalosDia));
