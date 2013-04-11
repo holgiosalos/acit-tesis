@@ -67,6 +67,11 @@ public:
 	    this->listaEspecialidades = listaEspecialidades;
 	}
 
+	/**
+	 * Constructor. Aqui se definene todas las restricciones.
+	 * Se encarga de inicializar las variables del problema: especialistas, t_inicio y t_fin. Y las
+	 * variables de optimizacion: preferencias y maximo.
+	 */
 	ACiTConstraints(const ACiTOptions& opt)
 	: especialistas(*this, opt.totalCitas(), opt.listaCodEspecialistas()),
 	  t_inicio(*this, opt.totalCitas(), 0, opt.makespan()),
@@ -79,6 +84,10 @@ public:
 		listaPacientes = opt.listaPacientes();
 		setListaEspecialidades(opt.listaEspecialidades());
 
+		/*
+		 * Inicializamos el objeto de escritura con el directorio donde quedaran consignados los
+		 * archivos de salida.
+		 */
 		writer = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
 		writer->semanas(opt.semanas());
 		writer->slotsIntervalo(opt.slotsIntervalo());
@@ -86,6 +95,10 @@ public:
 		writer->intervalosDia(opt.intervalosDia());
 		writer->intervalosSemana(opt.intervalosSemana());
 
+		/*
+		 * Variables necesarias para realizar los calculos que determinan el dia y la hora a la que
+		 * pertenece un slot determinado de tiempo.
+		 */
 		intDia = opt.intervalosDia();
 		intSem = opt.intervalosSemana();
 		num_semanas = opt.semanas();
@@ -94,32 +107,45 @@ public:
 		nPacPref = opt.nPacientesPreferencia();
 		makespan = opt.makespan();
 
-		// Creacion de los IntArgs que representan las capacidades
+		// Inicializacion de algunas variables auxiliares utilizadas en las restricciones.
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
-			//IntArgs auxiliares para las capacidades
+			//IntArgs que representan las capacidades de los profesionales en cada especialidad
 			int arrAuxCap[listaEspecialidades->at(i).nEspecialistas()];
 			for(int j=0; j<listaEspecialidades->at(i).nEspecialistas(); j++){
 				arrAuxCap[j] = listaEspecialidades->at(i).capacidad();
 			}
 			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).nEspecialistas(), arrAuxCap));
 
-			//IntArgs auxiliar para los recursos
+			/*
+			 * IntArgs para los recursos que puede consumir un paciene a la vez. Los recursos
+			 * pueden traducirse como el numero de puestos simultaneos que un paciente puede ocupar
+			 * para un mismo especialista en una misma cita.
+			 */
 			int arrAux[listaEspecialidades->at(i).totalCitas()];
 			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
 				arrAux[j] = 1;
 			}
 			listaRecursos.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAux));
 
-			//IntArgs auxiliar para las duraciones
+			/*
+			 * IntArgs que almacena las duraciones de las citas (en numero de slots) para cada cita
+			 * a asignar, en todas las especialidades
+			 */
 			int arrAuxD[listaEspecialidades->at(i).totalCitas()];
 			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
 				arrAuxD[j] = listaEspecialidades->at(i).duracionCitasSlots();
 			}
 			listaDuracion.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAuxD));
 
+			// Lista de los codigos de los especialistas pertenecientes a una especialidad determinada
 			listaCodigos.push_back(IntSet(listaEspecialidades->at(i).idEspecialistasArray(),listaEspecialidades->at(i).nEspecialistas()));
 		}
 
+		/*
+		 * listaVarEspecialistas, listaVarTInicio y listaVarTFin almacenaran el especialista
+		 * asignado, el tiempo de inicio y el tiempo de finalizacion de una cita determinada,
+		 * en cierta especialidad.
+		 */
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			listaVarEspecialistas.push_back(
 				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), listaCodigos[i]));
@@ -130,21 +156,33 @@ public:
 			listaVarTFin.push_back(
 				IntVarArray(*this,listaEspecialidades->at(i).totalCitas(),1,opt.makespan()));
 
+			// Almacenará el numero de slots por día que hay para cada especialidad
 			listaSlotsDia.push_back(
 				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
+
+			// Almacenará el dia al que pertenece cada cita
 			listaResultDia.push_back(
 				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
+
+			// Almacenará el dia al que pertenece cada cita
 			listaResultDia2.push_back(
 				IntVarArray(*this, listaEspecialidades->at(i).totalCitas(), 0, opt.slotsDia()));
 		}
 
+		/*
+		 * Asignamos el numero de slots por dia disponibles para cada cita, en el array de variables
+		 * diseñado para este propósito.
+		 */
 		for (int esp = 0; esp < (int)listaEspecialidades->size(); esp++)
 		{
 			rel(*this, listaSlotsDia[esp], IRT_EQ, opt.slotsDia(), opt.icl());
 		}
 
-		/************** Restricciones **************/
-		//Preservar coherencia
+		/*
+		 * Las siguientes restricciones establecen la correspondencia que existe entre el conjunto
+		 * de variables especialistas, t_inicio, t_fin con las variables listaVarEspecialistas,
+		 * listaVarTInicio y listaVarTFin.
+		 */
 		int tam = 0;
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			for(int j=0; j<listaVarEspecialistas[i].size(); j++){
@@ -155,27 +193,32 @@ public:
 			}
 		}
 
-		//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
+		/**************************************  Restricciones *************************************/
 		vector<Paciente> pacEsp_i; //Vector auxiliar que contendra los pacientes pertenecientes a la especialidad i
-//		vector<int> dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
 		IntArgs dispPi; //Vector auxiliar que guarda las disponibilidades (dadas en slots) de los pacientes
-		IntSet setDom;
-		int citEsp_i=0; //Contador que me servira para recorrer las variables de tiempos de inicio de la especialidad i
-		int esp_i=0;
-		int itPref=0; //iterador del IntVarArray preferencias
+		IntSet setDom; //IntSet que almacena el conjunto de horarios en los cuales esta disponible el paciente
 
+		//Inicializacion de iteradores
+		int citEsp_i=0; //iterador para las citas.
+		int esp_i=0; //iterador de las especialidades.
+		int itPref=0; //iterador para los pacientes que tiene algun profesional de preferencia.
 		while(esp_i < (int) listaEspecialidades->size()){
 			pacEsp_i = listaEspecialidades->at(esp_i).pacientes();
 			for(int i = 0; i < listaEspecialidades->at(esp_i).nPacientes(); i++){
+				//Se obtienen los slots en los cuales el paciente esta disponible.
 				dispPi = transformarDisponibilidadEsp(pacEsp_i[i].disponibilidad());
 				for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id()); j++){
-					//Restricción 1: Recortar disponibilidades de pacientes (preasignacion de tiempo)
+					//Restriccion Pre-asignacion de Tiempo segun Pacientes
 					setDom = IntSet(dispPi);
 					dom(*this, listaVarTInicio[esp_i][citEsp_i], setDom, ICL_DOM);
 
-					//Restricción de preferencia
+					//Restriccion de preferencia
 					if(j == 0 && opt.preferencia()){
 						if(pacEsp_i[i].especialistaPref(listaEspecialidades->at(esp_i).id()) != 0) {
+							/*
+							 * Se hace por medio de una restriccion reificada, si se cumple la restriccion se almacena el resultado
+							 * en una posicion del IntVarArray preferencias. Este arreglo es utilizado por la funcion de optimizacion.
+							 */
 							rel(
 								*this,
 								(listaVarEspecialistas[esp_i][citEsp_i] == pacEsp_i[i].especialistaPref(listaEspecialidades->at(esp_i).id()))
@@ -186,21 +229,36 @@ public:
 					}
 
 					if(j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id())-1){
-						//Restricción 2: Mismo especialista para todas las citas de un paciente
+						/*
+						 * Restriccion que me asegura que un paciente sea atendido por un mismo profesional
+						 * en todas las citas de un mismo tratamiento
+						 */
 						rel(*this, listaVarEspecialistas[esp_i][citEsp_i], IRT_EQ, listaVarEspecialistas[esp_i][citEsp_i+1], opt.icl());
-//						rel(*this, listaVarTFin[esp_i][citEsp_i], IRT_LE, listaVarTInicio[esp_i][citEsp_i+1], opt.icl());
 
-						//Restricción 3: Dia diferente para dos citas distintas
-						//Division de a/(num intervalos dia)=x y a+1/(num intervalos dia)=y para despues asegurarse que x<y
+						/*
+						 * Restriccion Dia differente: Primero se calcula el dia al que pertenece la cita i,
+						 * por medio de la division del slot al que va a ser asignado la cita por el numero de
+						 * slots por dia, el resultado de esta division es almacenado en la posicion i del vector
+						 * listaResultDia. Se hace el mismo proceso para la cita i+1 y se almacena en la posicion
+						 * i+1 del mismo vector,
+						 */
 						div(*this,  listaVarTFin[esp_i][citEsp_i], listaSlotsDia[esp_i][citEsp_i], listaResultDia[esp_i][citEsp_i], opt.icl());
 						div(*this,  listaVarTInicio[esp_i][citEsp_i+1], listaSlotsDia[esp_i][citEsp_i+1], listaResultDia[esp_i][citEsp_i+1], opt.icl());
+						/*
+						 * Luego se establece que el valor almacenado en la posicion i debe ser menor que el
+						 * valor almacenado en i+1. Lo que asegura que las citas sean asignadas en dias
+						 * distintos.
+						 */
 						rel(*this, listaResultDia[esp_i][citEsp_i], IRT_LE, listaResultDia[esp_i][citEsp_i+1], opt.icl());
 
-						//Restricción 4: Dia Igual para una misma cita
-						//División de b/(num intervalos dia) = z
+						/*
+						 * Los siguientes propagadores tienen un funcionamiento similar al de los propagadores de
+						 * la restriccion Día diferente. Pero con la salvedad, que estan asegurando que tanto el tiempo
+						 * de incio de la cita i como el tiempo de fin, sean asignados el mismo dia.
+						 */
 						div(*this,  listaVarTInicio[esp_i][citEsp_i], listaSlotsDia[esp_i][citEsp_i], listaResultDia2[esp_i][citEsp_i], opt.icl());
 						rel(*this, listaResultDia[esp_i][citEsp_i], IRT_EQ, listaResultDia2[esp_i][citEsp_i], opt.icl());
-						if(j == pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id())-2){
+						if(j == pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id())-2) {
 							div(*this, listaVarTInicio[esp_i][citEsp_i+1], listaSlotsDia[esp_i][citEsp_i], listaResultDia2[esp_i][citEsp_i+1], opt.icl());
 							rel(*this, listaResultDia[esp_i][citEsp_i+1], IRT_EQ, listaResultDia2[esp_i][citEsp_i+1], opt.icl());
 						}
@@ -212,15 +270,24 @@ public:
 			citEsp_i=0;
 		}
 
-//		cout << "inicio no solapamiento" << endl;
-
-		//Restriccion No solapamiento entre los tratamientos de un paciente
+		//Restriccion No Solapamiento entre Citas
 		vector<vector<int> > infoNS;
 		for(int i = 0; i < (int)listaPacientes.size(); i++){
 			if(listaPacientes[i].nTratamientos()>1){
+				/*
+				 * infoNS almacena la siguiente informacion por cada especialidad:
+				 *  - Posicion 0: Id de la especialidad en la que el paciente necesita el tratamiento
+				 *  - Posicion 1: Posicion de la especialidad en el vector listaEspecialidades
+				 *  - Posicion 2: Posicion de inicio de las citas del paciente para esa especialidad
+				 *  - Posicion 3: Posicion de fin de las citas del paciente para esa especialidad
+				 */
 				infoNS = infoNoSolapamiento(listaPacientes[i]);
-
 				if( (int)infoNS.size() == listaPacientes[i].nTratamientos() ) {
+					/*
+					 * Por cada especialidad en la que el paciente tiene cita, se asegura que:
+					 * Cada uno de los slots en los cuales la cita i (nEsp) es asignada, no se asigne
+					 * otra cita en cualquiera de las demas especialidades del paciente.
+					 */
 					int nEsp = 0, cit = infoNS[nEsp][2], sigEsp = 1;
 					while(nEsp < int(infoNS.size())- 1){
 						for(int j=infoNS[sigEsp][2]; j< infoNS[sigEsp][3]; j++){
@@ -229,6 +296,13 @@ public:
 							}
 						}
 						cit++;
+
+						/*
+						 * cuando se llega al final de las citas de la especialidad i (nEsp) se cambia la especialidad
+						 * i+1(sigEsp) a la siguiente (sigEsp++). Si el valor de sigEsp supera el numero de especialidades
+						 * en las que tiene que ser atendido el paciente, se pasa a comparar la especialidad i+1 (nEsp++)
+						 * con las subsiguientes especialidades.
+						 */
 						if(cit == infoNS[nEsp][3]){
 							cit=0;
 							sigEsp++;
@@ -247,26 +321,36 @@ public:
 		}
 		infoNS.clear();
 
-		//Aplicamos la restriccion cumulatives para cada una de las especialidades
-		//p+i= e
+		//Restriccion Tiempo de Finalizacion
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			for(int j=0; j<listaVarTInicio[i].size(); j++){
 				rel(*this, listaVarTFin[i][j] == listaDuracion[i][j]+listaVarTInicio[i][j], opt.icl());
 			}
 		}
 
+		/*
+		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
+		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
+		 */
 		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
+		/*
+		 * La restriccion de capacidad de los especialistas es propagada a traves de cumulatives, que
+		 * nos asegura que no se atienda a mas de la cantidad permitida de pacientes en un mismo
+		 * slot de tiempo para una especialidad determinada.
+		 */
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, opt.icl());
 		}
 
+		/*
+		 * Funcion de optimizacion: Se encarga de maximizar el numero de pacientes a los cuales se les
+		 * asigna a su profesional de preferencia.
+		 */
 		if (opt.preferencia())
 		{
 			rel(*this, maximo == sum(preferencias), opt.icl());
 		}
-
-//		cout << "end constraints" << endl;
 
 		/************ Estrategias de Busqueda ************/
 		switch(opt.branching())
@@ -286,10 +370,14 @@ public:
 		branch(*this, t_fin, INT_VAR_NONE, INT_VAL_MIN);
 	}
 
+	/**
+	 * Esta funcion es activada cuando todos los profesionales han sido asignados a una cita determinada.
+	 * Su objetivo es asegurar que las citas van a ser asignadas de acuerdo al horario de atencion que tienen
+	 * los profesionales de determinada especialidad.
+	 */
 	static void recDispEsp(Space& _home){
 		ACiTConstraints& home = static_cast<ACiTConstraints&>(_home);
-//		vector<int> dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
-		IntArgs dispEi; //Vector auxiliar que guarda las disponibilidades de los profesionales
+		IntArgs dispEi; // Vector auxiliar que guarda los horarios de atencion (dadas en slots) del profesional
 		IntSet setDom;
 		int id;
 
@@ -303,7 +391,6 @@ public:
 				setDom = IntSet(dispEi);
 				for(int j=0; j<home.especialistas.size(); j++){
 					if(home.especialistas[j].val() == id){
-//						cout << setDom << endl;
 						dom(home, home.t_inicio[j], setDom, ICL_DOM);
 					}
 				}
@@ -341,50 +428,37 @@ public:
 		return infoNS;
 	}
 
-	vector<int> transformarDisponibilidad(vector<int> disp){
-		int diaSem = int(floor(intDia/intSem)); // dias por semana
-		int slSem = slInt * intSem + diaSem + 1;
-		vector<int> aux(makespan);
-
-		/*
-		 * Primero se duplica cada valor en el vector de disponibilidades, tantas veces como
-		 * numero de slots hayan por cada intervalo, debido a que el vector de disponibilidades
-		 * esta dado por intervalos que representan 60 minutos cada uno, pero no todas las citas
-		 * consumen ese intervalo, por ende se debe hacer esta conversion
-		 */
-		int pos, sem=0;
-		while(sem < num_semanas){
-			pos = 0;
-			for(int i = (slSem * sem); i < (slSem * (sem+1)); i++){
-				pos = (
-					(int)floor((i % slDia) / slInt) +
-					(intDia*((int)floor(i/slDia))) ) % intSem; // i/slDia = numero de dia del slot
-				aux[i] = disp[pos];
-			}
-			sem++;
-		}
-		return aux;
-	}
-
+	/**
+	 * Esta funcion se encarga de transformar las disponibilidades dadas en intervalos de tiempo, a
+	 * disponibilidades dadas en slots de tiempo. Recordemos que un intervalo esta compuesto por varios
+	 * slots de tiempo.
+	 */
 	IntArgs transformarDisponibilidadEsp(vector<int> disp){
-//		int diaSem = int(floor(intDia/intSem)); // dias por semana
-		int slSem =  785; //(slInt * intSem) + diaSem + 1;
+		int diaSem = int(floor(intSem/intDia)); // dias por semana
+		int slSem =  slDia * diaSem;
 		vector<int> aux(makespan);
 
-		/*
-		 * Primero se duplica cada valor en el vector de disponibilidades, tantas veces como
-		 * numero de slots hayan por cada intervalo, debido a que el vector de disponibilidades
-		 * esta dado por intervalos que representan 60 minutos cada uno, pero no todas las citas
-		 * consumen ese intervalo, por ende se debe hacer esta conversion
-		 */
 		int pos, sem=0;
 		while(sem < num_semanas){
 			pos = 0;
 			for(int i = (slSem * sem); i < (slSem * (sem+1)); i++){
-				pos = (
-						(int)floor((i % slDia) / slInt) +
-						(intDia*((int)floor(i/slDia))) ) % intSem; // i/slDia = numero de dia del slot
-				aux[i] = disp[pos];
+				int dia_slot = int(floor(i / slDia)) % diaSem;
+				int num_slot = int(i % slDia);
+				pos = (num_slot / intDia) + (dia_slot * intDia);
+
+				if(num_slot == (slDia - 1))
+				{
+					pos--;
+				}
+
+				if (pos >= (int)disp.size())
+				{
+					aux[i] = 0;
+				}
+				else
+				{
+					aux[i] = disp[pos];
+				}
 			}
 			sem++;
 		}
@@ -522,6 +596,7 @@ public:
 					citEsp_i++;
 				}
 			}
+			os << endl << endl;
 			esp_i++;
 		}
 //		while(esp_i < (int) lstEspecialidades->size()) {

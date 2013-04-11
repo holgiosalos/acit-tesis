@@ -85,7 +85,7 @@ int ACiTOptions::intervalosSemana(void) const {
 void ACiTOptions::calcularMakespan() {
 	//_slotsIntervalo es el valor en el que se divide cada intervalo (hora).
 	int dias = int(floor(_intervalosSemana/_intervalosDia));
-	_makespan = (_slotsIntervalo * _intervalosSemana *_semanas) + (dias * _semanas) + (_semanas-1);
+	_makespan = _slotsDia * dias *_semanas;
 }
 
 int ACiTOptions::makespan(void) const {
