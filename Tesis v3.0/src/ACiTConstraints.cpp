@@ -28,8 +28,6 @@ private:
 	//Se utiliza unicamente para la restricción de dia igual para el tiempo de inicio y el tiempo de fi de una cita
 	vector<IntVarArray> listaResultDia2;
 
-	vector<vector<int> > listaDuracionesPac;
-
 	vector<IntVarArray> listaSlotsDia;
 	vector<IntArgs> listaDuracion;
 	vector<IntArgs> listaRecursos;
@@ -79,6 +77,20 @@ public:
 	  preferencias(*this, opt.nPacientesPreferencia(), 0, 1),
 	  maximo(*this, 0, opt.nPacientesPreferencia()) {
 //		cout << "init constraints" << endl;
+
+		vector<IntVarArray> listaVarEspecialistas;
+		vector<IntVarArray> listaVarTInicio;
+		vector<IntVarArray> listaVarTFin;
+		//Se utiliza para restriccion dia diferente entre dos citas distintas y dia igual para el tiempo de inicio y el tiempo de fi de una cita
+		vector<IntVarArray> listaResultDia;
+		//Se utiliza unicamente para la restricción de dia igual para el tiempo de inicio y el tiempo de fi de una cita
+		vector<IntVarArray> listaResultDia2;
+
+		vector<IntVarArray> listaSlotsDia;
+		vector<IntArgs> listaDuracion;
+		vector<IntArgs> listaRecursos;
+		vector<IntArgs> listaCapacidad;
+		vector<IntSet> listaCodigos;
 
 		/************** Asignaciones Previas **************/
 		listaPacientes = opt.listaPacientes();
@@ -332,7 +344,7 @@ public:
 		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
 		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
 		 */
-		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
+//		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
 		/*
 		 * La restriccion de capacidad de los especialistas es propagada a traves de cumulatives, que
@@ -340,7 +352,7 @@ public:
 		 * slot de tiempo para una especialidad determinada.
 		 */
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
-			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, opt.icl());
+			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, ICL_DEF);
 		}
 
 		/*
@@ -491,17 +503,7 @@ public:
 		preferencias.update(*this, share, s.preferencias);
 		maximo.update(*this, share, s.maximo);
 		writer = s.writer;
-		listaVarTInicio = s.listaVarTInicio;
-		listaVarTFin = s.listaVarTFin;
-		listaVarEspecialistas = s.listaVarEspecialistas;
-
 		listaEspecialidades = s.listaEspecialidades;
-		for (int i=0; i < (int)listaEspecialidades->size(); i++)
-		{
-			listaVarTInicio[i].update(*this, share, s.listaVarTInicio[i]);
-			listaVarTFin[i].update(*this, share, s.listaVarTFin[i]);
-			listaVarEspecialistas[i].update(*this, share, s.listaVarEspecialistas[i]);
-		}
 
 		nPacPref = s.nPacPref;
 		intDia = s.intDia;
@@ -557,8 +559,6 @@ public:
 			}
 			esp_i++;
 		}
-		cout << citEsp_i << " == " << t_inicio.size() << endl;
-
 		writer->escribirXml(lstEspecialidades);
 		double porcentaje = maximo.val() / (double)nPacPref;
 		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
@@ -571,7 +571,7 @@ public:
 		if (this->failed())
 		{
 			os << "Failed" << endl;
-//			return;
+			return;
 		}
 
 		vector<Especialidad>* lstEspecialidades = listaEspecialidades;
@@ -579,56 +579,37 @@ public:
 		int esp_i=0;
 		int citEsp_i=0;
 		int idEsp;
+		int contadorPref=0;
 
-//		int contadorPref=0;
 		while(esp_i < (int) lstEspecialidades->size()) {
 			pacientes = lstEspecialidades->at(esp_i).pacientes();
 			idEsp = lstEspecialidades->at(esp_i).id();
-			os << "Especialidad: " << idEsp << " - " << lstEspecialidades->at(esp_i).nombre() << endl;
 			for(int i = 0; i < (int) pacientes.size(); i++){
 				for(int j = 0; j < pacientes[i].nCitas(idEsp); j++) {
-					if (j == 0)
-					{
-						os << "Paciente: " << pacientes[i].id() << endl;
+					pacientes[i].insertarCita(Cita(idEsp,
+							t_inicio[citEsp_i].val(),
+							t_fin[citEsp_i].val(),
+							writer->determinarDiaInt(t_inicio[citEsp_i].val())
+					));
+					if(j == pacientes[i].nCitas(idEsp)-1) {
+						Especialista auxEsp = lstEspecialidades->at(esp_i).buscarEspecialista(especialistas[citEsp_i].val());
+						auxEsp.insertarPaciente(pacientes[i]);
+						lstEspecialidades->at(esp_i).actualizarEspecialista(auxEsp);
+						if (pacientes[i].especialistaPref(idEsp) == auxEsp.id())
+						{
+							contadorPref++;
+						}
 					}
-					os << "\tCita: " << (j+1) << " (" << t_inicio[citEsp_i] << " - "
-					   << t_fin[citEsp_i] << ") Especialista: " << especialistas[citEsp_i] << endl;
 					citEsp_i++;
 				}
 			}
-			os << endl << endl;
 			esp_i++;
 		}
-//		while(esp_i < (int) lstEspecialidades->size()) {
-//			pacientes = lstEspecialidades->at(esp_i).pacientes();
-//			idEsp = lstEspecialidades->at(esp_i).id();
-//			for(int i = 0; i < (int) pacientes.size(); i++){
-//				for(int j = 0; j < pacientes[i].nCitas(idEsp); j++) {
-//					pacientes[i].insertarCita(Cita(idEsp,
-//							t_inicio[citEsp_i].val(),
-//							t_fin[citEsp_i].val(),
-//							writer->determinarDiaInt(t_inicio[citEsp_i].val())
-//					));
-//					if(j == pacientes[i].nCitas(idEsp)-1) {
-//						Especialista auxEsp = lstEspecialidades->at(esp_i).buscarEspecialista(especialistas[citEsp_i].val());
-//						auxEsp.insertarPaciente(pacientes[i]);
-//						lstEspecialidades->at(esp_i).actualizarEspecialista(auxEsp);
-//						if (pacientes[i].especialistaPref(idEsp) == auxEsp.id())
-//						{
-//							contadorPref++;
-//						}
-//					}
-//					citEsp_i++;
-//				}
-//			}
-//			esp_i++;
-//		}
-////		cout << citEsp_i << " == " << t_inicio.size() << endl;
-//
-//		writer->escribirXml(lstEspecialidades);
-//		delete writer;
-//		double porcentaje = contadorPref / (double)nPacPref;
-//		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
+
+		writer->escribirXml(lstEspecialidades);
+		delete writer;
+		double porcentaje = contadorPref / (double)nPacPref;
+		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
 	}
 }
 ;
