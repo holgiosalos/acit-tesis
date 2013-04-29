@@ -20,20 +20,6 @@ private:
 	BoolVarArray preferencias;
 	IntVar maximo;
 
-	vector<IntVarArray> listaVarEspecialistas;
-	vector<IntVarArray> listaVarTInicio;
-	vector<IntVarArray> listaVarTFin;
-	//Se utiliza para restriccion dia diferente entre dos citas distintas y dia igual para el tiempo de inicio y el tiempo de fi de una cita
-	vector<IntVarArray> listaResultDia;
-	//Se utiliza unicamente para la restricción de dia igual para el tiempo de inicio y el tiempo de fi de una cita
-	vector<IntVarArray> listaResultDia2;
-
-	vector<IntVarArray> listaSlotsDia;
-	vector<IntArgs> listaDuracion;
-	vector<IntArgs> listaRecursos;
-	vector<IntArgs> listaCapacidad;
-	vector<IntSet> listaCodigos;
-
 	vector<Especialidad> * listaEspecialidades;
 	vector<Paciente> listaPacientes;
 
@@ -55,16 +41,6 @@ public:
 		BRANCH_CITAS,		//   2 = branch2   | sel-val: menor-num-citas
 	};
 
-	vector<Especialidad>* getListaEspecialidades() const
-	{
-	    return listaEspecialidades;
-	}
-
-	void setListaEspecialidades(vector<Especialidad>* listaEspecialidades)
-	{
-	    this->listaEspecialidades = listaEspecialidades;
-	}
-
 	/**
 	 * Constructor. Aqui se definene todas las restricciones.
 	 * Se encarga de inicializar las variables del problema: especialistas, t_inicio y t_fin. Y las
@@ -76,7 +52,6 @@ public:
 	  t_fin(*this, opt.totalCitas(), 1, opt.makespan()),
 	  preferencias(*this, opt.nPacientesPreferencia(), 0, 1),
 	  maximo(*this, 0, opt.nPacientesPreferencia()) {
-//		cout << "init constraints" << endl;
 
 		vector<IntVarArray> listaVarEspecialistas;
 		vector<IntVarArray> listaVarTInicio;
@@ -94,7 +69,7 @@ public:
 
 		/************** Asignaciones Previas **************/
 		listaPacientes = opt.listaPacientes();
-		setListaEspecialidades(opt.listaEspecialidades());
+		listaEspecialidades = opt.listaEspecialidades();
 
 		/*
 		 * Inicializamos el objeto de escritura con el directorio donde quedaran consignados los
@@ -122,11 +97,14 @@ public:
 		// Inicializacion de algunas variables auxiliares utilizadas en las restricciones.
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			//IntArgs que representan las capacidades de los profesionales en cada especialidad
-			int arrAuxCap[listaEspecialidades->at(i).nEspecialistas()];
-			for(int j=0; j<listaEspecialidades->at(i).nEspecialistas(); j++){
+//			int arrAuxCap[listaEspecialidades->at(i).nEspecialistas()];
+			int arrAuxCap[listaEspecialidades->at(i).totalCitas()];
+//			for(int j = 0; j < listaEspecialidades->at(i).nEspecialistas(); j++){
+			for(int j = 0; j < listaEspecialidades->at(i).totalCitas(); j++){
 				arrAuxCap[j] = listaEspecialidades->at(i).capacidad();
 			}
-			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).nEspecialistas(), arrAuxCap));
+//			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).nEspecialistas(), arrAuxCap));
+			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAuxCap));
 
 			/*
 			 * IntArgs para los recursos que puede consumir un paciene a la vez. Los recursos
@@ -134,7 +112,7 @@ public:
 			 * para un mismo especialista en una misma cita.
 			 */
 			int arrAux[listaEspecialidades->at(i).totalCitas()];
-			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
+			for(int j = 0; j < listaEspecialidades->at(i).totalCitas(); j++){
 				arrAux[j] = 1;
 			}
 			listaRecursos.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAux));
@@ -144,7 +122,7 @@ public:
 			 * a asignar, en todas las especialidades
 			 */
 			int arrAuxD[listaEspecialidades->at(i).totalCitas()];
-			for(int j=0; j<listaEspecialidades->at(i).totalCitas(); j++){
+			for(int j = 0; j < listaEspecialidades->at(i).totalCitas(); j++){
 				arrAuxD[j] = listaEspecialidades->at(i).duracionCitasSlots();
 			}
 			listaDuracion.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAuxD));
@@ -341,19 +319,28 @@ public:
 		}
 
 		/*
-		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
-		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
-		 */
-//		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
-
-		/*
 		 * La restriccion de capacidad de los especialistas es propagada a traves de cumulatives, que
 		 * nos asegura que no se atienda a mas de la cantidad permitida de pacientes en un mismo
 		 * slot de tiempo para una especialidad determinada.
 		 */
-		for(int i=0; i<(int)listaEspecialidades->size(); i++){
-			cumulatives(*this, listaVarEspecialistas[i], listaVarTInicio[i], listaDuracion[i], listaVarTFin[i], listaRecursos[i], listaCapacidad[i], true, ICL_DEF);
+		for (int i=0; i<(int)listaEspecialidades->size(); i++){
+			cumulatives(
+				*this,
+				listaVarEspecialistas[i],
+				listaVarTInicio[i],
+				listaDuracion[i],
+				listaVarTFin[i],
+				listaRecursos[i],
+				listaCapacidad[i],
+				true,
+				ICL_VAL);
 		}
+
+		/*
+		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
+		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
+		 */
+		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
 		/*
 		 * Funcion de optimizacion: Se encarga de maximizar el numero de pacientes a los cuales se les
@@ -398,7 +385,7 @@ public:
 			for(int i=0; i<(int)home.listaEspecialidades->at(esp_i).especialistas()->size(); i++){
 				dispEi = home.transformarDisponibilidadEsp(
 					home.listaEspecialidades->at(esp_i).especialistas()->at(i).horariosAtencionEsp(
-						home.listaEspecialidades->at(esp_i).id()));
+					home.listaEspecialidades->at(esp_i).id()));
 				id = home.listaEspecialidades->at(esp_i).especialistas()->at(i).id();
 				setDom = IntSet(dispEi);
 				for(int j=0; j<home.especialistas.size(); j++){
@@ -504,6 +491,7 @@ public:
 		maximo.update(*this, share, s.maximo);
 		writer = s.writer;
 		listaEspecialidades = s.listaEspecialidades;
+		listaPacientes = s.listaPacientes;
 
 		nPacPref = s.nPacPref;
 		intDia = s.intDia;
