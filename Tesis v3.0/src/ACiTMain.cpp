@@ -3,6 +3,7 @@
 #include <string>
 
 #include "ACiTConstraints.cpp"
+#include "restart.h"
 
 using namespace std;
 
@@ -42,23 +43,22 @@ int main(int argc, char* argv[]) {
     opt.solutions(0);
     //Establecimiento de los valores por defecto
 //    opt.file("test4.txt");
-//    opt.file("test_files/dist0_100pac.txt");
-//    opt.file("test_solution01A.txt");
-//    opt.file("test_04042013.txt");
-    opt.file("hworld.txt");
-    opt.c_d(10);
-    opt.a_d(20);
+//    opt.file("test_files/dist2_300pac.txt");
+//    opt.file("test_finals/20pac.txt");
+    opt.semanas(1); // 1 semana para lograr todas las asignaciones de citas
     opt.preferencia(false);
+    opt.file("test_solution01A.txt");
+//    opt.file("test_04042013.txt");
+//    opt.file("hworld.txt");
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(12); //12 intervalos de tiempo para cada dia
-    opt.semanas(2); //1 semana para lograr todas las asignaciones de citas
     opt.intervalosSemana(72); //72 intervalos de tiempo por toda la semana (Lunes a Sabado)
-//    cout << "makespan: " << opt.makespan() << endl;
-    opt.icl(ICL_BND);
+    cout << "makespan: " << opt.makespan() << endl;
+    opt.icl(ICL_VAL);
 
     // Opciones de branching
-    opt.branching(ACiTConstraints::BRANCH_CITAS);
+    opt.branching(ACiTConstraints::BRANCH_DEFAULT);
     opt.branching(ACiTConstraints::BRANCH_DEFAULT,"default","= sel-var: dom-wdeg, sel-val: random");
     opt.branching(ACiTConstraints::BRANCH_PACIENTES, "pacientes", "= sel-val: min-num-pacientes");
     opt.branching(ACiTConstraints::BRANCH_CITAS, "citas", "= sel-val: min-num-citas");
@@ -89,11 +89,18 @@ int main(int argc, char* argv[]) {
 
     if (!opt.preferencia())
     {
-    	opt.solutions(1);
+    	opt.solutions(0);
     	Script::run<ACiTConstraints,DFS,ACiTOptions>(opt);
+//    	opt.time(1000000);
+//    	opt.cutoff(1000);
+//    	opt.factor(1.2);
+//    	opt.cutoffLuby(100);
+//    	opt.isLuby(true);
+//    	restart<ACiTConstraints>(opt);
     }
     else
     {
+    	opt.solutions(1);
     	cronousec(1);
     	ACiTConstraints* acit = new ACiTConstraints(opt);
     	int np = acit->propagators();
@@ -113,7 +120,7 @@ int main(int argc, char* argv[]) {
     	ultimaSolucion->print(opt.listaEspecialidades());
     	Search::Statistics stat = search.statistics();
 
-    	double memoriaKB = (stat.memory/1024);
+    	double memoriaKB = (stat.memory/8192);
     	int memoriaMB = (memoriaKB/1024);
 
     	cout << "Initial:" << endl;

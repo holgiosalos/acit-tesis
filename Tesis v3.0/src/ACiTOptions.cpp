@@ -85,7 +85,7 @@ int ACiTOptions::intervalosSemana(void) const {
 void ACiTOptions::calcularMakespan() {
 	//_slotsIntervalo es el valor en el que se divide cada intervalo (hora).
 	int dias = int(floor(_intervalosSemana/_intervalosDia));
-	_makespan = _slotsDia * dias *_semanas;
+	_makespan = (_slotsDia * dias *_semanas) - 1;
 }
 
 int ACiTOptions::makespan(void) const {
@@ -144,6 +144,38 @@ void ACiTOptions::listaCodEspecialistas(IntSet ids) {
 
 IntSet ACiTOptions::listaCodEspecialistas(void) const {
 	return _listaCodEspecialistas;
+}
+
+void ACiTOptions::cutoff(int c){
+	_cutoff = c;
+}
+
+int ACiTOptions::cutoff(void) const{
+	return _cutoff;
+}
+
+void ACiTOptions::factor(double fc){
+	_factor = fc;
+}
+
+double ACiTOptions::factor(void) const{
+	return _factor;
+}
+
+void ACiTOptions::cutoffLuby(int p){
+	_parametrer = p;
+}
+
+int ACiTOptions::cutoffLuby(void) const{
+	return _parametrer;
+}
+
+void ACiTOptions::isLuby(bool value) {
+	_isLuby = value;
+}
+
+bool ACiTOptions::isLuby(void) const {
+	return _isLuby;
 }
 
 void ACiTOptions::iniciar(void) {
@@ -265,7 +297,7 @@ void ACiTOptions::help(void) {
 
 	Options::help();
 	cerr <<"\t-pref (false, true) : default: " << prefStr << endl
-					<<"\t\tWheter the preference constraint is taken into account (true) or not (false)" << endl;
+			<<"\t\tWheter the preference constraint is taken into account (true) or not (false)" << endl;
 	cerr <<"\t-file (string) : default: " << file() << endl
 			<<"\t\tPath and name of input file" << endl;
 	cerr <<"\t-slsInt (int) : default: " << slotsIntervalo() << endl
@@ -273,18 +305,24 @@ void ACiTOptions::help(void) {
 	cerr <<"\t-dayInt (int) : default: " << intervalosDia() << endl
 			<<"\t\tNumber of time intervals by which a day is composed" << endl;
 	cerr <<"\t-weekInt (int) : default: " << intervalosSemana() << endl
-				<<"\t\tTotal of time intervals by which a week is composed" << endl;
+			<<"\t\tTotal of time intervals by which a week is composed" << endl;
 	cerr <<"\t-weeks (int) : default: " << semanas() << endl
 			<<"\t\tAvailable weeks to schedule the medical appointments" << endl;
+    cerr <<"\t-cutoff (unsigned int) default: "<< cutoff() << endl
+    		<<"\t\tCutoff inicial" << endl;
+    cerr <<"\t-factor (unsigned int) default:"<< factor() << endl
+    		<<"\t\tFactor de restart" << endl;
+    cerr <<"\t-cutoff luby (unsigned int) default: "<< cutoffLuby() << endl
+    		<<"\t\tValor de la constante p" << endl;
 }
 
 void ACiTOptions::parse(int & argc, char* argv[]) {
 	Options::parse(argc, argv);
 	int i=0;
 	while (++i < argc){
-		if (strcmp(argv[i],"-pref")==0)
+		if (strcmp(argv[i],"-pref") == 0)
 		{
-			if (strcmp(argv[++i],"true")==0)
+			if (strcmp(argv[++i],"true") == 0)
 			{
 				preferencia(true);
 			}
@@ -293,25 +331,38 @@ void ACiTOptions::parse(int & argc, char* argv[]) {
 				preferencia(false);
 			}
 		}
-		else if (strcmp(argv[i],"-file")==0)
+		else if (strcmp(argv[i],"-file") == 0)
 		{
 			file(argv[++i]);
 		}
-		else if (strcmp(argv[i],"-slsInt")==0)
+		else if (strcmp(argv[i],"-slsInt") == 0)
 		{
 			slotsIntervalo(atoi(argv[++i]));
 		}
-		else if (strcmp(argv[i],"-dayInt")==0)
+		else if (strcmp(argv[i],"-dayInt") == 0)
 		{
 			intervalosDia(atoi(argv[++i]));
 		}
-		else if (strcmp(argv[i],"-weekInt")==0)
+		else if (strcmp(argv[i],"-weekInt") == 0)
 		{
 			intervalosSemana(atoi(argv[++i]));
 		}
-		else if (strcmp(argv[i],"-weeks")==0)
+		else if (strcmp(argv[i],"-weeks") == 0)
 		{
 			semanas(atoi(argv[++i]));
+		}
+		else if (strcmp(argv[i],"-cutoff") == 0){
+			if (strcmp(argv[++i], "luby") == 0){
+				cutoffLuby(atoi(argv[++i]));
+				_isLuby = true;
+			}
+			else {
+				_isLuby = false;
+				cutoff(atoi(argv[i]));
+			}
+		}
+		else if (strcmp(argv[i],"-factor") == 0) {
+			factor(atof(argv[++i]));
 		}
 	}
 }

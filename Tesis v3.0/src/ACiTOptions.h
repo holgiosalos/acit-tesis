@@ -39,6 +39,10 @@ private:
 	int _totalEspecialistas;
 	int _nPacientesPreferencia;
 	int _mayorIdProfesional;
+	int _cutoff;
+	double _factor;
+	int _parametrer;
+	bool _isLuby;
 	vector<Especialidad>* _listaEspecialidades;
 	vector<Paciente> _listaPacientes;
 	vector<Especialista>* _listaEspecialistas;
@@ -94,6 +98,18 @@ public:
 
 	void listaCodEspecialistas(IntSet ids);
 	IntSet listaCodEspecialistas(void) const;
+
+	void cutoff(int c);
+	int cutoff(void) const;
+
+	void factor(double fc);
+	double factor(void) const;
+
+	void cutoffLuby(int p);
+	int cutoffLuby(void) const;
+
+	void isLuby(bool value);
+	bool isLuby(void) const;
 
 	virtual void help(void);
 	void parse(int & argc, char* argv[]);

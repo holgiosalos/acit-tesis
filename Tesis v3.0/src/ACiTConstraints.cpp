@@ -200,7 +200,7 @@ public:
 				for(int j = 0; j < pacEsp_i[i].nCitas(listaEspecialidades->at(esp_i).id()); j++){
 					//Restriccion Pre-asignacion de Tiempo segun Pacientes
 					setDom = IntSet(dispPi);
-					dom(*this, listaVarTInicio[esp_i][citEsp_i], setDom, ICL_DOM);
+					dom(*this, listaVarTInicio[esp_i][citEsp_i], setDom, opt.icl());
 
 					//Restriccion de preferencia
 					if(j == 0 && opt.preferencia()){
@@ -319,6 +319,12 @@ public:
 		}
 
 		/*
+		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
+		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
+		 */
+		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
+
+		/*
 		 * La restriccion de capacidad de los especialistas es propagada a traves de cumulatives, que
 		 * nos asegura que no se atienda a mas de la cantidad permitida de pacientes en un mismo
 		 * slot de tiempo para una especialidad determinada.
@@ -335,12 +341,6 @@ public:
 				true,
 				ICL_VAL);
 		}
-
-		/*
-		 * El propagador wait, hace que todas las variables en el arreglo especialistas esten asignadas
-		 * para poder ejectuar la restriccion de Pre-asignacion de Tiempo segun Profesionales.
-		 */
-		Gecode::wait(*this, especialistas, &recDispEsp, opt.icl());
 
 		/*
 		 * Funcion de optimizacion: Se encarga de maximizar el numero de pacientes a los cuales se les
@@ -388,14 +388,43 @@ public:
 					home.listaEspecialidades->at(esp_i).id()));
 				id = home.listaEspecialidades->at(esp_i).especialistas()->at(i).id();
 				setDom = IntSet(dispEi);
+//				cout << "Prof: " << id << " esp: " << home.listaEspecialidades->at(esp_i).id() << " SetDom: " << setDom << endl;
 				for(int j=0; j<home.especialistas.size(); j++){
-					if(home.especialistas[j].val() == id){
-						dom(home, home.t_inicio[j], setDom, ICL_DOM);
+					if ( (home.especialistas[j].val() == id)
+						&& (determinarNumEspecialidadCit(j, home.listaEspecialidades) == esp_i) )
+					{
+						dom(home, home.t_inicio[j], setDom, ICL_VAL);
 					}
 				}
 			}
+//			cout << "Fin Especialidad" << endl << endl;
 			esp_i++;
 		}
+	}
+
+	/*
+	 * Determina el numero de especialidad al que pertenece la cita j
+	 */
+	static int determinarNumEspecialidadCit(int j, vector<Especialidad>* especialidades)
+	{
+		int acumulado = 0;
+		int resultado = -1;
+		for (int n = 0; n < (int)especialidades->size(); n++)
+		{
+			if (n > 0)
+			{
+				if ( (j >= acumulado) && (j < acumulado+especialidades->at(n).totalCitas()) )
+				{
+					resultado = n;
+				}
+			}
+			else
+			{
+				resultado = 0;
+			}
+			acumulado += especialidades->at(n).totalCitas();
+		}
+		return resultado;
 	}
 
 	vector<vector<int> > infoNoSolapamiento(Paciente p){
@@ -435,7 +464,7 @@ public:
 	IntArgs transformarDisponibilidadEsp(vector<int> disp){
 		int diaSem = int(floor(intSem/intDia)); // dias por semana
 		int slSem =  slDia * diaSem;
-		vector<int> aux(makespan);
+		vector<int> aux(makespan+1);
 
 		int pos, sem=0;
 		while(sem < num_semanas){
@@ -491,7 +520,6 @@ public:
 		maximo.update(*this, share, s.maximo);
 		writer = s.writer;
 		listaEspecialidades = s.listaEspecialidades;
-		listaPacientes = s.listaPacientes;
 
 		nPacPref = s.nPacPref;
 		intDia = s.intDia;
