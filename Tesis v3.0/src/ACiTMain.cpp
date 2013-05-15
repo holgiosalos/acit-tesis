@@ -54,7 +54,6 @@ int main(int argc, char* argv[]) {
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(12); //12 intervalos de tiempo para cada dia
     opt.intervalosSemana(72); //72 intervalos de tiempo por toda la semana (Lunes a Sabado)
-    cout << "makespan: " << opt.makespan() << endl;
     opt.icl(ICL_VAL);
 
     // Opciones de branching
