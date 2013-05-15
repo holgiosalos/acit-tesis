@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
     if (!opt.preferencia())
     {
-    	opt.solutions(0);
+    	opt.solutions(1);
     	Script::run<ACiTConstraints,DFS,ACiTOptions>(opt);
 //    	opt.time(1000000);
 //    	opt.cutoff(1000);
