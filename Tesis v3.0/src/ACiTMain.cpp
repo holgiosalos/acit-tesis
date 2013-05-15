@@ -44,10 +44,10 @@ int main(int argc, char* argv[]) {
     //Establecimiento de los valores por defecto
 //    opt.file("test4.txt");
 //    opt.file("test_files/dist2_300pac.txt");
-//    opt.file("test_finals/20pac.txt");
+    opt.file("test_finals/20pac.txt");
     opt.semanas(1); // 1 semana para lograr todas las asignaciones de citas
     opt.preferencia(false);
-    opt.file("test_solution01A.txt");
+//    opt.file("test_solution01A.txt");
 //    opt.file("test_04042013.txt");
 //    opt.file("hworld.txt");
 
