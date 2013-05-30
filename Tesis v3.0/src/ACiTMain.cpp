@@ -42,14 +42,9 @@ int main(int argc, char* argv[]) {
     ACiTOptions opt("ACiT");
     opt.solutions(0);
     //Establecimiento de los valores por defecto
-//    opt.file("test4.txt");
-//    opt.file("test_files/dist2_300pac.txt");
-    opt.file("test_finals/20pac.txt");
-    opt.semanas(1); // 1 semana para lograr todas las asignaciones de citas
+    opt.file("5000pac.txt");
+    opt.semanas(10); // 1 semana para lograr todas las asignaciones de citas
     opt.preferencia(false);
-//    opt.file("test_solution01A.txt");
-//    opt.file("test_04042013.txt");
-//    opt.file("hworld.txt");
 
     opt.slotsIntervalo(12); //12 slots por cada intervalo de tiempo, es decir 1 slot equivale a 5 minutos si el intervalo equivale a una hora
     opt.intervalosDia(12); //12 intervalos de tiempo para cada dia
@@ -74,28 +69,10 @@ int main(int argc, char* argv[]) {
     Gecode::IntSet codigos(opt.settingCodigos(), lector.numEspecialistas());
     opt.listaCodEspecialistas(codigos);
 
-    //Comprobar que all ha quedado OK:
-//    vector<Especialidad>* _listaEspecialidades = opt.listaEspecialidades();
-//    for(int i=0; i<(int)_listaEspecialidades->size(); i++){
-//    	cout << "Nombre: " << _listaEspecialidades->at(i).nombre() << " - ID:" <<_listaEspecialidades->at(i).id() << endl;
-//    	cout << "       -Citas:         " << _listaEspecialidades->at(i).totalCitas() << endl;
-//    	cout << "       -DuraciónM:     " << _listaEspecialidades->at(i).duracionCitasMinutos() << endl;
-//    	cout << "       -DuraciónS:     " << _listaEspecialidades->at(i).duracionCitasSlots() << endl;
-//    	cout << "       -NPac:          " << _listaEspecialidades->at(i).nPacientes() << endl;
-//    	cout << "       -NEsp:          " << _listaEspecialidades->at(i).nEspecialistas() << endl;
-//    	cout << endl;
-//    }
-
     if (!opt.preferencia())
     {
     	opt.solutions(1);
     	Script::run<ACiTConstraints,DFS,ACiTOptions>(opt);
-//    	opt.time(1000000);
-//    	opt.cutoff(1000);
-//    	opt.factor(1.2);
-//    	opt.cutoffLuby(100);
-//    	opt.isLuby(true);
-//    	restart<ACiTConstraints>(opt);
     }
     else
     {
@@ -119,8 +96,7 @@ int main(int argc, char* argv[]) {
     	ultimaSolucion->print(opt.listaEspecialidades());
     	Search::Statistics stat = search.statistics();
 
-    	double memoriaKB = (stat.memory/8192);
-    	int memoriaMB = (memoriaKB/1024);
+    	int nPeakMemoryKB = static_cast<int>((stat.memory+1023) / 1024);
 
     	cout << "Initial:" << endl;
     	cout << "\tpropagators: " << np << endl;
@@ -133,7 +109,7 @@ int main(int argc, char* argv[]) {
     	cout << "\tnodes:        " << stat.node << endl;
     	cout << "\tfailures:     " << stat.fail << endl;
     	cout << "\tpeak depth:   " << stat.depth << endl;
-    	cout << "\tpeak memory:  " << memoriaMB << " MB (" << memoriaKB << " KB)" << endl;
+    	cout << "\tpeak memory:  " << nPeakMemoryKB << " KB" << endl;
     }
 
     return (0);
