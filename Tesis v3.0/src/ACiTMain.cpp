@@ -3,7 +3,6 @@
 #include <string>
 
 #include "ACiTConstraints.cpp"
-#include "restart.h"
 
 using namespace std;
 

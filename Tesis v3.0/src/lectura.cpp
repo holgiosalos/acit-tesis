@@ -49,21 +49,18 @@ vector <string> Lectura::getLines(){
 int Lectura::numEspecialistas(){
 	int n;
 	n = atoi(lines[0].c_str());
-	//~ cout <<"numEspecialistas: "<<n<<endl;
 	return n;
 }
 
 int Lectura::numEspecialidades(){
 	int n;
 	n = atoi(lines[1].c_str());
-	//~ cout << "numEspecialidades: " << n << endl;
 	return n;
 }
 
 int Lectura::numPacientes(){
 	int n;
 	n = atoi(lines[2].c_str());
-	//~ cout << "numPacientes: " << n << endl;
 	return n;
 }
 
@@ -75,7 +72,6 @@ int Lectura::totCitas(){
 	for(int i=0; i<_numPac; i++){
 		_numCitas += totCitasPaciente(i);
 	}
-	//~ cout << "totalCitas: " << _numCitas << endl;
 	return _numCitas;
 }
 
@@ -115,7 +111,6 @@ string Lectura::infoEspecialidad(int x){
 	}
 	else{
          _infoEspecialidad = lines[3+x].c_str();
-	     //cout<<_infoEspecialidad;		
 	}
 
     return _infoEspecialidad;		
@@ -126,8 +121,7 @@ string Lectura::strIdEspecialidad(int x){
      string strId = "";
      int esp = idEspecialidad(x);
 
-	 strId = itostr(esp);        	      
-    //cout<<strId<<endl;    
+	 strId = itostr(esp);
     return strId;
 }
 
@@ -137,8 +131,6 @@ int Lectura::idEspecialidad(int x){
     string esp = infoEspecialidad(x);
     
     id = getField(esp, 1);
-    //cout<<id<<endl;
-    
     return id;    
 }
 
@@ -255,7 +247,6 @@ int Lectura::numCitasEsp(int i){ //Donde i es el id de la especialidad
 			}
 		}
 	}
-	//~ cout << "numCitEsp: " << contador << endl;
 	return contador;
 }
 
@@ -293,7 +284,6 @@ string Lectura::infoEspecialista(int j){ // O.K
 
 		count_esp(j);
 		_infoEspecialista = lines[3 + j + numEspecialidades() + suma_esp_ant.at(j)].c_str();
-	     //cout<<_infoEspecialista;		
 	}
 
     return _infoEspecialista;
@@ -305,7 +295,6 @@ int Lectura::idEspecialista(int j){
     string esp = infoEspecialista(j); 
     
     id = getField(esp, 1);
-    //cout<<id<<endl;
     
     return id;    
 }	
@@ -507,7 +496,6 @@ string Lectura::infoPaciente(int i){
 	}
 	else{
 		 _infoPaciente = lines[3 + numEspecialidades() + numEspecialistas()+ 2*i + get_nro_total_EP()].c_str();
-	     //cout<<_infoPaciente<<endl;		
 	}
     
     return _infoPaciente;		
@@ -518,11 +506,10 @@ int Lectura::idPaciente(int i){
 
     int id = 0;
     string pac = infoPaciente(i);
-    
+
     id = getField(pac, 1);
-    //cout<<id<<endl;
-    
-    return id;    
+
+    return id;
 }
 
 vector <int> Lectura::listaIdPacientes(){
@@ -554,7 +541,7 @@ string Lectura::nomPaciente(int j){
     nomFin = subcadena.find(caracter);
 
     if (nomFin!=string::npos){
-    	 pos_f = int(nomFin);
+    	pos_f = int(nomFin);
     }
 
     nombre = cadena.substr(pos_i+1,pos_f);

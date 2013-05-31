@@ -65,5 +65,4 @@ public:
 
 };
 
-
 #endif /* ESCRITURA_H_ */

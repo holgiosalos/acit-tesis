@@ -75,7 +75,7 @@ public:
 		 * Inicializamos el objeto de escritura con el directorio donde quedaran consignados los
 		 * archivos de salida.
 		 */
-		writer = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
+		writer = new Escritura("../ArchivosSalida");
 		writer->semanas(opt.semanas());
 		writer->slotsIntervalo(opt.slotsIntervalo());
 		writer->slotsDia(opt.slotsDia());
@@ -97,13 +97,10 @@ public:
 		// Inicializacion de algunas variables auxiliares utilizadas en las restricciones.
 		for(int i=0; i<(int)listaEspecialidades->size(); i++){
 			//IntArgs que representan las capacidades de los profesionales en cada especialidad
-//			int arrAuxCap[listaEspecialidades->at(i).nEspecialistas()];
 			int arrAuxCap[listaEspecialidades->at(i).totalCitas()];
-//			for(int j = 0; j < listaEspecialidades->at(i).nEspecialistas(); j++){
 			for(int j = 0; j < listaEspecialidades->at(i).totalCitas(); j++){
 				arrAuxCap[j] = listaEspecialidades->at(i).capacidad();
 			}
-//			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).nEspecialistas(), arrAuxCap));
 			listaCapacidad.push_back(IntArgs(listaEspecialidades->at(i).totalCitas(), arrAuxCap));
 
 			/*
@@ -388,7 +385,6 @@ public:
 					home.listaEspecialidades->at(esp_i).id()));
 				id = home.listaEspecialidades->at(esp_i).especialistas()->at(i).id();
 				setDom = IntSet(dispEi);
-//				cout << "Prof: " << id << " esp: " << home.listaEspecialidades->at(esp_i).id() << " SetDom: " << setDom << endl;
 				for(int j=0; j<home.especialistas.size(); j++){
 					if ( (home.especialistas[j].val() == id)
 						&& (determinarNumEspecialidadCit(j, home.listaEspecialidades) == esp_i) )
@@ -397,7 +393,6 @@ public:
 					}
 				}
 			}
-//			cout << "Fin Especialidad" << endl << endl;
 			esp_i++;
 		}
 	}

@@ -57,7 +57,6 @@ int ACiTOptions::intervalosDia() const {
 }
 
 void ACiTOptions::calcularSlotsDia() {
-	//_slotsIntervalo es el valor en el que se divide cada intervaloD (hora).
 	_slotsDia = (_intervalosDia * _slotsIntervalo) + 1;
 }
 
@@ -188,20 +187,16 @@ void ACiTOptions::iniciar(void) {
 	int mayorId = 0; //almacena el id de profesional mas alto.
 
 	for (int i = 0; i < _reader.numPacientes(); i++) {
-//		cout << "p[" << i << "]: " << _reader.numTratamientosPac(i) << "-> ";
 		for(int e=0; e<_reader.numTratamientosPac(i); e++){
 			aux[0] = _reader.obtenerEspecialidadPac(i, e); //Id de especialidad del tratamiento
 			aux[1] = _reader.numCitas(i, e); //Numero de citas en ese tratamiento
 			aux[2] = _reader.duracionCitTrat(i, e)/5; //se guarda la duracion en numero de slots
 			aux[3] = _reader.profPrefPac(i, e); //profesional de preferencia en esa especialidad
-//			cout << aux[0] << "," << aux[1] << " | ";
 			if (aux[3] > 0) {
 				pacientespref++;
 			}
 			infoEs.push_back(aux);
-			//aux.clear();
 		}
-//		cout << endl;
 		_listaPacientes.push_back(Paciente(_reader.idPaciente(i),
 				_reader.nomPaciente(i), _reader.numTratamientosPac(i),
 				infoEs,	_reader.dispPaciente(i)));
@@ -225,15 +220,11 @@ void ACiTOptions::iniciar(void) {
 
 	mayorIdProfesional(mayorId);
 
-//	cout << "especialistas OK" << endl;
-
 	//Agregamos los datos de las especialidades al vector listaEspecialidades
 	vector<Especialista>* auxE;
 	vector<int> auxIdsE;
 	vector<Paciente> auxP;
 	vector<int> auxIdsP;
-
-//	cout << "numEspdes: " << _reader.numEspecialidades() << endl;
 
 	for (int x = 0; x < _reader.numEspecialidades(); x++) {
 		auxE = new vector<Especialista>();
