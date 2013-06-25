@@ -75,7 +75,7 @@ public:
 		 * Inicializamos el objeto de escritura con el directorio donde quedaran consignados los
 		 * archivos de salida.
 		 */
-		writer = new Escritura("../ArchivosSalida");
+		writer = new Escritura("/var/www/ACiT/sites/default/files/acit_files/output_files_acit");
 		writer->semanas(opt.semanas());
 		writer->slotsIntervalo(opt.slotsIntervalo());
 		writer->slotsDia(opt.slotsDia());
@@ -572,7 +572,7 @@ public:
 		}
 		writer->escribirXml(lstEspecialidades);
 		double porcentaje = maximo.val() / (double)nPacPref;
-		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
+		cout << "PS: " << porcentaje * 100  << "%" << endl;
 		delete writer;
 	}
 
@@ -620,7 +620,7 @@ public:
 		writer->escribirXml(lstEspecialidades);
 		delete writer;
 		double porcentaje = contadorPref / (double)nPacPref;
-		cout << "Porcentaje de satisfacción: " << porcentaje * 100  << "%" << endl;
+		cout << "PS: " << porcentaje * 100  << "%" << endl;
 	}
 }
 ;
